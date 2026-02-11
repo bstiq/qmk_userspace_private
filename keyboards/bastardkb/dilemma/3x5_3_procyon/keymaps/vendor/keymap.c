@@ -244,7 +244,7 @@ void housekeeping_task_user(void) {
         }
     }
 
-    qp_drawtext(lcd, 0, 0, bk_font_layer, "TEST JERO");
+    qp_drawtext(lcd, 0, 50, bk_font_layer, "JERO");
 }
 
 void bk_display_layer_name(int x, int y, int layer, painter_font_handle_t font) {

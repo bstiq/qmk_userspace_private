@@ -1,11 +1,6 @@
 {
     "userspace_version": "1.0",
     "build_targets": [
-        ["bastardkb/dilemma/3x5_3", "bwpo"],
-        ["bastardkb/charybdis/3x5", "bwpo"],
-        ["bastardkb/charybdis/3x5", "demo"],
-        ["bastardkb/charybdis/4x6", "demo"]
-        ["bastardkb/dilemma/3x5_3_procyon", "demo"],
-        ["bastardkb/dilemma/4x6_4_procyon", "demo"]
+        ["bastardkb/dilemma/3x5_3", "vendor"]
     ]
 }

@@ -243,6 +243,8 @@ void housekeeping_task_user(void) {
             prev_layer = layer;
         }
     }
+
+    qp_drawtext(lcd, 0, 0, bk_font_layer, "TEST JERO");
 }
 
 void bk_display_layer_name(int x, int y, int layer, painter_font_handle_t font) {

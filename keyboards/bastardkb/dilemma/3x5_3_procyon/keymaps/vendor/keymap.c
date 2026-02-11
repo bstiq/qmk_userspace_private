@@ -337,7 +337,7 @@ int bk_display_info_base(uint16_t x, uint16_t y, painter_font_handle_t font_on, 
     uint8_t mods            = get_mods();
 
     // Mods info
-    qp_drawtext(surface, x, current_y, font_on, "MODS¨);
+    qp_drawtext(surface, x, current_y, font_on, "MODS");
     int mods_x = qp_textwidth(font_on, "MODS ") + x;
     // current_y += bk_layer_base_mods(qp_textwidth(font, "MODS ") + x, current_y, bk_font_menu, bk_font_menu_off, rewrite_all);
     mod_column_size = qp_textwidth(font_on, "XXXXX");

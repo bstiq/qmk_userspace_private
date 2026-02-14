@@ -11,10 +11,10 @@ SRC += gfx/bar_blue.qgf.c
 SRC += gfx/bar_green.qgf.c
 SRC += gfx/bar_gray.qgf.c
 SRC += gfx/fonts.qff.c
-SRC += logo.c
-SRC += logo_data.c
-SRC += logo.h
-SRC += logo_data.h
+SRC += gfx/logo.c
+SRC += gfx/logo_data.c
+SRC += gfx/logo.h
+SRC += gfx/logo_data.h
 
 
 BACKLIGHT_ENABLE = yes

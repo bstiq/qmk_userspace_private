@@ -1,5 +1,4 @@
 #include "logo.h"
-#include "logo_data.h"
 
 void logo_show(painter_device_t surface) {
     qp_drawpixels(

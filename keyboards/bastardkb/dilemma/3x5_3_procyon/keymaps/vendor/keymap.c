@@ -19,8 +19,7 @@
  
  #include "config.h"
  #include QMK_KEYBOARD_H
- #include "gfx/logo.h"
- #include "gfx/logo_data.h"
+
 
 
 enum dilemma_keymap_layers {

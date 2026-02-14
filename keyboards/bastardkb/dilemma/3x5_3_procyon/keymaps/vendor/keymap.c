@@ -219,11 +219,7 @@ void keyboard_post_init_user(void) {
     qp_rect(lcd, 0, 0, 300, 300, HSV_BLACK, 1);
     qp_flush(lcd);
 
-    // Mostrar logo 10x10
-    logo_show(surface);
-    qp_flush(surface);
 
-    wait_ms(2000);  // Espera 2 segundos para ver el logo
 
     prev_layer = 99;
     // last_mods  = UINT8_MAX;

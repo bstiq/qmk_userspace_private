@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
- #include "config.h"
- #include QMK_KEYBOARD_H
  #include "gfx/logo.h"
  #include "gfx/logo_data.h"
+ #include "config.h"
+ #include QMK_KEYBOARD_H
+
 
 
 enum dilemma_keymap_layers {

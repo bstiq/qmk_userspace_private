@@ -16,8 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- #include "gfx/logo.h"
- #include "gfx/logo_data.h"
+ 
  #include "config.h"
  #include QMK_KEYBOARD_H
 

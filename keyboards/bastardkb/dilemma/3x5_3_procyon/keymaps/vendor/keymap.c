@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- #include "logo.h"
+
  #include "config.h"
 #include QMK_KEYBOARD_H
 
@@ -214,26 +214,6 @@ void keyboard_post_init_user(void) {
 
     // Power on display, fill with black
     qp_power(lcd, 1);
-
-
-       // ---- DIBUJAR LOGO 64x64 ----
-    // Limpia superficie primero (opcional)
-    qp_rect(surface, 0, 0, LCD_WIDTH, LCD_HEIGHT, HSV_BLACK, 1);
-
-    // Dibuja el logo en el framebuffer
-    // (usar el buffer del surface para asegurar compatibilidad)
-    logo_draw((uint16_t *)surface->buffer, LOGO_W, LOGO_H);
-
-    // Mostrar el logo centrado en pantalla
-    int offset_x = (LCD_WIDTH  - LOGO_W) / 2;
-    int offset_y = (LCD_HEIGHT - LOGO_H) / 2;
-    qp_surface_draw(surface, lcd, offset_x, offset_y, false);
-    qp_flush(lcd);
-
-    // Mantener el logo visible 2 segundos
-    wait_ms(2000);
-
-
 
 
 

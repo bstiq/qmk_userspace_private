@@ -18,7 +18,9 @@
 
 
  #include "config.h"
-#include QMK_KEYBOARD_H
+ #include QMK_KEYBOARD_H
+ #include "logo.h"
+
 
 enum dilemma_keymap_layers {
     LAYER_BASE = 0,
@@ -214,11 +216,20 @@ void keyboard_post_init_user(void) {
 
     // Power on display, fill with black
     qp_power(lcd, 1);
-
-
-
     qp_rect(lcd, 0, 0, 300, 300, HSV_BLACK, 1);
     qp_flush(lcd);
+
+//...............................................................................
+    // >>> AQUI SE DIBUJA EL LOGO <<<
+    logo_show(surface);
+    qp_flush(lcd);
+
+    // >>> TIEMPO DE VISUALIZACIÓN <<<
+    wait_ms(2000);   // 2 segundos
+//...............................................................................
+
+
+
 
     prev_layer = 99;
     // last_mods  = UINT8_MAX;

@@ -221,11 +221,7 @@ void keyboard_post_init_user(void) {
     qp_flush(lcd);
 
 //...............................................................................
- // Mostrar rectángulo blanco 10x10
-    qp_rect(surface, 0, 0, LCD_WIDTH, LCD_HEIGHT, HSV_BLACK, 1); // Fondo negro
-    logo_show(surface);  // Llamada al logo (rectángulo 10x10)
-    qp_flush(surface);   // Actualiza la pantalla
-    wait_ms(2000);       // Espera 2 segundos para que se vea
+ 
 
 
 //...............................................................................

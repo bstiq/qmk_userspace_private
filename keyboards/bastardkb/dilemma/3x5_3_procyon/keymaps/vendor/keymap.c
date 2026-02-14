@@ -268,7 +268,7 @@ void housekeeping_task_user(void) {
         }
     }
 
-    qp_drawtext(lcd, 0, 50, bk_font_layer, "JERONIMO");
+    qp_drawtext(lcd, 0, 50, bk_font_layer, "JERONIMO ");
 }
 
 void bk_display_layer_name(int x, int y, int layer, painter_font_handle_t font) {

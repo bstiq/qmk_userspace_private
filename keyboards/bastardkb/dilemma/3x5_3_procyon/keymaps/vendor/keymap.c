@@ -63,6 +63,7 @@ enum dilemma_keymap_layers {
 #include "qp_surface.h"
 #include "keymap.h"
 #include "color.h"
+#include "jero.h"
 
 painter_device_t        lcd;
 static painter_device_t surface;
@@ -248,8 +249,7 @@ void housekeeping_task_user(void) {
             prev_layer = layer;
         }
     }
-
-    qp_drawtext(lcd, 0, 50, bk_font_layer, "JERONIMO ");
+    test();
 }
 
 void bk_display_layer_name(int x, int y, int layer, painter_font_handle_t font) {

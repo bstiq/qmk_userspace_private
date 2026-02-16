@@ -249,6 +249,10 @@ void housekeeping_task_user(void) {
         }
     }
 
+    test();
+}
+
+void test(void){
     qp_drawtext(lcd, 0, 50, bk_font_layer, "JERONIMO ");
 }
 

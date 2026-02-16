@@ -12,8 +12,6 @@ SRC += gfx/bar_green.qgf.c
 SRC += gfx/bar_gray.qgf.c
 SRC += gfx/fonts.qff.c
 
-SRC += jero.c
-
 
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm

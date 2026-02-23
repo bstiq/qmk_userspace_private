@@ -53,8 +53,8 @@ void display_init(void) {
     lv_obj_t *cont = lv_obj_create(ui_screen_base);
     lv_obj_set_size(cont, 240, 280); // todo change to screen height
     lv_obj_center(cont);
-    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
-    // lv_obj_add_style(cont, &style_flex_container, 0);
+    // lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
+    lv_obj_add_style(cont, &style_flex_container, 0);
 
     ui_label_layer_name_base = lv_label_create(cont);
     ui_init_layer_name(ui_label_layer_name_base, "Base");
@@ -181,7 +181,7 @@ void style_pressed_init_mod_indicator(void) {
 }
 
 void style_bar_init(void) {
-    lv_style_set_border_color(&style_bar, lv_palette_lighten(LV_PALETTE_PINK, 1));
+    // lv_style_set_border_color(&style_bar, lv_palette_lighten(LV_PALETTE_PINK, 1));
     lv_style_set_radius(&style_bar, 3);
     lv_style_set_radius(&style_bar, 6);
     lv_style_set_bg_color(&style_bar, lv_palette_darken(LV_PALETTE_PINK, 3));
@@ -201,8 +201,7 @@ void ui_init_layer_name(lv_obj_t *label, const char *layer_name) {
 void style_flex_container_init(void){
     lv_style_set_bg_color(&style_flex_container, lv_color_black());
     lv_style_set_flex_flow(&style_flex_container, LV_FLEX_FLOW_ROW_WRAP);
-    lv_style_set_bg_color(&style_flex_container, lv_color_black());
-    lv_style_set_pad_row(&style_flex_container, 5);
+    // lv_style_set_pad_row(&style_flex_container, 5);
 }
 
 void ui_init_button_mod_indicator(lv_obj_t *button, int x, int y) {
@@ -247,7 +246,7 @@ void event_screen_base_update_mods(lv_event_t *e) {
 //     }
 // }
 
-void housekeeping_task_display(void) {
+void housekeeping_task_display(void) {D
     mods = get_mods();
 
     // TODO use enum from keymap.c instead of hard coded layer numbers

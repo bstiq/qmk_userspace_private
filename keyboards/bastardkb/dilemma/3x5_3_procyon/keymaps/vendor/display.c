@@ -156,7 +156,7 @@ void style_init_mod_indicator(void) {
     lv_style_set_bg_color(&style_btn, lv_palette_darken(LV_PALETTE_PINK, 1));
     lv_style_set_bg_grad_color(&style_btn, lv_palette_darken(LV_PALETTE_PINK, 3));
     lv_style_set_bg_grad_dir(&style_btn, LV_GRAD_DIR_VER);
-    
+
     // lv_style_set_bg_color(&style_btn, lv_palette_lighten(LV_PALETTE_PINK, 1), LV_STATE_PRESSED);
 
     lv_style_set_border_color(&style_btn, lv_palette_lighten(LV_PALETTE_PINK, 1));
@@ -187,7 +187,7 @@ void style_bar_init(void) {
     // lv_style_set_border_color(&style_bar, lv_palette_lighten(LV_PALETTE_PINK, 1));
     lv_style_set_radius(&style_bar, 3);
     lv_style_set_bg_color(&style_bar, lv_palette_darken(LV_PALETTE_PINK, 3));
-    
+
     lv_style_set_radius(&style_bar_background, 3);
     lv_style_set_border_color(&style_bar_background, lv_palette_darken(LV_PALETTE_PINK, 4));
     lv_style_set_border_width(&style_bar_background, 1);
@@ -203,8 +203,7 @@ void ui_init_layer_name(lv_obj_t *label, const char *layer_name) {
     lv_obj_set_align(label, LV_ALIGN_TOP_MID);
 }
 
-
-void style_flex_container_init(void){
+void style_flex_container_init(void) {
     lv_style_set_bg_color(&style_flex_container, lv_color_black());
     // lv_style_set_flex_flow(&style_flex_container, LV_FLEX_FLOW_ROW_WRAP);
     lv_style_set_pad_row(&style_flex_container, 10);
@@ -300,34 +299,49 @@ void housekeeping_task_screen_rgb(void) {}
 
 void housekeeping_task_screen_base(void) {
     mods = get_mods();
-    if ((mods & MOD_MASK_SHIFT) != (last_mods & MOD_MASK_SHIFT)) {
-        if ((mods & MOD_MASK_SHIFT)) {
-            lv_event_send(ui_button_mod_shift, LV_EVENT_PRESSED, NULL);
-        } else {
-            lv_event_send(ui_button_mod_shift, LV_EVENT_RELEASED, NULL);
-        }
-    }
-    if ((mods & MOD_MASK_ALT) != (last_mods & MOD_MASK_ALT)) {
-        if ((mods & MOD_MASK_ALT)) {
-            lv_event_send(ui_button_mod_alt, LV_EVENT_PRESSING, NULL);
-        } else {
-            lv_event_send(ui_button_mod_alt, LV_EVENT_RELEASED, NULL);
-        }
-    }
+    // if ((mods & MOD_MASK_SHIFT) != (last_mods & MOD_MASK_SHIFT)) {
+    //     if ((mods & MOD_MASK_SHIFT)) {
+    //         lv_event_send(ui_button_mod_shift, LV_EVENT_PRESSED, NULL);
+    //     } else {
+    //         lv_event_send(ui_button_mod_shift, LV_EVENT_RELEASED, NULL);
+    //     }
+    // }
 
-    if ((mods & MOD_MASK_CTRL) != (last_mods & MOD_MASK_CTRL)) {
-        if ((mods & MOD_MASK_CTRL)) {
-            lv_event_send(ui_button_mod_control, LV_EVENT_PRESSED, NULL);
-        } else {
-            lv_event_send(ui_button_mod_control, LV_EVENT_RELEASED, NULL);
-        }
-    }
+    update_mod_button(mods, MOD_MASK_SHIFT, ui_button_mod_shift);
+    // if ((mods & MOD_MASK_ALT) != (last_mods & MOD_MASK_ALT)) {
+    //     if ((mods & MOD_MASK_ALT)) {
+    //         lv_event_send(ui_button_mod_alt, LV_EVENT_PRESSED, NULL);
+    //     } else {
+    //         lv_event_send(ui_button_mod_alt, LV_EVENT_RELEASED, NULL);
+    //     }
+    // }
+    update_mod_button(mods, MOD_MASK_ALT, ui_button_mod_alt);
 
-    if ((mods & MOD_MASK_GUI) != (last_mods & MOD_MASK_GUI)) {
-        if ((mods & MOD_MASK_GUI)) {
-            lv_event_send(ui_button_mod_gui, LV_EVENT_PRESSED, NULL);
+    // if ((mods & MOD_MASK_CTRL) != (last_mods & MOD_MASK_CTRL)) {
+    //     if ((mods & MOD_MASK_CTRL)) {
+    //         lv_event_send(ui_button_mod_control, LV_EVENT_PRESSED, NULL);
+    //     } else {
+    //         lv_event_send(ui_button_mod_control, LV_EVENT_RELEASED, NULL);
+    //     }
+    // }
+    update_mod_button(mods, MOD_MASK_CTRL, ui_button_mod_control);
+
+    // if ((mods & MOD_MASK_GUI) != (last_mods & MOD_MASK_GUI)) {
+    //     if ((mods & MOD_MASK_GUI)) {
+    //         lv_event_send(ui_button_mod_gui, LV_EVENT_PRESSED, NULL);
+    //     } else {
+    //         lv_event_send(ui_button_mod_gui, LV_EVENT_RELEASED, NULL);
+    //     }
+    // }
+    update_mod_button(mods, MOD_MASK_GUI, ui_button_mod_gui);
+}
+
+void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mod) {
+    if ((mods_active & MASK) != (last_mods & MASK)) {
+        if ((mods_active & MASK)) {
+            lv_event_send(ui_button_mod, LV_EVENT_PRESSED, NULL);
         } else {
-            lv_event_send(ui_button_mod_gui, LV_EVENT_RELEASED, NULL);
+            lv_event_send(ui_button_mod, LV_EVENT_RELEASED, NULL);
         }
     }
 }

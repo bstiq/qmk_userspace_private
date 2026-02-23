@@ -25,6 +25,7 @@ lv_obj_t *ui_switch_scroll;
 
 lv_style_t style_btn;
 lv_style_t style_bar;
+lv_style_t style_bar_background;
 lv_style_t style_btn_pressed;
 lv_style_t style_flex_container;
 uint8_t    last_mods;
@@ -108,6 +109,7 @@ void display_init(void) {
     lv_obj_set_height(ui_bar_dpi, 20);
     lv_obj_set_flex_grow(ui_bar_dpi, 1); // take all remaining space in line
     lv_obj_add_style(ui_bar_dpi, &style_bar, LV_PART_INDICATOR);
+    lv_obj_add_style(ui_bar_dpi, &style_bar_background, 0);
 
     ui_label_s_dpi = lv_label_create(cont);
     lv_label_set_text(ui_label_s_dpi, "Snip. DPI");
@@ -116,6 +118,7 @@ void display_init(void) {
     lv_obj_set_height(ui_bar_s_dpi, 20);
     lv_obj_set_flex_grow(ui_bar_s_dpi, 1); // take all remaining space in line
     lv_obj_add_style(ui_bar_s_dpi, &style_bar, LV_PART_INDICATOR);
+    lv_obj_add_style(ui_bar_dpi, &style_bar_background, 0);
 
     ui_label_sniping = lv_label_create(cont);
     lv_label_set_text(ui_label_sniping, "Snip");
@@ -183,8 +186,11 @@ void style_pressed_init_mod_indicator(void) {
 void style_bar_init(void) {
     // lv_style_set_border_color(&style_bar, lv_palette_lighten(LV_PALETTE_PINK, 1));
     lv_style_set_radius(&style_bar, 3);
-    lv_style_set_radius(&style_bar, 6);
     lv_style_set_bg_color(&style_bar, lv_palette_darken(LV_PALETTE_PINK, 3));
+    
+    lv_style_set_radius(&style_bar_background, 3);
+    lv_style_set_border_color(&style_bar_background, lv_palette_darken(LV_PALETTE_PINK, 2));
+    lv_style_set_border_width(&style_bar_background, 2);
 }
 
 void ui_init_layer_name(lv_obj_t *label, const char *layer_name) {
@@ -201,7 +207,8 @@ void ui_init_layer_name(lv_obj_t *label, const char *layer_name) {
 void style_flex_container_init(void){
     lv_style_set_bg_color(&style_flex_container, lv_color_black());
     // lv_style_set_flex_flow(&style_flex_container, LV_FLEX_FLOW_ROW_WRAP);
-    lv_style_set_pad_row(&style_flex_container, 5);
+    lv_style_set_pad_row(&style_flex_container, 10);
+    lv_style_set_border_width(&style_flex_container, 0);
 }
 
 void ui_init_button_mod_indicator(lv_obj_t *button, int x, int y) {

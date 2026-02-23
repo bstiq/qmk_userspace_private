@@ -30,6 +30,7 @@ extern lv_obj_t *ui_switch_scroll;
 
 extern lv_style_t style_btn;
 extern lv_style_t style_bar;
+extern lv_style_t style_bar_background;
 extern lv_style_t style_btn_pressed;
 extern lv_style_t style_flex_container;
 extern uint8_t    last_mods;

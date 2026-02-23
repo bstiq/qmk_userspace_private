@@ -246,7 +246,7 @@ void event_screen_base_update_mods(lv_event_t *e) {
 //     }
 // }
 
-void housekeeping_task_display(void) {D
+void housekeeping_task_display(void) {
     mods = get_mods();
 
     // TODO use enum from keymap.c instead of hard coded layer numbers

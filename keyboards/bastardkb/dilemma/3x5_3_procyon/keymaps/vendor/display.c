@@ -32,10 +32,16 @@ lv_style_t style_bar;
 lv_style_t style_bar_background;
 lv_style_t style_btn_pressed;
 lv_style_t style_flex_container;
-uint8_t    last_mods;
+uint8_t    prev_mods;
 uint8_t    mods;
-bool       last_sniping;
+bool       prev_sniping;
 bool       last_scrolling;
+
+uint8_t  prev_mods;
+uint8_t  prev_rgb_enabled;
+uint8_t  prev_rgb_effect_mode;
+uint16_t prev_rgb_val;
+uint8_t  prev_rgb_enabled;
 
 enum ui_user_events {
     EVENT_LAYER_CHANGE = 0,
@@ -157,9 +163,13 @@ void display_init(void) {
     lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
 
-    prev_layer   = 99;
-    last_mods    = get_mods();
-    last_sniping = false;
+    prev_layer           = 99;
+    prev_mods            = get_mods();
+    prev_sniping         = false;
+    prev_rgb_enabled     = 99;
+    prev_rgb_effect_mode = 99;
+    prev_rgb_val         = 99;
+    prev_rgb_enabled     = 99;
 }
 
 void style_init_mod_indicator(void) {
@@ -263,7 +273,7 @@ void housekeeping_task_display(void) {
     housekeeping_task_screen_pointer();
     housekeeping_task_screen_rgb();
 
-    last_mods  = mods;
+    prev_mods  = mods;
     prev_layer = layer;
 }
 
@@ -276,7 +286,7 @@ void housekeeping_task_screen_base(void) {
 }
 
 void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mod) {
-    if ((mods_active & MASK) != (last_mods & MASK)) {
+    if ((mods_active & MASK) != (prev_mods & MASK)) {
         if ((mods_active & MASK)) {
             lv_event_send(ui_button_mod, LV_EVENT_PRESSED, NULL);
         } else {
@@ -287,19 +297,32 @@ void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mo
 
 void housekeeping_task_screen_rgb(void) {
     uint8_t rgb_enabled = rgb_matrix_is_enabled();
+    bool rgb_change = (prev_rgb_enabled != prev_rgb_enabled);
     if (!rgb_enabled) {
-        lv_label_set_text(ui_label_rgb, "RGB: Off");
-        lv_bar_set_value(ui_bar_rgb, 0, LV_ANIM_OFF);
-        lv_label_set_text(ui_label_rgb_effect, "");
+        if (rgb_change) {
+            lv_label_set_text(ui_label_rgb, "RGB: Off");
+            lv_bar_set_value(ui_bar_rgb, 0, LV_ANIM_OFF);
+            lv_label_set_text(ui_label_rgb_effect, "");
+        }
     } else {
-        char rgbval[50];
-        sprintf(rgbval, "RGB: %u", rgb_matrix_get_val());
-        lv_label_set_text(ui_label_rgb, rgbval);
-        float rel = (float)((rgb_matrix_get_val())) * 100 / 156;
-        lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
-        const char *effect_name = rgb_matrix_get_effect_name();
-        lv_label_set_text(ui_label_rgb_effect, effect_name);
+        const uint16_t val = rgb_matrix_get_val();
+        if ((rgb_change) || (prev_rgb_val !=)) {
+            char rgbval[50];
+            sprintf(rgbval, "RGB: %u", val);
+            lv_label_set_text(ui_label_rgb, rgbval);
+        }
+        if ((rgb_change) || (prev_rgb_val != rgb_matrix_get_val())) {
+            float rel = (float)((rgb_matrix_get_val())) * 100 / 156;
+            lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
+        }
+
+        if ((rgb_change) || (prev_rgb_effect_mode != rgb_matrix_get_mode())) {
+            const char *effect_name = rgb_matrix_get_effect_name();
+            lv_label_set_text(ui_label_rgb_effect, effect_name);
+        }
     }
+}
+prev_rgb_enabled = rgb_enabled;
 }
 
 // TODO only redraw if DPI / sniping DPI changed
@@ -323,14 +346,14 @@ void housekeeping_task_screen_pointer(void) {
     lv_label_set_text(ui_label_s_dpi, s_dpi);
 
     const bool sniping = dilemma_get_pointer_sniping_enabled();
-    if (sniping != last_sniping) {
+    if (sniping != prev_sniping) {
         if (sniping) {
             lv_event_send(ui_button_sniping, LV_EVENT_PRESSED, NULL);
         } else {
             lv_event_send(ui_button_sniping, LV_EVENT_RELEASED, NULL);
         }
     }
-    last_sniping = sniping;
+    prev_sniping = sniping;
 
     const bool scrolling = dilemma_get_pointer_dragscroll_enabled();
     if (scrolling != last_scrolling) {
@@ -348,7 +371,7 @@ bool process_records_display(uint16_t keycode, keyrecord_t *record) {
 }
 
 const char *rgb_matrix_get_effect_name(void) {
-// thank you drashna!
+    // thank you drashna!
     static char    buf[32]     = {0};
     static uint8_t last_effect = 0;
     if (last_effect != rgb_matrix_get_mode()) {

@@ -41,8 +41,6 @@ extern lv_style_t style_bar_background;
 extern lv_style_t style_btn_pressed;
 extern lv_style_t style_flex_container;
 
-extern uint8_t    last_mods;
-
 void display_init(void);
 void style_init_mod_indicator(void);
 void style_pressed_init_mod_indicator(void);
@@ -69,3 +67,8 @@ bool process_records_display(uint16_t keycode, keyrecord_t *record);
 const char *rgb_matrix_get_effect_name(void);
 
 static uint8_t prev_layer;
+extern uint8_t prev_mods;
+extern uint8_t prev_rgb_enabled;
+extern uint8_t prev_rgb_effect_mode;
+extern uint16_t prev_rgb_val;
+extern uint8_t prev_rgb_enabled;

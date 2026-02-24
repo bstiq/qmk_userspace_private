@@ -296,7 +296,7 @@ void housekeeping_task_screen_rgb(void) {
         lv_label_set_text(ui_label_rgb, rgbval);
         float rel = (float)((rgb_matrix_get_val())) * 100 / 156;
         lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
-        const char *effect_name = rgb_matrix_get_mode_name(rgb_matrix_get_mode());
+        const char *effect_name = rgb_matrix_get_effect_name();
         lv_label_set_text(ui_label_rgb_effect, effect_name);
     }
 }
@@ -344,4 +344,25 @@ void housekeeping_task_screen_pointer(void) {
 
 bool process_records_display(uint16_t keycode, keyrecord_t *record) {
     return true;
+}
+
+const char *rgb_matrix_get_effect_name(void) {
+// thank you drashna!
+    static char    buf[32]     = {0};
+    static uint8_t last_effect = 0;
+    if (last_effect != rgb_matrix_get_mode()) {
+        last_effect = rgb_matrix_get_mode();
+        snprintf(buf, sizeof(buf), "%s", rgb_matrix_get_mode_name(rgb_matrix_get_mode()));
+        for (uint8_t i = 1; i < sizeof(buf); ++i) {
+            if (buf[i] == 0)
+                break;
+            else if (buf[i] == '_')
+                buf[i] = ' ';
+            else if (buf[i - 1] == ' ')
+                buf[i] = toupper(buf[i]);
+            else if (buf[i - 1] != ' ')
+                buf[i] = tolower(buf[i]);
+        }
+    }
+    return buf;
 }

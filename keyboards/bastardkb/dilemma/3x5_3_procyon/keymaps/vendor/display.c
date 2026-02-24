@@ -241,7 +241,7 @@ void ui_init_button_mod_indicator(lv_obj_t *button) {
 
     // position and width
     // lv_obj_set_width(button, 45);
-    lv_obj_set_height(button, 35);
+    lv_obj_set_height(button, 30);
 
     // automatically fill space
      lv_obj_set_flex_grow(button, 1);

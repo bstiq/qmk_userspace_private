@@ -37,7 +37,6 @@ uint8_t    mods;
 bool       prev_sniping;
 bool       prev_scrolling;
 
-uint8_t  prev_rgb_enabled;
 uint8_t  prev_rgb_effect_mode;
 uint16_t prev_rgb_val;
 uint8_t  prev_rgb_enabled;
@@ -61,7 +60,6 @@ typedef union {
         uint8_t rgb_enabled;
         uint8_t rgb_effect_mode;
         uint16_t rgb_val;
-        uint8_t rgb_enabled;
         uint16_t dpi;
         uint16_t s_dpi;
     } __attribute__((packed));
@@ -184,7 +182,6 @@ void display_init(void) {
     lv_disp_set_theme(dispp, theme);
 
     prev_layer           = 99;
-    prev_mods            = get_mods();
     prev_sniping         = false;
     prev_rgb_enabled     = 99;
     prev_rgb_effect_mode = 99;
@@ -192,6 +189,11 @@ void display_init(void) {
     prev_rgb_enabled     = 99;
     prev_dpi             = 0;
     prev_s_dpi           = 0;
+    init_dilemma_prev_config();
+}
+
+void init_dilemma_prev_config(void){
+    g_dilemma_config_prev            = get_mods();
 }
 
 void style_init_mod_indicator(void) {

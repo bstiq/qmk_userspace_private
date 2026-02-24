@@ -76,7 +76,7 @@ void display_init(void) {
     lv_obj_add_style(cont, &style_flex_container, 0);
 
     ui_label_layer_name_base = lv_label_create(cont);
-    ui_init_layer_name(ui_label_layer_name_base, "Base");
+    ui_init_layer_name(ui_label_layer_name_base, "Layer: Base");
     lv_obj_set_size(ui_label_layer_name_base, 200, 30);
     lv_obj_center(ui_label_layer_name_base);
 
@@ -121,7 +121,7 @@ void display_init(void) {
     lv_label_set_text(ui_label_dpi, "DPI");
     lv_obj_add_flag(ui_label_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_bar_dpi = lv_bar_create(cont);
-    lv_obj_set_height(ui_bar_dpi, 20);
+    lv_obj_set_height(ui_bar_dpi, 25);
     lv_obj_set_flex_grow(ui_bar_dpi, 1); // take all remaining space in line
     lv_obj_add_style(ui_bar_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_dpi, &style_bar_background, 0);
@@ -130,20 +130,20 @@ void display_init(void) {
     lv_label_set_text(ui_label_s_dpi, "Snip. DPI");
     lv_obj_add_flag(ui_label_s_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_bar_s_dpi = lv_bar_create(cont);
-    lv_obj_set_height(ui_bar_s_dpi, 20);
+    lv_obj_set_height(ui_bar_s_dpi, 25);
     lv_obj_set_flex_grow(ui_bar_s_dpi, 1); // take all remaining space in line
     lv_obj_add_style(ui_bar_s_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar_background, 0);
 
     ui_button_sniping = lv_btn_create(cont);
     lv_obj_add_flag(ui_button_sniping, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    ui_init_button_mod_indicator(ui_button_sniping, 80, 80);
+    ui_init_button_mod_indicator(ui_button_sniping);
     ui_label_sniping = lv_label_create(ui_button_sniping);
     lv_label_set_text(ui_label_sniping, "Snipe");
     lv_obj_center(ui_label_sniping);
 
     ui_button_scroll = lv_btn_create(cont);
-    ui_init_button_mod_indicator(ui_button_scroll, 80, 80);
+    ui_init_button_mod_indicator(ui_button_scroll);
     ui_label_scroll = lv_label_create(ui_button_scroll);
     lv_label_set_text(ui_label_scroll, "Scroll");
     lv_obj_center(ui_label_scroll);
@@ -155,7 +155,7 @@ void display_init(void) {
     lv_label_set_text(ui_label_rgb, "RGB");
     lv_obj_add_flag(ui_label_rgb, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_bar_rgb = lv_bar_create(cont);
-    lv_obj_set_height(ui_bar_rgb, 20);
+    lv_obj_set_height(ui_bar_rgb, 25);
     lv_obj_set_flex_grow(ui_bar_rgb, 1); // take all remaining space in line
     lv_obj_add_style(ui_bar_rgb, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_rgb, &style_bar_background, 0);
@@ -240,7 +240,7 @@ void ui_init_button_mod_indicator(lv_obj_t *button) {
 
     // position and width
     // lv_obj_set_width(button, 45);
-    lv_obj_set_height(button, 30);
+    lv_obj_set_height(button, 35);
 
     // automatically fill space
      lv_obj_set_flex_grow(button, 1);

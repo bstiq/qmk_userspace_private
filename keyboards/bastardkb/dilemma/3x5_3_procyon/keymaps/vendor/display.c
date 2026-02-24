@@ -51,6 +51,24 @@ enum ui_user_events {
     EVENT_LAST_EVENT,
 };
 
+// todo define bits
+typedef union {
+    uint8_t raw;
+    struct {
+        uint8_t mods;
+        bool    sniping;
+        bool    scrolling;
+        uint8_t rgb_enabled;
+        uint8_t rgb_effect_mode;
+        uint16_t rgb_val;
+        uint8_t rgb_enabled;
+        uint16_t dpi;
+        uint16_t s_dpi;
+    } __attribute__((packed));
+} dilemma_config_prev_t;
+
+static dilemma_config_prev_t g_dilemma_config_prev = {0};
+
 const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER", "NUM", "SYM"};
 
 void display_init(void) {
@@ -209,10 +227,12 @@ void style_pressed_init_mod_indicator(void) {
 }
 
 void style_bar_init(void) {
-    lv_style_set_radius(&style_bar, 3);
+    // inner bar
+    lv_style_set_radius(&style_bar, 0);
     lv_style_set_bg_color(&style_bar, lv_palette_darken(LV_PALETTE_PINK, 3));
 
-    lv_style_set_radius(&style_bar_background, 0); // inner bar
+    // bar background
+    lv_style_set_radius(&style_bar_background, 3); 
     lv_style_set_border_color(&style_bar_background, lv_palette_darken(LV_PALETTE_PINK, 4));
     lv_style_set_border_width(&style_bar_background, 1);
 }
@@ -277,7 +297,7 @@ void housekeeping_task_display(void) {
     housekeeping_task_screen_pointer();
     housekeeping_task_screen_rgb();
 
-    prev_mods  = mods;
+    g_dilemma_config_prev.prev_mods  = mods;
     prev_layer = layer;
 }
 
@@ -290,7 +310,7 @@ void housekeeping_task_screen_base(void) {
 }
 
 void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mod) {
-    if ((mods_active & MASK) != (prev_mods & MASK)) {
+    if ((mods_active & MASK) != (g_dilemma_config_prev.prev_mods & MASK)) {
         if ((mods_active & MASK)) {
             lv_event_send(ui_button_mod, LV_EVENT_PRESSED, NULL);
         } else {

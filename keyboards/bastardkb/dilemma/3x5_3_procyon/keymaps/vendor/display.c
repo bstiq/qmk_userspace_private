@@ -87,19 +87,19 @@ void display_init(void) {
     lv_obj_center(ui_label_mod_gui);
 
     ui_button_mod_alt = lv_btn_create(cont);
-    ui_init_button_mod_indicator(ui_button_mod_alt, 80, 150);
+    ui_init_button_mod_indicator(ui_button_mod_alt);
     ui_label_mod_alt = lv_label_create(ui_button_mod_alt);
     lv_label_set_text(ui_label_mod_alt, "Alt");
     lv_obj_center(ui_label_mod_alt);
 
     ui_button_mod_control = lv_btn_create(cont);
-    ui_init_button_mod_indicator(ui_button_mod_control, 150, 80);
+    ui_init_button_mod_indicator(ui_button_mod_control);
     ui_label_mod_control = lv_label_create(ui_button_mod_control);
     lv_label_set_text(ui_label_mod_control, "Ctrl");
     lv_obj_center(ui_label_mod_control);
 
     ui_button_mod_shift = lv_btn_create(cont);
-    ui_init_button_mod_indicator(ui_button_mod_shift, 150, 150);
+    ui_init_button_mod_indicator(ui_button_mod_shift);
     ui_label_mod_shift = lv_label_create(ui_button_mod_shift);
     lv_label_set_text(ui_label_mod_shift, "Shft");
     lv_obj_center(ui_label_mod_shift);
@@ -230,7 +230,7 @@ void style_flex_container_init(void) {
     lv_style_set_border_width(&style_flex_container, 0);
 }
 
-void ui_init_button_mod_indicator(lv_obj_t *button, int x, int y) {
+void ui_init_button_mod_indicator(lv_obj_t *button) {
     // styles
     lv_obj_add_style(button, &style_btn, 0);
     lv_obj_add_style(button, &style_btn_pressed, LV_STATE_PRESSED);
@@ -239,8 +239,11 @@ void ui_init_button_mod_indicator(lv_obj_t *button, int x, int y) {
     lv_obj_add_event_cb(button, event_screen_base_update_mods, LV_EVENT_ALL, NULL);
 
     // position and width
-    lv_obj_set_width(button, 45);
+    // lv_obj_set_width(button, 45);
     lv_obj_set_height(button, 30);
+
+    // automatically fill space
+     lv_obj_set_flex_grow(button, 1);
 }
 
 void event_screen_pointer_sniping_toggle(lv_event_t *e) {}

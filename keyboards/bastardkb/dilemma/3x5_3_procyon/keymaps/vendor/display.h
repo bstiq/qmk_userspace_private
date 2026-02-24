@@ -15,7 +15,7 @@ void housekeeping_task_screen_pointer(void);
 void housekeeping_task_screen_rgb(void);
 void housekeeping_task_screen_rgb(void);
 void housekeeping_task_screen_layer_name(void);
-void ui_init_button_mod_indicator(lv_obj_t *label, int x, int y);
+void ui_init_button_mod_indicator(lv_obj_t *label);
 
 void event_screen_base_update_mods(lv_event_t *e);
 void event_screen_pointer_sniping_toggle(lv_event_t *e);

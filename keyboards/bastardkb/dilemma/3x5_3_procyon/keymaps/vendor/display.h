@@ -28,11 +28,18 @@ extern lv_obj_t *ui_button_sniping;
 extern lv_obj_t *ui_label_scroll;
 extern lv_obj_t *ui_button_scroll;
 
+// rgb info
+extern lv_obj_t *ui_label_rgb;
+extern lv_obj_t *ui_bar_rgb;
+extern lv_obj_t *ui_label_rgb_effect;
+
+// styles
 extern lv_style_t style_btn;
 extern lv_style_t style_bar;
 extern lv_style_t style_bar_background;
 extern lv_style_t style_btn_pressed;
 extern lv_style_t style_flex_container;
+
 extern uint8_t    last_mods;
 
 void display_init(void);
@@ -46,6 +53,7 @@ void ui_init_layer_name(lv_obj_t *label, const char *layer_name);
 void housekeeping_task_display(void);
 void housekeeping_task_screen_base(void);
 void housekeeping_task_screen_pointer(void);
+void housekeeping_task_screen_rgb(void);
 void housekeeping_task_screen_rgb(void);
 void ui_init_button_mod_indicator(lv_obj_t *label, int x, int y);
 

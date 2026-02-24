@@ -122,7 +122,6 @@ void display_init(void) {
 
     // ui_label_sniping = lv_label_create(cont);
 
-    
     ui_button_sniping = lv_btn_create(cont);
     lv_obj_add_flag(ui_button_sniping, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_init_button_mod_indicator(ui_button_sniping, 80, 80);
@@ -142,13 +141,11 @@ void display_init(void) {
     // lv_obj_set_size(ui_switch_scroll, 40, 20);
     // lv_obj_add_event_cb(ui_switch_scroll, event_screen_pointer_scroll_toggle, LV_EVENT_ALL, NULL);
 
-    
     ui_button_scroll = lv_btn_create(cont);
     ui_init_button_mod_indicator(ui_button_scroll, 80, 80);
     ui_label_scroll = lv_label_create(ui_button_scroll);
     lv_label_set_text(ui_label_scroll, "Scroll");
     lv_obj_center(ui_label_scroll);
-
 
     /*
         Theme
@@ -384,9 +381,9 @@ void housekeeping_task_screen_pointer(void) {
     const bool sniping = dilemma_get_pointer_sniping_enabled();
     if (sniping != last_sniping) {
         if (sniping) {
-            lv_obj_add_state(ui_switch_sniping, LV_EVENT_PRESSED);
+            lv_event_send(ui_button_sniping, LV_EVENT_PRESSED, NULL);
         } else {
-            lv_obj_clear_state(ui_switch_sniping, LV_EVENT_PRESSED);
+            lv_event_send(ui_button_sniping, LV_EVENT_RELEASED, NULL);
         }
     }
     last_sniping = sniping;
@@ -394,9 +391,9 @@ void housekeeping_task_screen_pointer(void) {
     const bool scrolling = dilemma_get_pointer_dragscroll_enabled();
     if (scrolling != last_scrolling) {
         if (scrolling) {
-            lv_obj_add_state(ui_switch_scroll, LV_EVENT_PRESSED);
+            lv_event_send(ui_button_scroll, LV_EVENT_PRESSED, NULL);
         } else {
-            lv_obj_clear_state(ui_switch_scroll, LV_EVENT_PRESSED);
+            lv_event_send(ui_button_scroll, LV_EVENT_RELEASED, NULL);
         }
     }
     last_scrolling = scrolling;

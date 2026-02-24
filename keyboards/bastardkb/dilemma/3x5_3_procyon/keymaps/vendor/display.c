@@ -20,9 +20,8 @@ lv_obj_t *ui_label_s_dpi;
 lv_obj_t *ui_bar_s_dpi;
 lv_obj_t *ui_label_sniping;
 lv_obj_t *ui_button_sniping;
-lv_obj_t *ui_switch_sniping;
+lv_obj_t *ui_button_scoll;
 lv_obj_t *ui_label_scroll;
-lv_obj_t *ui_switch_scroll;
 
 lv_style_t style_btn;
 lv_style_t style_bar;
@@ -136,12 +135,20 @@ void display_init(void) {
     // lv_obj_set_size(ui_switch_sniping, 40, 20);
     // lv_obj_add_event_cb(ui_switch_sniping, event_screen_pointer_sniping_toggle, LV_EVENT_ALL, NULL);
 
-    ui_label_scroll = lv_label_create(cont);
+    // ui_label_scroll = lv_label_create(cont);
+    // lv_label_set_text(ui_label_scroll, "Scroll");
+    // lv_obj_set_size(ui_label_scroll, 60, 20);
+    // ui_switch_scroll = lv_switch_create(cont);
+    // lv_obj_set_size(ui_switch_scroll, 40, 20);
+    // lv_obj_add_event_cb(ui_switch_scroll, event_screen_pointer_scroll_toggle, LV_EVENT_ALL, NULL);
+
+    
+    ui_button_scroll = lv_btn_create(cont);
+    ui_init_button_mod_indicator(ui_button_scroll, 80, 80);
+    ui_label_scroll = lv_label_create(ui_button_scroll);
     lv_label_set_text(ui_label_scroll, "Scroll");
-    lv_obj_set_size(ui_label_scroll, 60, 20);
-    ui_switch_scroll = lv_switch_create(cont);
-    lv_obj_set_size(ui_switch_scroll, 40, 20);
-    lv_obj_add_event_cb(ui_switch_scroll, event_screen_pointer_scroll_toggle, LV_EVENT_ALL, NULL);
+    lv_obj_center(ui_label_scroll);
+
 
     /*
         Theme
@@ -377,9 +384,9 @@ void housekeeping_task_screen_pointer(void) {
     const bool sniping = dilemma_get_pointer_sniping_enabled();
     if (sniping != last_sniping) {
         if (sniping) {
-            lv_obj_add_state(ui_switch_sniping, LV_STATE_CHECKED);
+            lv_obj_add_state(ui_switch_sniping, LV_EVENT_PRESSED);
         } else {
-            lv_obj_clear_state(ui_switch_sniping, LV_STATE_CHECKED);
+            lv_obj_clear_state(ui_switch_sniping, LV_EVENT_PRESSED);
         }
     }
     last_sniping = sniping;
@@ -387,9 +394,9 @@ void housekeeping_task_screen_pointer(void) {
     const bool scrolling = dilemma_get_pointer_dragscroll_enabled();
     if (scrolling != last_scrolling) {
         if (scrolling) {
-            lv_obj_add_state(ui_switch_scroll, LV_STATE_CHECKED);
+            lv_obj_add_state(ui_switch_scroll, LV_EVENT_PRESSED);
         } else {
-            lv_obj_clear_state(ui_switch_scroll, LV_STATE_CHECKED);
+            lv_obj_clear_state(ui_switch_scroll, LV_EVENT_PRESSED);
         }
     }
     last_scrolling = scrolling;

@@ -26,7 +26,7 @@ extern lv_obj_t *ui_bar_s_dpi;
 extern lv_obj_t *ui_label_sniping;
 extern lv_obj_t *ui_button_sniping;
 extern lv_obj_t *ui_label_scroll;
-extern lv_obj_t *ui_switch_scroll;
+extern lv_obj_t *ui_button_scroll;
 
 extern lv_style_t style_btn;
 extern lv_style_t style_bar;

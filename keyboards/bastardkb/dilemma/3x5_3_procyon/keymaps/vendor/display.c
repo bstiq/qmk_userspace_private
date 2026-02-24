@@ -1,4 +1,5 @@
 #include "display.h"
+#include "config.h"
 #include "quantum.h"
 
 lv_obj_t *ui_screen_base;
@@ -55,7 +56,7 @@ void display_init(void) {
     style_flex_container_init();
 
     lv_obj_t *cont = lv_obj_create(ui_screen_base);
-    lv_obj_set_size(cont, 240, 280); // todo change to screen height
+    lv_obj_set_size(cont, LCD_WIDTH, LCD_HEIGHT);
     lv_obj_center(cont);
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
     lv_obj_add_style(cont, &style_flex_container, 0);
@@ -101,10 +102,6 @@ void display_init(void) {
     lv_obj_set_size(cont, 240, 280); // todo change to screen height
     lv_obj_add_style(cont, &style_flex_container, 0);
 
-    // ui_label_layer_name_pointer = lv_label_create(cont);
-    // ui_init_layer_name(ui_label_layer_name_pointer, "Pointer");
-    // lv_obj_set_size(ui_label_layer_name_pointer, 200, 40);
-
     ui_label_dpi = lv_label_create(cont);
     lv_label_set_text(ui_label_dpi, "DPI");
     lv_obj_add_flag(ui_label_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
@@ -123,26 +120,12 @@ void display_init(void) {
     lv_obj_add_style(ui_bar_s_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar_background, 0);
 
-    // ui_label_sniping = lv_label_create(cont);
-
     ui_button_sniping = lv_btn_create(cont);
     lv_obj_add_flag(ui_button_sniping, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_init_button_mod_indicator(ui_button_sniping, 80, 80);
     ui_label_sniping = lv_label_create(ui_button_sniping);
     lv_label_set_text(ui_label_sniping, "Snipe");
     lv_obj_center(ui_label_sniping);
-
-    // lv_obj_set_size(ui_label_sniping, 45, 20);
-    // ui_switch_sniping = lv_switch_create(cont);
-    // lv_obj_set_size(ui_switch_sniping, 40, 20);
-    // lv_obj_add_event_cb(ui_switch_sniping, event_screen_pointer_sniping_toggle, LV_EVENT_ALL, NULL);
-
-    // ui_label_scroll = lv_label_create(cont);
-    // lv_label_set_text(ui_label_scroll, "Scroll");
-    // lv_obj_set_size(ui_label_scroll, 60, 20);
-    // ui_switch_scroll = lv_switch_create(cont);
-    // lv_obj_set_size(ui_switch_scroll, 40, 20);
-    // lv_obj_add_event_cb(ui_switch_scroll, event_screen_pointer_scroll_toggle, LV_EVENT_ALL, NULL);
 
     ui_button_scroll = lv_btn_create(cont);
     ui_init_button_mod_indicator(ui_button_scroll, 80, 80);
@@ -175,7 +158,6 @@ void display_init(void) {
 }
 
 void style_init_mod_indicator(void) {
-    /*Create a simple button style*/
     lv_style_init(&style_btn);
     lv_style_set_radius(&style_btn, 3);
     lv_style_set_bg_opa(&style_btn, LV_OPA_COVER);
@@ -183,8 +165,6 @@ void style_init_mod_indicator(void) {
     lv_style_set_bg_color(&style_btn, lv_palette_darken(LV_PALETTE_PINK, 1));
     lv_style_set_bg_grad_color(&style_btn, lv_palette_darken(LV_PALETTE_PINK, 3));
     lv_style_set_bg_grad_dir(&style_btn, LV_GRAD_DIR_VER);
-
-    // lv_style_set_bg_color(&style_btn, lv_palette_lighten(LV_PALETTE_PINK, 1), LV_STATE_PRESSED);
 
     lv_style_set_border_color(&style_btn, lv_palette_lighten(LV_PALETTE_PINK, 1));
     lv_style_set_border_opa(&style_btn, LV_OPA_20);
@@ -194,7 +174,6 @@ void style_init_mod_indicator(void) {
 }
 
 void style_pressed_init_mod_indicator(void) {
-    /*Create a simple button style*/
     lv_style_init(&style_btn_pressed);
     lv_style_set_radius(&style_btn_pressed, 2);
     lv_style_set_bg_opa(&style_btn_pressed, LV_OPA_COVER);
@@ -211,7 +190,6 @@ void style_pressed_init_mod_indicator(void) {
 }
 
 void style_bar_init(void) {
-    // lv_style_set_border_color(&style_bar, lv_palette_lighten(LV_PALETTE_PINK, 1));
     lv_style_set_radius(&style_bar, 3);
     lv_style_set_bg_color(&style_bar, lv_palette_darken(LV_PALETTE_PINK, 3));
 
@@ -224,7 +202,6 @@ void ui_init_layer_name(lv_obj_t *label, const char *layer_name) {
     lv_obj_remove_style_all(label);
     lv_label_set_text(label, layer_name);
     lv_obj_set_width(label, LV_SIZE_CONTENT);
-    // lv_obj_set_height(label, 30);
     lv_obj_set_x(label, 0);
     lv_obj_set_y(label, 20);
     lv_obj_set_align(label, LV_ALIGN_TOP_MID);
@@ -232,70 +209,33 @@ void ui_init_layer_name(lv_obj_t *label, const char *layer_name) {
 
 void style_flex_container_init(void) {
     lv_style_set_bg_color(&style_flex_container, lv_color_black());
-    // lv_style_set_flex_flow(&style_flex_container, LV_FLEX_FLOW_ROW_WRAP);
     lv_style_set_pad_row(&style_flex_container, 10);
     lv_style_set_border_width(&style_flex_container, 0);
 }
 
 void ui_init_button_mod_indicator(lv_obj_t *button, int x, int y) {
     // styles
-    // lv_obj_remove_style_all(button);
     lv_obj_add_style(button, &style_btn, 0);
     lv_obj_add_style(button, &style_btn_pressed, LV_STATE_PRESSED);
 
     // behaviour
-    // lv_label_set_text(label, indicator_name);
-    // lv_obj_set_align(label, LV_ALIGN_CENTER);
-    // lv_obj_add_event_cb(button, event_screen_base_update_mods, EVENT_MOD_CHANGE, NULL);
     lv_obj_add_event_cb(button, event_screen_base_update_mods, LV_EVENT_ALL, NULL);
-    // lv_obj_add_flag(button, LV_OBJ_FLAG_CHECKABLE);
 
     // position and width
     lv_obj_set_width(button, 45);
     lv_obj_set_height(button, 30);
-    // lv_obj_set_x(button, x);
-    // lv_obj_set_y(button, y);
 }
 
 void event_screen_pointer_sniping_toggle(lv_event_t *e) {}
 void event_screen_pointer_scroll_toggle(lv_event_t *e) {}
 
-void event_screen_base_update_mods(lv_event_t *e) {
-    // todo implement new / old event storage
-    // todo test if new screen, then re-draw everything...
-    // if(layer_state == 0){ // todo replace with enum from keymap.c
-    // TODO test if GUI is different... for now trigger a test re-draw
-    // lv_obj_t * btn = lv_event_get_target(e); // get target
-    // lv_obj_t * label = lv_obj_get_child(btn, 0); // get first child (the label)
-    // lv_label_set_text(label, "TEST 2");
-    // }
-}
-
-// void ui_layer_change(lv_event_t *e) {
-//     lv_event_code_t event_code = lv_event_get_code(e);
-//     if (event_code == (uint8_t)EVENT_LAYER_CHANGE) {
-//         int layer = get_highest_layer(layer_state); // todo test that it's smaller than the max size (compare to size of layer_strings)
-//         lv_label_set_text(ui_label_layer_name_base, ui_layer_strings[layer]);
-//     }
-// }
+// TODO what is this?
+void event_screen_base_update_mods(lv_event_t *e) {}
 
 void housekeeping_task_display(void) {
     mods = get_mods();
-
     // TODO use enum from keymap.c instead of hard coded layer numbers
     uint8_t layer = get_highest_layer(layer_state);
-    // if (layer != prev_layer) {
-    //     switch (layer) {
-    //         case 0:
-    //         default:
-    //             lv_disp_load_scr(ui_screen_base);
-    //             break;
-    //         case 4:
-    //             lv_disp_load_scr(ui_screen_pointer);
-    //             break;
-    //     }
-    // }
-
     // TODO use enum from keymap.c instead of hard coded layer numbers
     // TODO move to specific function
 
@@ -303,13 +243,13 @@ void housekeeping_task_display(void) {
     switch (layer) {
         case 0:
         default:
-            lv_label_set_text(ui_label_layer_name_base, "Layer Base");
+            lv_label_set_text(ui_label_layer_name_base, "Layer: Base");
             break;
         case 3:
-            lv_label_set_text(ui_label_layer_name_base, "Layer RGB");
+            lv_label_set_text(ui_label_layer_name_base, "Layer: RGB");
             break;
         case 4:
-            lv_label_set_text(ui_label_layer_name_base, "Layer Pointer");
+            lv_label_set_text(ui_label_layer_name_base, "Layer: Pointer");
             break;
     }
 
@@ -321,9 +261,6 @@ void housekeeping_task_display(void) {
     last_mods  = mods;
     prev_layer = layer;
 }
-
-// TODO only redraw if rgb changed
-void housekeeping_task_screen_rgb(void) {}
 
 void housekeeping_task_screen_base(void) {
     mods = get_mods();
@@ -399,18 +336,5 @@ void housekeeping_task_screen_pointer(void) {
 }
 
 bool process_records_display(uint16_t keycode, keyrecord_t *record) {
-    // switch (keycode) {
-    //     case KC_Q: // test
-    //         // ui_screen_base_update_mods();
-    //         // lv_event_send(ui_button_mod_gui, EVENT_MOD_CHANGE, NULL);
-    //         // lv_event_send(ui_button_mod_gui, LV_EVENT_CLICKED, NULL);
-    //         if (record->event.pressed) {
-    //             lv_event_send(ui_button_mod_gui, LV_EVENT_PRESSING, NULL);
-    //         } else {
-    //             lv_event_send(ui_button_mod_gui, LV_EVENT_RELEASED, NULL);
-    //         }
-    //         break;
-    // }
-
     return true;
 }

@@ -1,4 +1,5 @@
 #include "lvgl.h"
+#include <ctype.h>
 #include QMK_KEYBOARD_H
 
 // screen stuff

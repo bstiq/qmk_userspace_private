@@ -282,7 +282,7 @@ void housekeeping_task_display(void) {
     g_dilemma_status_prev = g_dilemma_status;
 }
 
-housekeeping_task_screen_layer_name(void) {
+void housekeeping_task_screen_layer_name(void) {
     if (g_dilemma_status.layer != g_dilemma_status_prev.layer) {
         switch (g_dilemma_status.layer) {
             case 0:

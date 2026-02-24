@@ -32,6 +32,7 @@ lv_style_t style_bar;
 lv_style_t style_bar_background;
 lv_style_t style_btn_pressed;
 lv_style_t style_flex_container;
+uint8_t    prev_mods;
 uint8_t    mods;
 bool       prev_sniping;
 bool       last_scrolling;

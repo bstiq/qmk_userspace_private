@@ -18,7 +18,7 @@ lv_obj_t *ui_label_dpi;
 lv_obj_t *ui_bar_dpi;
 lv_obj_t *ui_label_s_dpi;
 lv_obj_t *ui_bar_s_dpi;
-lv_obj_t *ui_label_sniping;
+lv_obj_t *ui_button_sniping;
 lv_obj_t *ui_switch_sniping;
 lv_obj_t *ui_label_scroll;
 lv_obj_t *ui_switch_scroll;
@@ -120,13 +120,20 @@ void display_init(void) {
     lv_obj_add_style(ui_bar_s_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar_background, 0);
 
-    ui_label_sniping = lv_label_create(cont);
-    lv_label_set_text(ui_label_sniping, "Snip");
-    lv_obj_add_flag(ui_label_sniping, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_size(ui_label_sniping, 45, 20);
-    ui_switch_sniping = lv_switch_create(cont);
-    lv_obj_set_size(ui_switch_sniping, 40, 20);
-    lv_obj_add_event_cb(ui_switch_sniping, event_screen_pointer_sniping_toggle, LV_EVENT_ALL, NULL);
+    // ui_label_sniping = lv_label_create(cont);
+
+    
+    ui_button_sniping = lv_btn_create(cont);
+    lv_obj_add_flag(ui_button_sniping, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
+    ui_init_button_mod_indicator(ui_button_sniping, 80, 80);
+    ui_label_sniping = lv_label_create(ui_button_sniping);
+    lv_label_set_text(ui_label_sniping, "Snipe");
+    lv_obj_center(ui_label_sniping);
+
+    // lv_obj_set_size(ui_label_sniping, 45, 20);
+    // ui_switch_sniping = lv_switch_create(cont);
+    // lv_obj_set_size(ui_switch_sniping, 40, 20);
+    // lv_obj_add_event_cb(ui_switch_sniping, event_screen_pointer_sniping_toggle, LV_EVENT_ALL, NULL);
 
     ui_label_scroll = lv_label_create(cont);
     lv_label_set_text(ui_label_scroll, "Scroll");

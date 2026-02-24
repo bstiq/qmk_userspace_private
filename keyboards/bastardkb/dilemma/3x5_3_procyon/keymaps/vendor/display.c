@@ -268,11 +268,23 @@ void housekeeping_task_screen_layer_name(void) {
             default:
                 lv_label_set_text(ui_label_layer_name_base, "Layer: Base");
                 break;
+            case 1:
+                lv_label_set_text(ui_label_layer_name_base, "Layer: Function");
+                break;
+            case 2:
+                lv_label_set_text(ui_label_layer_name_base, "Layer: Navigation");
+                break;
             case 3:
-                lv_label_set_text(ui_label_layer_name_base, "Layer: RGB");
+                lv_label_set_text(ui_label_layer_name_base, "Layer: Media/RGB");
                 break;
             case 4:
                 lv_label_set_text(ui_label_layer_name_base, "Layer: Pointer");
+                break;
+            case 5:
+                lv_label_set_text(ui_label_layer_name_base, "Layer: Numeral");
+                break;
+            case 6:
+                lv_label_set_text(ui_label_layer_name_base, "Layer: Symbols");
                 break;
         }
     }

@@ -35,12 +35,15 @@ lv_style_t style_flex_container;
 uint8_t    prev_mods;
 uint8_t    mods;
 bool       prev_sniping;
-bool       last_scrolling;
+bool       prev_scrolling;
 
 uint8_t  prev_rgb_enabled;
 uint8_t  prev_rgb_effect_mode;
 uint16_t prev_rgb_val;
 uint8_t  prev_rgb_enabled;
+
+uint16_t prev_dpi;
+uint16_t prev_s_dpi;
 
 enum ui_user_events {
     EVENT_LAYER_CHANGE = 0,
@@ -169,6 +172,8 @@ void display_init(void) {
     prev_rgb_effect_mode = 99;
     prev_rgb_val         = 99;
     prev_rgb_enabled     = 99;
+    prev_dpi             = 0;
+    prev_s_dpi           = 0;
 }
 
 void style_init_mod_indicator(void) {
@@ -328,21 +333,27 @@ void housekeeping_task_screen_rgb(void) {
 // TODO switch to event-based when dpi changed
 void housekeeping_task_screen_pointer(void) {
     // TODO dynamically get max DPI, instead of using hardcoded values
-    static const uint16_t rel_max_dpi = 200 * 16;
-    float                 rel         = (float)((dilemma_get_pointer_default_dpi() + 200 - 400)) * 100 / rel_max_dpi;
-    lv_bar_set_value(ui_bar_dpi, (uint16_t)rel, LV_ANIM_OFF);
+    const uint16_t dpi = dilemma_get_pointer_default_dpi();
 
-    char dpi[50];
-    sprintf(dpi, "DPI: %u", (uint16_t)dilemma_get_pointer_default_dpi());
-    lv_label_set_text(ui_label_dpi, dpi);
+    if (dpi != prev_dpi) {
+        static const uint16_t rel_max_dpi = 200 * 16;
+        const float           rel         = (float)((dpi + 200 - 400)) * 100 / rel_max_dpi;
+        lv_bar_set_value(ui_bar_dpi, (uint16_t)rel, LV_ANIM_OFF);
 
-    static const uint16_t rel_max_s_dpi = 100 * 4;
-    rel                                 = (float)((dilemma_get_pointer_sniping_dpi() + 100 - 200)) * 100 / rel_max_s_dpi;
-    lv_bar_set_value(ui_bar_s_dpi, (uint16_t)rel, LV_ANIM_OFF);
+        char c_dpi[50];
+        sprintf(c_dpi, "DPI: %u", (uint16_t)dpi);
+        lv_label_set_text(ui_label_dpi, c_dpi);
+    }
 
-    char s_dpi[50];
-    sprintf(s_dpi, "Sniper DPI: %u", (uint16_t)dilemma_get_pointer_sniping_dpi());
-    lv_label_set_text(ui_label_s_dpi, s_dpi);
+    const uint16_t s_dpi = dilemma_get_pointer_sniping_dpi();
+    if (s_dpi != prev_s_dpi) {
+        char                  c_s_dpi[50];
+        static const uint16_t rel_max_s_dpi = 100 * 4;
+        const float           rel           = (float)((s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
+        lv_bar_set_value(ui_bar_s_dpi, (uint16_t)rel, LV_ANIM_OFF);
+        sprintf(c_s_dpi, "Sniper DPI: %u", (uint16_t)s_dpi);
+        lv_label_set_text(ui_label_s_dpi, c_s_dpi);
+    }
 
     const bool sniping = dilemma_get_pointer_sniping_enabled();
     if (sniping != prev_sniping) {
@@ -355,14 +366,16 @@ void housekeeping_task_screen_pointer(void) {
     prev_sniping = sniping;
 
     const bool scrolling = dilemma_get_pointer_dragscroll_enabled();
-    if (scrolling != last_scrolling) {
+    if (scrolling != prev_scrolling) {
         if (scrolling) {
             lv_event_send(ui_button_scroll, LV_EVENT_PRESSED, NULL);
         } else {
             lv_event_send(ui_button_scroll, LV_EVENT_RELEASED, NULL);
         }
     }
-    last_scrolling = scrolling;
+    prev_scrolling = scrolling;
+    prev_dpi       = dpi;
+    prev_s_dpi     = s_dpi;
 }
 
 bool process_records_display(uint16_t keycode, keyrecord_t *record) {

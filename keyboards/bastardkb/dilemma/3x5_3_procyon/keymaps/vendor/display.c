@@ -394,8 +394,8 @@ void housekeeping_task_screen_pointer(void) {
         }
     }
     prev_scrolling = scrolling;
-    prev_dpi       = dpi;
-    prev_s_dpi     = s_dpi;
+    // prev_dpi       = dpi;
+    // prev_s_dpi     = s_dpi;
 }
 
 bool process_records_display(uint16_t keycode, keyrecord_t *record) {

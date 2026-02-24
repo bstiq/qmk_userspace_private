@@ -145,6 +145,10 @@ void display_init(void) {
     lv_obj_add_style(ui_bar_rgb, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_rgb, &style_bar_background, 0);
 
+    ui_label_rgb_effect = lv_label_create(cont);
+    lv_label_set_text(ui_label_rgb_effect, "effect...");
+    lv_obj_add_flag(ui_label_rgb_effect, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
+
     /*
         Theme
     */
@@ -285,12 +289,15 @@ void housekeeping_task_screen_rgb(void) {
     if (!rgb_enabled) {
         lv_label_set_text(ui_label_rgb, "RGB: Off");
         lv_bar_set_value(ui_bar_rgb, 0, LV_ANIM_OFF);
+        lv_label_set_text(ui_label_rgb_effect, "");
     } else {
         char rgbval[50];
         sprintf(rgbval, "RGB: %u", rgb_matrix_get_val());
         lv_label_set_text(ui_label_rgb, rgbval);
-        float rel = (float)((rgb_matrix_get_val())) * 100 / 250;
+        float rel = (float)((rgb_matrix_get_val())) * 100 / 156;
         lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
+        const char *effect_name = rgb_matrix_get_mode_name(rgb_matrix_get_mode());
+        lv_label_set_text(ui_label_rgb_effect, effect_name);
     }
 }
 

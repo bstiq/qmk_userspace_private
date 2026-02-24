@@ -6,7 +6,6 @@ lv_obj_t *ui_screen_base;
 lv_obj_t *ui_screen_pointer;
 
 lv_obj_t *ui_label_layer_name_base;
-// lv_obj_t *ui_label_layer_name_pointer;
 lv_obj_t *ui_label_mod_gui;
 lv_obj_t *ui_button_mod_gui;
 lv_obj_t *ui_label_mod_shift;
@@ -171,15 +170,6 @@ void display_init(void) {
     lv_disp_t  *dispp = lv_disp_get_default();
     lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
-
-    // prev_layer           = 99;
-    // prev_sniping         = false;
-    // prev_rgb_enabled     = 99;
-    // prev_rgb_effect_mode = 99;
-    // prev_rgb_val         = 99;
-    // prev_rgb_enabled     = 99;
-    // prev_dpi             = 0;
-    // prev_s_dpi           = 0;
 }
 
 void style_init_mod_indicator(void) {
@@ -329,7 +319,7 @@ void housekeeping_task_screen_rgb(void) {
     } else {
         if ((rgb_change) || (g_dilemma_status.rgb_val != g_dilemma_status_prev.rgb_val)) {
             char rgbval[50];
-            sprintf(rgbval, "RGB: %u", rgb_val);
+            sprintf(rgbval, "RGB: %u", g_dilemma_status.rgb_val);
             lv_label_set_text(ui_label_rgb, rgbval);
             float rel = (float)(g_dilemma_status.rgb_val) * 100 / 156;
             lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);

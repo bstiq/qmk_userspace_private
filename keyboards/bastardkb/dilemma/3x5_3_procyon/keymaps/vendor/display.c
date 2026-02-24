@@ -260,7 +260,7 @@ void housekeeping_task_display(void) {
     housekeeping_task_screen_base();
     housekeeping_task_screen_rgb();
     housekeeping_task_screen_pointer();
-    housekeeping_task_screen_rgb();
+    // housekeeping_task_screen_rgb();
 
     last_mods  = mods;
     prev_layer = layer;

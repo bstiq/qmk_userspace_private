@@ -64,6 +64,7 @@ void display_init(void) {
     ui_label_layer_name_base = lv_label_create(cont);
     ui_init_layer_name(ui_label_layer_name_base, "Base");
     lv_obj_set_size(ui_label_layer_name_base, 200, 30);
+    lv_obj_center(ui_label_layer_name_base);
 
     ui_button_mod_gui = lv_btn_create(cont);
     ui_init_button_mod_indicator(ui_button_mod_gui, 80, 80);
@@ -260,7 +261,7 @@ void housekeeping_task_display(void) {
     housekeeping_task_screen_base();
     housekeeping_task_screen_rgb();
     housekeeping_task_screen_pointer();
-    // housekeeping_task_screen_rgb();
+    housekeeping_task_screen_rgb();
 
     last_mods  = mods;
     prev_layer = layer;

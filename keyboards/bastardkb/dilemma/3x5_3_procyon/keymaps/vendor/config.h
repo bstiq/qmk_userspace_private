@@ -53,7 +53,7 @@
 // #define QUANTUM_PAINTER_PIXDATA_BUFFER_SIZE 4096
 #define QUANTUM_PAINTER_TASK_THROTTLE 16 // 60 FPS ish
 #define RGB_MATRIX_MODE_NAME_ENABLE
-#define QP_LVGL_TASK_PERIOD 40 // throttle lvgl for keyboard responsiveness
+#define QP_LVGL_TASK_PERIOD 200 // throttle lvgl for keyboard responsiveness
 
 // Custom display stuff
 #define BKS_LAYER_X 15

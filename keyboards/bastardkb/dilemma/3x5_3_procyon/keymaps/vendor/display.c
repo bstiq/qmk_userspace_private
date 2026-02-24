@@ -212,7 +212,7 @@ void style_bar_init(void) {
     lv_style_set_radius(&style_bar, 3);
     lv_style_set_bg_color(&style_bar, lv_palette_darken(LV_PALETTE_PINK, 3));
 
-    lv_style_set_radius(&style_bar_background, 3);
+    lv_style_set_radius(&style_bar_background, 0); // inner bar
     lv_style_set_border_color(&style_bar_background, lv_palette_darken(LV_PALETTE_PINK, 4));
     lv_style_set_border_width(&style_bar_background, 1);
 }

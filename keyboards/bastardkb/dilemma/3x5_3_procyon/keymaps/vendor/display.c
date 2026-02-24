@@ -34,8 +34,8 @@ lv_style_t style_btn_pressed;
 lv_style_t style_flex_container;
 // uint8_t    prev_mods;
 // uint8_t    mods;
-bool       prev_sniping;
-bool       prev_scrolling;
+bool prev_sniping;
+bool prev_scrolling;
 
 uint8_t  prev_rgb_effect_mode;
 uint16_t prev_rgb_val;
@@ -54,19 +54,20 @@ enum ui_user_events {
 typedef union {
     uint8_t raw;
     struct {
-        uint8_t mods;
-        bool    sniping;
-        bool    scrolling;
-        uint8_t rgb_enabled;
-        uint8_t rgb_effect_mode;
+        uint8_t  mods;
+        bool     sniping;
+        bool     scrolling;
+        uint8_t  rgb_enabled;
+        uint8_t  rgb_effect_mode;
         uint16_t rgb_val;
         uint16_t dpi;
         uint16_t s_dpi;
+        uint8_t  layer;
     } __attribute__((packed));
 } dilemma_status_t;
 
 static dilemma_status_t g_dilemma_status_prev = {0};
-static dilemma_status_t g_dilemma_status = {0};
+static dilemma_status_t g_dilemma_status      = {0};
 
 const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER", "NUM", "SYM"};
 
@@ -182,7 +183,7 @@ void display_init(void) {
     lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
 
-    prev_layer           = 99;
+    // prev_layer           = 99;
     prev_sniping         = false;
     prev_rgb_enabled     = 99;
     prev_rgb_effect_mode = 99;
@@ -230,7 +231,7 @@ void style_bar_init(void) {
     lv_style_set_bg_color(&style_bar, lv_palette_darken(LV_PALETTE_PINK, 3));
 
     // bar background
-    lv_style_set_radius(&style_bar_background, 3); 
+    lv_style_set_radius(&style_bar_background, 3);
     lv_style_set_border_color(&style_bar_background, lv_palette_darken(LV_PALETTE_PINK, 4));
     lv_style_set_border_width(&style_bar_background, 1);
 }
@@ -271,36 +272,36 @@ void event_screen_base_update_mods(lv_event_t *e) {}
 
 void housekeeping_task_display(void) {
     update_dilemma_status();
-    // TODO use enum from keymap.c instead of hard coded layer numbers
-    uint8_t layer = get_highest_layer(layer_state);
-    // TODO use enum from keymap.c instead of hard coded layer numbers
-    // TODO move to specific function
 
-    // TODO maintenance... we are using only one screen at the moment.
-    switch (layer) {
-        case 0:
-        default:
-            lv_label_set_text(ui_label_layer_name_base, "Layer: Base");
-            break;
-        case 3:
-            lv_label_set_text(ui_label_layer_name_base, "Layer: RGB");
-            break;
-        case 4:
-            lv_label_set_text(ui_label_layer_name_base, "Layer: Pointer");
-            break;
-    }
-
+    housekeeping_task_screen_layer_name();
     housekeeping_task_screen_base();
     housekeeping_task_screen_rgb();
     housekeeping_task_screen_pointer();
     housekeeping_task_screen_rgb();
 
     g_dilemma_status_prev = g_dilemma_status;
-    prev_layer = layer;
 }
 
-void update_dilemma_status(void){
-    g_dilemma_status.mods = get_mods();
+housekeeping_task_screen_layer_name(void) {
+    if (g_dilemma_status.layer != g_dilemma_status_prev.layer) {
+        switch (g_dilemma_status.layer) {
+            case 0:
+            default:
+                lv_label_set_text(ui_label_layer_name_base, "Layer: Base");
+                break;
+            case 3:
+                lv_label_set_text(ui_label_layer_name_base, "Layer: RGB");
+                break;
+            case 4:
+                lv_label_set_text(ui_label_layer_name_base, "Layer: Pointer");
+                break;
+        }
+    }
+}
+
+void update_dilemma_status(void) {
+    g_dilemma_status.mods  = get_mods();
+    g_dilemma_status.layer = get_highest_layer(layer_state);
 }
 
 void housekeeping_task_screen_base(void) {

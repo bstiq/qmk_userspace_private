@@ -183,7 +183,7 @@ void style_init_mod_indicator(void) {
     // lv_style_set_bg_grad_color(&style_btn, lv_palette_darken(BK_PALETTE, 3));
     // lv_style_set_bg_grad_dir(&style_btn, LV_GRAD_DIR_VER);
 
-    lv_style_set_border_color(&style_btn, lv_palette_lighten(BK_PALETTE, 1));
+    lv_style_set_border_color(&style_btn, lv_palette_darken(BK_PALETTE, 4));
     // lv_style_set_border_opa(&style_btn, LV_OPA_20);
     lv_style_set_border_width(&style_btn, 2);
 

@@ -232,7 +232,7 @@ void keyboard_post_init_user(void) {
     qp_rect(lcd, 0, 0, 300, 300, HSV_BLACK, 1);
     qp_flush(lcd);
 
-    prev_layer = 99;
+    // prev_layer = 99;
 }
 
 void housekeeping_task_user(void) {

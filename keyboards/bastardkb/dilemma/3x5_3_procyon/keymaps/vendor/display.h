@@ -30,4 +30,4 @@ void update_dilemma_status(void);
 const char *rgb_matrix_get_effect_name(void);
 
 // TODO get rid of this when cleaning up keymap.c
-static uint8_t prev_layer;
+// static uint8_t prev_layer;

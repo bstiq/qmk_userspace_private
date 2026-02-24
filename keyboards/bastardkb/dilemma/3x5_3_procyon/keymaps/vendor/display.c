@@ -63,9 +63,9 @@ typedef union {
         uint16_t dpi;
         uint16_t s_dpi;
     } __attribute__((packed));
-} dilemma_config_prev_t;
+} dilemma_status_t;
 
-static dilemma_config_prev_t g_dilemma_config_prev = {0};
+static dilemma_status_t g_dilemma_status_prev = {0};
 
 const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER", "NUM", "SYM"};
 
@@ -193,7 +193,7 @@ void display_init(void) {
 }
 
 void update_dilemma_prev_config(void){
-    g_dilemma_config_prev.mods            = get_mods();
+    g_dilemma_status_prev.mods            = get_mods();
 }
 
 void style_init_mod_indicator(void) {
@@ -299,7 +299,7 @@ void housekeeping_task_display(void) {
     housekeeping_task_screen_pointer();
     housekeeping_task_screen_rgb();
 
-    g_dilemma_config_prev.prev_mods  = mods;
+    g_dilemma_status_prev.mods  = mods;
     prev_layer = layer;
 }
 
@@ -312,7 +312,7 @@ void housekeeping_task_screen_base(void) {
 }
 
 void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mod) {
-    if ((mods_active & MASK) != (g_dilemma_config_prev.mods & MASK)) {
+    if ((mods_active & MASK) != (g_dilemma_status_prev.mods & MASK)) {
         if ((mods_active & MASK)) {
             lv_event_send(ui_button_mod, LV_EVENT_PRESSED, NULL);
         } else {

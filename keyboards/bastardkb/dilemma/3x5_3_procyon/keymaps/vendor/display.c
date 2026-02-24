@@ -32,17 +32,6 @@ lv_style_t style_bar;
 lv_style_t style_bar_background;
 lv_style_t style_btn_pressed;
 lv_style_t style_flex_container;
-// uint8_t    prev_mods;
-// uint8_t    mods;
-// bool prev_sniping;
-// bool prev_scrolling;
-
-// uint8_t  prev_rgb_effect_mode;
-// uint16_t prev_rgb_val;
-// uint8_t  prev_rgb_enabled;
-
-// uint16_t prev_dpi;
-// uint16_t prev_s_dpi;
 
 enum ui_user_events {
     EVENT_LAYER_CHANGE = 0,
@@ -350,13 +339,8 @@ void housekeeping_task_screen_rgb(void) {
             lv_label_set_text(ui_label_rgb_effect, effect_name);
         }
     }
-    // prev_rgb_enabled     = rgb_enabled;
-    // prev_rgb_effect_mode = rgb_effect_mode;
-    // prev_rgb_val         = rgb_val;
 }
 
-// TODO only redraw if DPI / sniping DPI changed
-// TODO switch to event-based when dpi changed
 void housekeeping_task_screen_pointer(void) {
     // TODO dynamically get max DPI, instead of using hardcoded values
     if (g_dilemma_status.dpi != g_dilemma_status_prev.dpi) {
@@ -393,9 +377,6 @@ void housekeeping_task_screen_pointer(void) {
             lv_event_send(ui_button_scroll, LV_EVENT_RELEASED, NULL);
         }
     }
-    // prev_scrolling = scrolling;
-    // prev_dpi       = dpi;
-    // prev_s_dpi     = s_dpi;
 }
 
 bool process_records_display(uint16_t keycode, keyrecord_t *record) {

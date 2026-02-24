@@ -81,7 +81,7 @@ void display_init(void) {
     lv_obj_center(ui_label_layer_name_base);
 
     ui_button_mod_gui = lv_btn_create(cont);
-    ui_init_button_mod_indicator(ui_button_mod_gui, 80, 80);
+    ui_init_button_mod_indicator(ui_button_mod_gui);
     ui_label_mod_gui = lv_label_create(ui_button_mod_gui);
     lv_label_set_text(ui_label_mod_gui, "Gui");
     lv_obj_center(ui_label_mod_gui);

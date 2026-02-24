@@ -35,11 +35,11 @@ lv_style_t style_flex_container;
 // uint8_t    prev_mods;
 // uint8_t    mods;
 // bool prev_sniping;
-bool prev_scrolling;
+// bool prev_scrolling;
 
-uint8_t  prev_rgb_effect_mode;
-uint16_t prev_rgb_val;
-uint8_t  prev_rgb_enabled;
+// uint8_t  prev_rgb_effect_mode;
+// uint16_t prev_rgb_val;
+// uint8_t  prev_rgb_enabled;
 
 // uint16_t prev_dpi;
 // uint16_t prev_s_dpi;
@@ -305,6 +305,10 @@ void update_dilemma_status(void) {
     g_dilemma_status.sniping = dilemma_get_pointer_sniping_enabled();
     g_dilemma_status.dpi = dilemma_get_pointer_default_dpi();
     g_dilemma_status.s_dpi = dilemma_get_pointer_sniping_dpi();
+    g_dilemma_status.scrolling = dilemma_get_pointer_dragscroll_enabled();
+    g_dilemma_status.rgb_enabled     = rgb_matrix_is_enabled();
+    g_dilemma_status.rgb_effect_mode = rgb_matrix_get_mode();
+    g_dilemma_status.rgb_val         = rgb_matrix_get_val();
 }
 
 void housekeeping_task_screen_base(void) {
@@ -325,33 +329,30 @@ void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mo
 }
 
 void housekeeping_task_screen_rgb(void) {
-    const uint8_t  rgb_enabled     = rgb_matrix_is_enabled();
-    const bool     rgb_change      = (prev_rgb_enabled != rgb_enabled);
-    const uint8_t  rgb_effect_mode = rgb_matrix_get_mode();
-    const uint16_t rgb_val         = rgb_matrix_get_val();
+    const bool     rgb_change      = (g_dilemma_status.rgb_enabled != g_dilemma_status_prev.rgb_enabled);
 
-    if (!rgb_enabled) {
+    if (!g_dilemma_status.rgb_enabled) {
         if (rgb_change) {
             lv_label_set_text(ui_label_rgb, "RGB: Off");
             lv_bar_set_value(ui_bar_rgb, 0, LV_ANIM_OFF);
             lv_label_set_text(ui_label_rgb_effect, "");
         }
     } else {
-        if ((rgb_change) || (prev_rgb_val != rgb_val)) {
+        if ((rgb_change) || (g_dilemma_status.rgb_val != g_dilemma_status_prev.rgb_val)) {
             char rgbval[50];
             sprintf(rgbval, "RGB: %u", rgb_val);
             lv_label_set_text(ui_label_rgb, rgbval);
-            float rel = (float)((rgb_matrix_get_val())) * 100 / 156;
+            float rel = (float)(g_dilemma_status.rgb_val) * 100 / 156;
             lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
         }
-        if ((rgb_change) || (prev_rgb_effect_mode != rgb_matrix_get_mode())) {
+        if ((rgb_change) || (g_dilemma_status.rgb_effect_mode != g_dilemma_status_prev.rgb_effect_mode)) {
             const char *effect_name = rgb_matrix_get_effect_name();
             lv_label_set_text(ui_label_rgb_effect, effect_name);
         }
     }
-    prev_rgb_enabled     = rgb_enabled;
-    prev_rgb_effect_mode = rgb_effect_mode;
-    prev_rgb_val         = rgb_val;
+    // prev_rgb_enabled     = rgb_enabled;
+    // prev_rgb_effect_mode = rgb_effect_mode;
+    // prev_rgb_val         = rgb_val;
 }
 
 // TODO only redraw if DPI / sniping DPI changed
@@ -385,15 +386,14 @@ void housekeeping_task_screen_pointer(void) {
         }
     }
 
-    const bool scrolling = dilemma_get_pointer_dragscroll_enabled();
-    if (scrolling != prev_scrolling) {
-        if (scrolling) {
+    if (g_dilemma_status.scrolling != g_dilemma_status_prev.scrolling) {
+        if (g_dilemma_status.scrolling) {
             lv_event_send(ui_button_scroll, LV_EVENT_PRESSED, NULL);
         } else {
             lv_event_send(ui_button_scroll, LV_EVENT_RELEASED, NULL);
         }
     }
-    prev_scrolling = scrolling;
+    // prev_scrolling = scrolling;
     // prev_dpi       = dpi;
     // prev_s_dpi     = s_dpi;
 }

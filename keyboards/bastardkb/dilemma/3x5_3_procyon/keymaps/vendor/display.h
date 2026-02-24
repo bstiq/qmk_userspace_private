@@ -66,4 +66,6 @@ void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mo
 
 bool process_records_display(uint16_t keycode, keyrecord_t *record);
 
+const char *rgb_matrix_get_effect_name(void);
+
 static uint8_t prev_layer;

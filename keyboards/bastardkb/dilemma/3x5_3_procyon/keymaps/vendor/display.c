@@ -327,40 +327,9 @@ void housekeeping_task_screen_rgb(void) {}
 
 void housekeeping_task_screen_base(void) {
     mods = get_mods();
-    // if ((mods & MOD_MASK_SHIFT) != (last_mods & MOD_MASK_SHIFT)) {
-    //     if ((mods & MOD_MASK_SHIFT)) {
-    //         lv_event_send(ui_button_mod_shift, LV_EVENT_PRESSED, NULL);
-    //     } else {
-    //         lv_event_send(ui_button_mod_shift, LV_EVENT_RELEASED, NULL);
-    //     }
-    // }
-
     update_mod_button(mods, MOD_MASK_SHIFT, ui_button_mod_shift);
-    // if ((mods & MOD_MASK_ALT) != (last_mods & MOD_MASK_ALT)) {
-    //     if ((mods & MOD_MASK_ALT)) {
-    //         lv_event_send(ui_button_mod_alt, LV_EVENT_PRESSED, NULL);
-    //     } else {
-    //         lv_event_send(ui_button_mod_alt, LV_EVENT_RELEASED, NULL);
-    //     }
-    // }
     update_mod_button(mods, MOD_MASK_ALT, ui_button_mod_alt);
-
-    // if ((mods & MOD_MASK_CTRL) != (last_mods & MOD_MASK_CTRL)) {
-    //     if ((mods & MOD_MASK_CTRL)) {
-    //         lv_event_send(ui_button_mod_control, LV_EVENT_PRESSED, NULL);
-    //     } else {
-    //         lv_event_send(ui_button_mod_control, LV_EVENT_RELEASED, NULL);
-    //     }
-    // }
     update_mod_button(mods, MOD_MASK_CTRL, ui_button_mod_control);
-
-    // if ((mods & MOD_MASK_GUI) != (last_mods & MOD_MASK_GUI)) {
-    //     if ((mods & MOD_MASK_GUI)) {
-    //         lv_event_send(ui_button_mod_gui, LV_EVENT_PRESSED, NULL);
-    //     } else {
-    //         lv_event_send(ui_button_mod_gui, LV_EVENT_RELEASED, NULL);
-    //     }
-    // }
     update_mod_button(mods, MOD_MASK_GUI, ui_button_mod_gui);
 }
 
@@ -383,7 +352,7 @@ void housekeeping_task_screen_rgb(void) {
         char rgbval[50];
         sprintf(rgbval, "RGB: %u", rgb_matrix_get_val());
         lv_label_set_text(ui_label_rgb, rgbval);
-        float rel = (float)((rgb_matrix_get_val()) * 100 / 250;
+        float rel = (float)((rgb_matrix_get_val())) * 100 / 250;
         lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
     }
 }

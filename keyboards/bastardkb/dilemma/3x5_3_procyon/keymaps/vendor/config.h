@@ -56,6 +56,4 @@
 #define QP_LVGL_TASK_PERIOD 33 // throttle lvgl for keyboard responsiveness
 
 // Custom display stuff
-#define BKS_LAYER_X 15
-#define BKS_LAYER_Y 15
-#define BKS_LAYER_BAR_W 12
+#define BK_PALETTE LV_PALETTE_CYAN

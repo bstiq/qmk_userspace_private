@@ -115,8 +115,21 @@ void display_init(void) {
     ui_screen_pointer = lv_obj_create(NULL);
 
     // cont      = lv_obj_create(ui_screen_pointer);
-    lv_obj_set_size(cont, 240, 280); // todo change to screen height
-    lv_obj_add_style(cont, &style_flex_container, 0);
+    // lv_obj_set_size(cont, 240, 280); // todo change to screen height
+    // lv_obj_add_style(cont, &style_flex_container, 0);
+    
+    ui_button_sniping = lv_btn_create(cont);
+    lv_obj_add_flag(ui_button_sniping, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
+    ui_init_button_mod_indicator(ui_button_sniping);
+    ui_label_sniping = lv_label_create(ui_button_sniping);
+    lv_label_set_text(ui_label_sniping, "Snipe");
+    lv_obj_center(ui_label_sniping);
+
+    ui_button_scroll = lv_btn_create(cont);
+    ui_init_button_mod_indicator(ui_button_scroll);
+    ui_label_scroll = lv_label_create(ui_button_scroll);
+    lv_label_set_text(ui_label_scroll, "Scroll");
+    lv_obj_center(ui_label_scroll);
 
     ui_label_dpi = lv_label_create(cont);
     lv_label_set_text(ui_label_dpi, "DPI");
@@ -135,19 +148,6 @@ void display_init(void) {
     lv_obj_set_flex_grow(ui_bar_s_dpi, 1); // take all remaining space in line
     lv_obj_add_style(ui_bar_s_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar_background, 0);
-
-    ui_button_sniping = lv_btn_create(cont);
-    lv_obj_add_flag(ui_button_sniping, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    ui_init_button_mod_indicator(ui_button_sniping);
-    ui_label_sniping = lv_label_create(ui_button_sniping);
-    lv_label_set_text(ui_label_sniping, "Snipe");
-    lv_obj_center(ui_label_sniping);
-
-    ui_button_scroll = lv_btn_create(cont);
-    ui_init_button_mod_indicator(ui_button_scroll);
-    ui_label_scroll = lv_label_create(ui_button_scroll);
-    lv_label_set_text(ui_label_scroll, "Scroll");
-    lv_obj_center(ui_label_scroll);
 
     /*
     Rgb info

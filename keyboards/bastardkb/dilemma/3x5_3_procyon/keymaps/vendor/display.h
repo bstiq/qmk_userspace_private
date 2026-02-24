@@ -3,43 +3,43 @@
 #include QMK_KEYBOARD_H
 
 // screen stuff
-extern lv_obj_t *ui_screen_base;
-extern lv_obj_t *ui_screen_pointer;
+// extern lv_obj_t *ui_screen_base;
+// extern lv_obj_t *ui_screen_pointer;
 
-extern lv_obj_t *ui_label_layer_name_base;
-// extern lv_obj_t *ui_label_layer_name_pointer;
+// extern lv_obj_t *ui_label_layer_name_base;
+// // extern lv_obj_t *ui_label_layer_name_pointer;
 
-// base layer
-extern lv_obj_t *ui_label_mod_gui;
-extern lv_obj_t *ui_button_mod_gui;
-extern lv_obj_t *ui_label_mod_shift;
-extern lv_obj_t *ui_button_mod_shift;
-extern lv_obj_t *ui_label_mod_control;
-extern lv_obj_t *ui_button_mod_control;
-extern lv_obj_t *ui_label_mod_alt;
-extern lv_obj_t *ui_button_mod_alt;
+// // base layer
+// extern lv_obj_t *ui_label_mod_gui;
+// extern lv_obj_t *ui_button_mod_gui;
+// extern lv_obj_t *ui_label_mod_shift;
+// extern lv_obj_t *ui_button_mod_shift;
+// extern lv_obj_t *ui_label_mod_control;
+// extern lv_obj_t *ui_button_mod_control;
+// extern lv_obj_t *ui_label_mod_alt;
+// extern lv_obj_t *ui_button_mod_alt;
 
-// pointer layer
-extern lv_obj_t *ui_label_dpi;
-extern lv_obj_t *ui_bar_dpi;
-extern lv_obj_t *ui_label_s_dpi;
-extern lv_obj_t *ui_bar_s_dpi;
-extern lv_obj_t *ui_label_sniping;
-extern lv_obj_t *ui_button_sniping;
-extern lv_obj_t *ui_label_scroll;
-extern lv_obj_t *ui_button_scroll;
+// // pointer layer
+// extern lv_obj_t *ui_label_dpi;
+// extern lv_obj_t *ui_bar_dpi;
+// extern lv_obj_t *ui_label_s_dpi;
+// extern lv_obj_t *ui_bar_s_dpi;
+// extern lv_obj_t *ui_label_sniping;
+// extern lv_obj_t *ui_button_sniping;
+// extern lv_obj_t *ui_label_scroll;
+// extern lv_obj_t *ui_button_scroll;
 
-// rgb info
-extern lv_obj_t *ui_label_rgb;
-extern lv_obj_t *ui_bar_rgb;
-extern lv_obj_t *ui_label_rgb_effect;
+// // rgb info
+// extern lv_obj_t *ui_label_rgb;
+// extern lv_obj_t *ui_bar_rgb;
+// extern lv_obj_t *ui_label_rgb_effect;
 
-// styles
-extern lv_style_t style_btn;
-extern lv_style_t style_bar;
-extern lv_style_t style_bar_background;
-extern lv_style_t style_btn_pressed;
-extern lv_style_t style_flex_container;
+// // styles
+// extern lv_style_t style_btn;
+// extern lv_style_t style_bar;
+// extern lv_style_t style_bar_background;
+// extern lv_style_t style_btn_pressed;
+// extern lv_style_t style_flex_container;
 
 void display_init(void);
 void style_init_mod_indicator(void);
@@ -67,8 +67,8 @@ bool process_records_display(uint16_t keycode, keyrecord_t *record);
 const char *rgb_matrix_get_effect_name(void);
 
 static uint8_t prev_layer;
-extern uint8_t prev_mods;
-extern uint8_t prev_rgb_enabled;
-extern uint8_t prev_rgb_effect_mode;
-extern uint16_t prev_rgb_val;
-extern uint8_t prev_rgb_enabled;
+// extern uint8_t prev_mods;
+// extern uint8_t prev_rgb_enabled;
+// extern uint8_t prev_rgb_effect_mode;
+// extern uint16_t prev_rgb_val;
+// extern uint8_t prev_rgb_enabled;

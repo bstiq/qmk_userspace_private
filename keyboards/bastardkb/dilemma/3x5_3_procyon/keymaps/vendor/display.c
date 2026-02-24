@@ -117,7 +117,7 @@ void display_init(void) {
     // cont      = lv_obj_create(ui_screen_pointer);
     // lv_obj_set_size(cont, 240, 280); // todo change to screen height
     // lv_obj_add_style(cont, &style_flex_container, 0);
-    
+
     ui_button_sniping = lv_btn_create(cont);
     lv_obj_add_flag(ui_button_sniping, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_init_button_mod_indicator(ui_button_sniping);
@@ -179,13 +179,13 @@ void style_init_mod_indicator(void) {
     lv_style_set_bg_opa(&style_btn, LV_OPA_COVER);
 
     // lv_style_set_bg_color(&style_btn, lv_palette_darken(BK_PALETTE, 1));
-    lv_style_set_bg_color(&style_btn, lv_color_make(50,50,50));
+    lv_style_set_bg_color(&style_btn, lv_color_make(30, 30, 30));
     // lv_style_set_bg_grad_color(&style_btn, lv_palette_darken(BK_PALETTE, 3));
     // lv_style_set_bg_grad_dir(&style_btn, LV_GRAD_DIR_VER);
 
     lv_style_set_border_color(&style_btn, lv_palette_lighten(BK_PALETTE, 1));
-    lv_style_set_border_opa(&style_btn, LV_OPA_20);
-    lv_style_set_border_width(&style_btn, 3);
+    // lv_style_set_border_opa(&style_btn, LV_OPA_20);
+    lv_style_set_border_width(&style_btn, 2);
 
     lv_style_set_text_color(&style_btn, lv_color_white());
 }
@@ -245,7 +245,7 @@ void ui_init_button_mod_indicator(lv_obj_t *button) {
     lv_obj_set_height(button, 30);
 
     // automatically fill space
-     lv_obj_set_flex_grow(button, 1);
+    lv_obj_set_flex_grow(button, 1);
 }
 
 void event_screen_pointer_sniping_toggle(lv_event_t *e) {}
@@ -296,12 +296,12 @@ void housekeeping_task_screen_layer_name(void) {
 }
 
 void update_dilemma_status(void) {
-    g_dilemma_status.mods  = get_mods();
-    g_dilemma_status.layer = get_highest_layer(layer_state);
-    g_dilemma_status.sniping = dilemma_get_pointer_sniping_enabled();
-    g_dilemma_status.dpi = dilemma_get_pointer_default_dpi();
-    g_dilemma_status.s_dpi = dilemma_get_pointer_sniping_dpi();
-    g_dilemma_status.scrolling = dilemma_get_pointer_dragscroll_enabled();
+    g_dilemma_status.mods            = get_mods();
+    g_dilemma_status.layer           = get_highest_layer(layer_state);
+    g_dilemma_status.sniping         = dilemma_get_pointer_sniping_enabled();
+    g_dilemma_status.dpi             = dilemma_get_pointer_default_dpi();
+    g_dilemma_status.s_dpi           = dilemma_get_pointer_sniping_dpi();
+    g_dilemma_status.scrolling       = dilemma_get_pointer_dragscroll_enabled();
     g_dilemma_status.rgb_enabled     = rgb_matrix_is_enabled();
     g_dilemma_status.rgb_effect_mode = rgb_matrix_get_mode();
     g_dilemma_status.rgb_val         = rgb_matrix_get_val();
@@ -325,7 +325,7 @@ void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mo
 }
 
 void housekeeping_task_screen_rgb(void) {
-    const bool     rgb_change      = (g_dilemma_status.rgb_enabled != g_dilemma_status_prev.rgb_enabled);
+    const bool rgb_change = (g_dilemma_status.rgb_enabled != g_dilemma_status_prev.rgb_enabled);
 
     if (!g_dilemma_status.rgb_enabled) {
         if (rgb_change) {

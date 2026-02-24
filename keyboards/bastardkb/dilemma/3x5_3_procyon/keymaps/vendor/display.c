@@ -18,6 +18,7 @@ lv_obj_t *ui_label_dpi;
 lv_obj_t *ui_bar_dpi;
 lv_obj_t *ui_label_s_dpi;
 lv_obj_t *ui_bar_s_dpi;
+lv_obj_t *ui_label_sniping;
 lv_obj_t *ui_button_sniping;
 lv_obj_t *ui_switch_sniping;
 lv_obj_t *ui_label_scroll;

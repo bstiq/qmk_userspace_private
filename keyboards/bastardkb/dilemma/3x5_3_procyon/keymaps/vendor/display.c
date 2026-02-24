@@ -179,7 +179,7 @@ void style_init_mod_indicator(void) {
     lv_style_set_bg_opa(&style_btn, LV_OPA_COVER);
 
     // lv_style_set_bg_color(&style_btn, lv_palette_darken(BK_PALETTE, 1));
-    lv_style_set_bg_color(&style_btn, LV_PALETTE_GREY);
+    lv_style_set_bg_color(&style_btn, lv_color_grey());
     // lv_style_set_bg_grad_color(&style_btn, lv_palette_darken(BK_PALETTE, 3));
     // lv_style_set_bg_grad_dir(&style_btn, LV_GRAD_DIR_VER);
 

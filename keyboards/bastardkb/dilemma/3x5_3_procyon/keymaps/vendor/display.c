@@ -34,15 +34,15 @@ lv_style_t style_btn_pressed;
 lv_style_t style_flex_container;
 // uint8_t    prev_mods;
 // uint8_t    mods;
-bool prev_sniping;
+// bool prev_sniping;
 bool prev_scrolling;
 
 uint8_t  prev_rgb_effect_mode;
 uint16_t prev_rgb_val;
 uint8_t  prev_rgb_enabled;
 
-uint16_t prev_dpi;
-uint16_t prev_s_dpi;
+// uint16_t prev_dpi;
+// uint16_t prev_s_dpi;
 
 enum ui_user_events {
     EVENT_LAYER_CHANGE = 0,
@@ -184,13 +184,13 @@ void display_init(void) {
     lv_disp_set_theme(dispp, theme);
 
     // prev_layer           = 99;
-    prev_sniping         = false;
+    // prev_sniping         = false;
     prev_rgb_enabled     = 99;
     prev_rgb_effect_mode = 99;
     prev_rgb_val         = 99;
     prev_rgb_enabled     = 99;
-    prev_dpi             = 0;
-    prev_s_dpi           = 0;
+    // prev_dpi             = 0;
+    // prev_s_dpi           = 0;
 }
 
 void style_init_mod_indicator(void) {
@@ -302,6 +302,9 @@ void housekeeping_task_screen_layer_name(void) {
 void update_dilemma_status(void) {
     g_dilemma_status.mods  = get_mods();
     g_dilemma_status.layer = get_highest_layer(layer_state);
+    g_dilemma_status.sniping = dilemma_get_pointer_sniping_enabled();
+    g_dilemma_status.dpi = dilemma_get_pointer_default_dpi();
+    g_dilemma_status.s_dpi = dilemma_get_pointer_sniping_dpi();
 }
 
 void housekeeping_task_screen_base(void) {
@@ -355,37 +358,32 @@ void housekeeping_task_screen_rgb(void) {
 // TODO switch to event-based when dpi changed
 void housekeeping_task_screen_pointer(void) {
     // TODO dynamically get max DPI, instead of using hardcoded values
-    const uint16_t dpi = dilemma_get_pointer_default_dpi();
-
-    if (dpi != prev_dpi) {
+    if (g_dilemma_status.dpi != g_dilemma_status_prev.dpi) {
         static const uint16_t rel_max_dpi = 200 * 16;
-        const float           rel         = (float)((dpi + 200 - 400)) * 100 / rel_max_dpi;
+        const float           rel         = (float)((g_dilemma_status.dpi + 200 - 400)) * 100 / rel_max_dpi;
         lv_bar_set_value(ui_bar_dpi, (uint16_t)rel, LV_ANIM_OFF);
 
         char c_dpi[50];
-        sprintf(c_dpi, "DPI: %u", (uint16_t)dpi);
+        sprintf(c_dpi, "DPI: %u", (uint16_t)g_dilemma_status.dpi);
         lv_label_set_text(ui_label_dpi, c_dpi);
     }
 
-    const uint16_t s_dpi = dilemma_get_pointer_sniping_dpi();
-    if (s_dpi != prev_s_dpi) {
+    if (g_dilemma_status.s_dpi != g_dilemma_status_prev.s_dpi) {
         char                  c_s_dpi[50];
         static const uint16_t rel_max_s_dpi = 100 * 4;
-        const float           rel           = (float)((s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
+        const float           rel           = (float)((g_dilemma_status.s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
         lv_bar_set_value(ui_bar_s_dpi, (uint16_t)rel, LV_ANIM_OFF);
-        sprintf(c_s_dpi, "Sniper DPI: %u", (uint16_t)s_dpi);
+        sprintf(c_s_dpi, "Sniper DPI: %u", (uint16_t)g_dilemma_status.s_dpi);
         lv_label_set_text(ui_label_s_dpi, c_s_dpi);
     }
 
-    const bool sniping = dilemma_get_pointer_sniping_enabled();
-    if (sniping != prev_sniping) {
-        if (sniping) {
+    if (g_dilemma_status.sniping != g_dilemma_status_prev.sniping) {
+        if (g_dilemma_status.sniping) {
             lv_event_send(ui_button_sniping, LV_EVENT_PRESSED, NULL);
         } else {
             lv_event_send(ui_button_sniping, LV_EVENT_RELEASED, NULL);
         }
     }
-    prev_sniping = sniping;
 
     const bool scrolling = dilemma_get_pointer_dragscroll_enabled();
     if (scrolling != prev_scrolling) {

@@ -33,7 +33,7 @@ lv_style_t style_bar_background;
 lv_style_t style_btn_pressed;
 lv_style_t style_flex_container;
 // uint8_t    prev_mods;
-uint8_t    mods;
+// uint8_t    mods;
 bool       prev_sniping;
 bool       prev_scrolling;
 
@@ -66,6 +66,7 @@ typedef union {
 } dilemma_status_t;
 
 static dilemma_status_t g_dilemma_status_prev = {0};
+static dilemma_status_t g_dilemma_status = {0};
 
 const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER", "NUM", "SYM"};
 
@@ -189,11 +190,6 @@ void display_init(void) {
     prev_rgb_enabled     = 99;
     prev_dpi             = 0;
     prev_s_dpi           = 0;
-    // update_dilemma_prev_config();
-}
-
-void update_dilemma_prev_config(void){
-    g_dilemma_status_prev.mods            = get_mods();
 }
 
 void style_init_mod_indicator(void) {
@@ -274,7 +270,7 @@ void event_screen_pointer_scroll_toggle(lv_event_t *e) {}
 void event_screen_base_update_mods(lv_event_t *e) {}
 
 void housekeeping_task_display(void) {
-    mods = get_mods();
+    update_dilemma_status();
     // TODO use enum from keymap.c instead of hard coded layer numbers
     uint8_t layer = get_highest_layer(layer_state);
     // TODO use enum from keymap.c instead of hard coded layer numbers
@@ -299,16 +295,19 @@ void housekeeping_task_display(void) {
     housekeeping_task_screen_pointer();
     housekeeping_task_screen_rgb();
 
-    g_dilemma_status_prev.mods  = mods;
+    g_dilemma_status_prev = g_dilemma_status;
     prev_layer = layer;
 }
 
+void update_dilemma_status(void){
+    g_dilemma_status.mods = get_mods();
+}
+
 void housekeeping_task_screen_base(void) {
-    mods = get_mods();
-    update_mod_button(mods, MOD_MASK_SHIFT, ui_button_mod_shift);
-    update_mod_button(mods, MOD_MASK_ALT, ui_button_mod_alt);
-    update_mod_button(mods, MOD_MASK_CTRL, ui_button_mod_control);
-    update_mod_button(mods, MOD_MASK_GUI, ui_button_mod_gui);
+    update_mod_button(g_dilemma_status.mods, MOD_MASK_SHIFT, ui_button_mod_shift);
+    update_mod_button(g_dilemma_status.mods, MOD_MASK_ALT, ui_button_mod_alt);
+    update_mod_button(g_dilemma_status.mods, MOD_MASK_CTRL, ui_button_mod_control);
+    update_mod_button(g_dilemma_status.mods, MOD_MASK_GUI, ui_button_mod_gui);
 }
 
 void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mod) {

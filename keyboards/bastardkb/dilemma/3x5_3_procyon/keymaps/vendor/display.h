@@ -24,7 +24,7 @@ void event_screen_pointer_scroll_toggle(lv_event_t *e);
 void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mod);
 
 bool process_records_display(uint16_t keycode, keyrecord_t *record);
-void update_dilemma_prev_config(void);
+void update_dilemma_status(void);
 
 const char *rgb_matrix_get_effect_name(void);
 

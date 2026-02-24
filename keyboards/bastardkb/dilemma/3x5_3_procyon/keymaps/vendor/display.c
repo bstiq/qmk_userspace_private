@@ -185,10 +185,10 @@ void display_init(void) {
 
     // prev_layer           = 99;
     // prev_sniping         = false;
-    prev_rgb_enabled     = 99;
-    prev_rgb_effect_mode = 99;
-    prev_rgb_val         = 99;
-    prev_rgb_enabled     = 99;
+    // prev_rgb_enabled     = 99;
+    // prev_rgb_effect_mode = 99;
+    // prev_rgb_val         = 99;
+    // prev_rgb_enabled     = 99;
     // prev_dpi             = 0;
     // prev_s_dpi           = 0;
 }

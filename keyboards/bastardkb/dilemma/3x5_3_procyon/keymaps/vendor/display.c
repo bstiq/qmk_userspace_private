@@ -296,8 +296,11 @@ void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mo
 }
 
 void housekeeping_task_screen_rgb(void) {
-    uint8_t rgb_enabled = rgb_matrix_is_enabled();
-    bool rgb_change = (prev_rgb_enabled != prev_rgb_enabled);
+    const uint8_t  rgb_enabled     = rgb_matrix_is_enabled();
+    const bool     rgb_change      = (prev_rgb_enabled != rgb_enabled);
+    const uint8_t  rgb_effect_mode = rgb_matrix_get_mode();
+    const uint16_t rgb_val         = rgb_matrix_get_val();
+
     if (!rgb_enabled) {
         if (rgb_change) {
             lv_label_set_text(ui_label_rgb, "RGB: Off");
@@ -305,24 +308,21 @@ void housekeeping_task_screen_rgb(void) {
             lv_label_set_text(ui_label_rgb_effect, "");
         }
     } else {
-        const uint16_t val = rgb_matrix_get_val();
-        if ((rgb_change) || (prev_rgb_val !=)) {
+        if ((rgb_change) || (prev_rgb_val != rgb_val)) {
             char rgbval[50];
-            sprintf(rgbval, "RGB: %u", val);
+            sprintf(rgbval, "RGB: %u", rgb_val);
             lv_label_set_text(ui_label_rgb, rgbval);
-        }
-        if ((rgb_change) || (prev_rgb_val != rgb_matrix_get_val())) {
             float rel = (float)((rgb_matrix_get_val())) * 100 / 156;
             lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
         }
-
         if ((rgb_change) || (prev_rgb_effect_mode != rgb_matrix_get_mode())) {
             const char *effect_name = rgb_matrix_get_effect_name();
             lv_label_set_text(ui_label_rgb_effect, effect_name);
         }
     }
-}
-prev_rgb_enabled = rgb_enabled;
+    prev_rgb_enabled     = rgb_enabled;
+    prev_rgb_effect_mode = rgb_effect_mode;
+    prev_rgb_val         = rgb_val;
 }
 
 // TODO only redraw if DPI / sniping DPI changed

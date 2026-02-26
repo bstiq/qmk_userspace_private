@@ -113,22 +113,9 @@ void display_init(void) {
     ui_line_1 = lv_bar_create(cont);
     lv_obj_add_flag(ui_line_1, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     lv_obj_set_flex_grow(ui_line_1, 1); // take all remaining space in line
+    lv_obj_set_height(ui_bar_s_dpi, 2);
     lv_obj_add_style(ui_line_1, &style_line, LV_PART_INDICATOR);
-    lv_obj_add_style(ui_line_1, &style_line_background, 0);
-
-
-    ui_label_dpi = lv_label_create(cont);
-    lv_label_set_text(ui_label_dpi, "DPI");
-    lv_obj_add_flag(ui_label_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    ui_bar_dpi = lv_bar_create(cont);
-    lv_obj_set_height(ui_bar_dpi, 10);
-    lv_obj_set_flex_grow(ui_bar_dpi, 1); // take all remaining space in line
-    lv_obj_add_style(ui_bar_dpi, &style_bar, LV_PART_INDICATOR);
-    lv_obj_add_style(ui_bar_dpi, &style_bar_background, 0);
-
-
-
-    
+    lv_obj_add_style(ui_line_1, &style_line_background, 0);    
 
     // display base layer screen upon init
     lv_disp_load_scr(ui_screen_base);
@@ -236,7 +223,7 @@ void style_pressed_init_mod_indicator(void) {
 
 void style_line_init(void){
     lv_style_set_radius(&style_bar, 0);
-    lv_style_set_bg_color(&style_bar, lv_color_make(71,133,239));
+    lv_style_set_bg_color(&style_bar, lv_color_make(50, 55, 67));
 
     // bar background
     lv_style_set_radius(&style_line_background, 3);

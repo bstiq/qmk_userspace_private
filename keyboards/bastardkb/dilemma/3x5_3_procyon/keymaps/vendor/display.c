@@ -70,7 +70,7 @@ static dilemma_status_t g_dilemma_status      = {0};
 const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER", "NUM", "SYM"};
 
 LV_FONT_DECLARE(montserrat);
-LV_FONT_DECLARE(montserrat12);
+LV_FONT_DECLARE(montserratbold13);
 
 void display_init(void) {
     /*
@@ -265,7 +265,7 @@ void style_pressed_init_mod_indicator(void) {
 
 void style_layer_name_init(void) {
     lv_style_init(&style_layer_name);
-    lv_style_set_text_font(&style_layer_name, &montserrat12);
+    lv_style_set_text_font(&style_layer_name, &montserratbold13);
     lv_style_set_radius(&style_mod_btn, 5);
     lv_style_set_bg_opa(&style_mod_btn, LV_OPA_COVER);
     lv_style_set_bg_color(&style_mod_btn, lv_color_make(23, 26, 31));
@@ -287,7 +287,7 @@ void style_line_init(void) {
 
 void style_secondary_labels_init(void) {
     lv_style_init(&style_secondary_labels);
-    lv_style_set_text_font(&style_secondary_labels, &montserrat12);
+    lv_style_set_text_font(&style_secondary_labels, &montserratbold13);
 }
 
 void style_bar_init(void) {

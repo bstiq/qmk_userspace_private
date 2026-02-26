@@ -212,13 +212,13 @@ void style_pressed_init_mod_indicator(void) {
 void style_bar_init(void) {
     // inner bar
     lv_style_set_radius(&style_bar, 0);
-    lv_style_set_bg_color(&style_bar, lv_palette_darken(BK_PALETTE, 3));
+    lv_style_set_bg_color(&style_bar, lv_color_make(71,133,239));
 
     // bar background
     lv_style_set_radius(&style_bar_background, 3);
-    lv_style_set_border_color(&style_bar_background, lv_palette_darken(BK_PALETTE, 4));
-    lv_style_set_border_width(&style_bar_background, 2);
-    lv_style_set_pad_all(&style_bg, 6); // to make the indicator smaller
+    lv_style_set_border_color(&style_bar_background, lv_color_make(199,217,250));
+    lv_style_set_border_width(&style_bar_background, 0);
+    lv_style_set_pad_all(&style_bar_background, 6); // to make the indicator smaller
 }
 
 void ui_init_layer_name(lv_obj_t *label, const char *layer_name) {

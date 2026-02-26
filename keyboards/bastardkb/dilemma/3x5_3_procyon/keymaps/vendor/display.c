@@ -69,6 +69,11 @@ void display_init(void) {
         Base layer screen
     */
     ui_screen_base = lv_obj_create(NULL);
+
+    // todo create init fonts function
+    LV_FONT_DECLARE(montserrat);
+    LV_FONT_DECLARE(montserrat12);
+
     style_init_mod_button();
     style_pressed_init_mod_indicator();
     style_bar_init();
@@ -82,6 +87,7 @@ void display_init(void) {
     lv_obj_add_style(cont, &style_flex_container, 0);
 
     ui_label_layer_name_base = lv_label_create(cont);
+    lv_style_set_text_font(&ui_label_layer_name_base, &montserrat);
     ui_init_layer_name(ui_label_layer_name_base, "Layer: Base");
     lv_obj_set_size(ui_label_layer_name_base, 200, 30);
     lv_obj_center(ui_label_layer_name_base);
@@ -146,6 +152,7 @@ void display_init(void) {
 
     ui_label_dpi = lv_label_create(cont);
     lv_label_set_text(ui_label_dpi, "DPI");
+    lv_style_set_text_font(&ui_label_dpi, &montserrat12);
     lv_obj_add_flag(ui_label_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_bar_dpi = lv_bar_create(cont);
     lv_obj_set_height(ui_bar_dpi, 10);
@@ -155,6 +162,7 @@ void display_init(void) {
 
     ui_label_s_dpi = lv_label_create(cont);
     lv_label_set_text(ui_label_s_dpi, "Snip. DPI");
+    lv_style_set_text_font(&ui_label_s_dpi, &montserrat12);
     lv_obj_add_flag(ui_label_s_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_bar_s_dpi = lv_bar_create(cont);
     lv_obj_set_height(ui_bar_s_dpi, 10);
@@ -174,9 +182,10 @@ void display_init(void) {
     */
     ui_label_rgb = lv_label_create(cont);
     lv_label_set_text(ui_label_rgb, "RGB");
+    lv_style_set_text_font(&ui_label_rgb, &montserrat12);
     lv_obj_add_flag(ui_label_rgb, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_bar_rgb = lv_bar_create(cont);
-    lv_obj_set_height(ui_bar_rgb, 25);
+    lv_obj_set_height(ui_bar_rgb, 10);
     lv_obj_set_flex_grow(ui_bar_rgb, 1); // take all remaining space in line
     lv_obj_add_style(ui_bar_rgb, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_rgb, &style_bar_background, 0);
@@ -194,7 +203,6 @@ void display_init(void) {
 }
 
 void style_init_mod_button(void) {
-    LV_FONT_DECLARE(montserrat);
     lv_style_init(&style_mod_btn);
     lv_style_set_text_font(&style_mod_btn, &montserrat);
     lv_style_set_radius(&style_mod_btn, 5);

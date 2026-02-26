@@ -160,7 +160,7 @@ void display_init(void) {
 
     ui_button_scroll = lv_btn_create(cont);
     ui_init_button_mod_indicator(ui_button_scroll);
-    ui_image_scroll = lv_img_create(ui_button_scroll, NULL);
+    ui_image_scroll = lv_img_create(ui_button_scroll);
     lv_img_set_src(ui_image_scroll, &scroll);
     ui_label_scroll = lv_label_create(ui_button_scroll);
     lv_label_set_text(ui_label_scroll, "SCROLL");

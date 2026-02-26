@@ -26,5 +26,8 @@ SRC += display.c
 SRC += montserratbold14.c
 SRC += montserratbold13.c
 
+# LVGL icons
+SRC += scroll.c
+
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm

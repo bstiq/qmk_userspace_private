@@ -25,6 +25,7 @@ lv_obj_t *ui_label_sniping;
 lv_obj_t *ui_button_sniping;
 lv_obj_t *ui_button_scroll;
 lv_obj_t *ui_label_scroll;
+lv_obj_t *ui_image_scroll;
 lv_obj_t *ui_label_rgb;
 lv_obj_t *ui_bar_rgb;
 lv_obj_t *ui_label_rgb_effect;
@@ -72,6 +73,7 @@ const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER
 
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
+LV_IMG_DECLARE(scroll);
 
 void display_init(void) {
     /*
@@ -101,7 +103,7 @@ void display_init(void) {
     ui_label_layer = lv_label_create(ui_button_layer);
     ui_init_layer_name(ui_label_layer, "Layer: Base"); // todo get rid of this....
     lv_label_set_text(ui_label_layer, "Layer: base");
-    // lv_obj_center(ui_label_layer);
+    lv_obj_center(ui_label_layer);
 
     ui_button_mod_gui = lv_btn_create(cont);
     ui_init_button_mod_indicator(ui_button_mod_gui);
@@ -158,6 +160,8 @@ void display_init(void) {
 
     ui_button_scroll = lv_btn_create(cont);
     ui_init_button_mod_indicator(ui_button_scroll);
+    ui_image_scroll = lv_img_create(ui_button_scroll, NULL);
+    lv_img_set_src(ui_image_scroll, &scroll);
     ui_label_scroll = lv_label_create(ui_button_scroll);
     lv_label_set_text(ui_label_scroll, "SCROLL");
     lv_obj_center(ui_label_scroll);
@@ -185,13 +189,13 @@ void display_init(void) {
     lv_label_set_text(ui_label_s_dpi, "SNIPE DPI");
     lv_obj_add_style(ui_label_s_dpi, &style_secondary_labels, 0);
     lv_obj_add_flag(ui_label_s_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_flex_grow(ui_label_s_dpi, 5);
+    lv_obj_set_flex_grow(ui_label_s_dpi, 4);
 
     ui_bar_s_dpi = lv_bar_create(cont);
     lv_obj_set_height(ui_bar_s_dpi, 10);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar_background, 0);
-    lv_obj_set_flex_grow(ui_bar_s_dpi, 3);
+    lv_obj_set_flex_grow(ui_bar_s_dpi, 4);
 
     ui_label_s_dpi_number = lv_label_create(cont);
     lv_label_set_text(ui_label_s_dpi_number, "1234");
@@ -318,7 +322,7 @@ void ui_init_layer_name(lv_obj_t *label, const char *layer_name) {
     lv_obj_set_width(label, LV_SIZE_CONTENT);
     lv_obj_set_x(label, 0);
     lv_obj_set_y(label, 20);
-    lv_obj_set_align(label, LV_ALIGN_LEFT_MID);
+    // lv_obj_set_align(label, LV_ALIGN_LEFT_MID);
 }
 
 void style_flex_container_init(void) {

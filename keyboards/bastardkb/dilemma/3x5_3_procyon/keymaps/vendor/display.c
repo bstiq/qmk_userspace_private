@@ -65,7 +65,6 @@ void display_init(void) {
     */
     ui_screen_base = lv_obj_create(NULL);
     style_init_mod_button();
-    style_init_mod_label();
     style_pressed_init_mod_indicator();
     style_bar_init();
     style_flex_container_init();
@@ -175,7 +174,9 @@ void display_init(void) {
 }
 
 void style_init_mod_button(void) {
+    LV_FONT_DECLARE(montserrat);
     lv_style_init(&style_mod_btn);
+    lv_style_set_text_font(&style_mod_btn, &montserrat);
     lv_style_set_radius(&style_mod_btn, 5);
     lv_style_set_bg_opa(&style_mod_btn, LV_OPA_COVER);
 

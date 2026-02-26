@@ -22,5 +22,8 @@ SRC += gfx/jostbold36.qff.c
 SRC += gfx/mods.qgf.c
 SRC += display.c
 
+# LVGL fonts
+SRC += montserrat.c
+
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm

@@ -243,6 +243,7 @@ void style_pressed_init_mod_indicator(void) {
 }
 
 void style_layer_name_init(void){
+    LV_FONT_DECLARE(montserrat);
     lv_style_set_text_font(&style_layer_name, &montserrat);
 }
 

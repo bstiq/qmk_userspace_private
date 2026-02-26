@@ -6,6 +6,7 @@ void display_init(void);
 void style_init_mod_button(void);
 void style_pressed_init_mod_indicator(void);
 void style_bar_init(void);
+void style_line_init(void);
 void style_flex_container_init(void);
 
 void ui_init_layer_name(lv_obj_t *label, const char *layer_name);

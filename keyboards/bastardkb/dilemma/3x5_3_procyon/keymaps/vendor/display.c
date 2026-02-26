@@ -166,24 +166,6 @@ void display_init(void) {
     lv_label_set_text(ui_label_scroll, "SCROLL");
     lv_obj_center(ui_label_scroll);
 
-    // dpi
-    ui_label_dpi = lv_label_create(cont);
-    lv_label_set_text(ui_label_dpi, "DPI");
-    lv_obj_add_style(ui_label_dpi, &style_secondary_labels, 0);
-    lv_obj_add_flag(ui_label_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_flex_grow(ui_label_dpi, 2);
-
-    ui_bar_dpi = lv_bar_create(cont);
-    lv_obj_set_height(ui_bar_dpi, 10);
-    lv_obj_add_style(ui_bar_dpi, &style_bar, LV_PART_INDICATOR);
-    lv_obj_add_style(ui_bar_dpi, &style_bar_background, 0);
-    lv_obj_set_flex_grow(ui_bar_dpi, 6);
-
-    ui_label_dpi_number = lv_label_create(cont);
-    lv_label_set_text(ui_label_dpi_number, "1234");
-    lv_obj_add_style(ui_label_dpi_number, &style_secondary_labels, 0);
-    lv_obj_set_flex_grow(ui_label_dpi_number, 2);
-
     // sniping dpi
     ui_label_s_dpi = lv_label_create(cont);
     lv_label_set_text(ui_label_s_dpi, "SNIPE DPI");
@@ -201,6 +183,24 @@ void display_init(void) {
     lv_label_set_text(ui_label_s_dpi_number, "1234");
     lv_obj_add_style(ui_label_s_dpi_number, &style_secondary_labels, 0);
     lv_obj_set_flex_grow(ui_label_s_dpi_number, 2);
+    
+    // dpi
+    ui_label_dpi = lv_label_create(cont);
+    lv_label_set_text(ui_label_dpi, "DPI");
+    lv_obj_add_style(ui_label_dpi, &style_secondary_labels, 0);
+    lv_obj_add_flag(ui_label_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
+    lv_obj_set_flex_grow(ui_label_dpi, 2);
+
+    ui_bar_dpi = lv_bar_create(cont);
+    lv_obj_set_height(ui_bar_dpi, 10);
+    lv_obj_add_style(ui_bar_dpi, &style_bar, LV_PART_INDICATOR);
+    lv_obj_add_style(ui_bar_dpi, &style_bar_background, 0);
+    lv_obj_set_flex_grow(ui_bar_dpi, 6);
+
+    ui_label_dpi_number = lv_label_create(cont);
+    lv_label_set_text(ui_label_dpi_number, "1234");
+    lv_obj_add_style(ui_label_dpi_number, &style_secondary_labels, 0);
+    lv_obj_set_flex_grow(ui_label_dpi_number, 2);
 
     // line separator
     ui_line_2 = lv_bar_create(cont);
@@ -245,7 +245,7 @@ void display_init(void) {
 void style_init_mod_button(void) {
     lv_style_init(&style_mod_btn);
     lv_style_set_text_font(&style_mod_btn, &montserratbold14);
-    lv_style_set_radius(&style_mod_btn, 5);
+    lv_style_set_radius(&style_mod_btn, 6);
     lv_style_set_bg_opa(&style_mod_btn, LV_OPA_COVER);
 
     // lv_style_set_bg_color(&style_mod_btn, lv_palette_darken(BK_PALETTE, 1));
@@ -263,7 +263,7 @@ void style_init_mod_button(void) {
 
 void style_pressed_init_mod_indicator(void) {
     lv_style_init(&style_mod_btn_pressed);
-    lv_style_set_radius(&style_mod_btn_pressed, 5);
+    lv_style_set_radius(&style_mod_btn_pressed, 6);
     lv_style_set_bg_opa(&style_mod_btn_pressed, LV_OPA_COVER);
 
     lv_style_set_bg_color(&style_mod_btn_pressed, lv_color_make(71, 133, 239));
@@ -280,7 +280,7 @@ void style_pressed_init_mod_indicator(void) {
 void style_layer_name_init(void) {
     lv_style_init(&style_layer_name);
     lv_style_set_text_font(&style_layer_name, &montserratbold14);
-    lv_style_set_radius(&style_layer_name, 5);
+    lv_style_set_radius(&style_layer_name, 6);
     // lv_style_set_bg_opa(&style_layer_name, LV_OPA_COVER);
     lv_style_set_bg_color(&style_layer_name, lv_color_black());
     lv_style_set_border_color(&style_layer_name, lv_color_make(50, 55, 67));

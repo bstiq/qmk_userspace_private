@@ -23,7 +23,7 @@ SRC += gfx/mods.qgf.c
 SRC += display.c
 
 # LVGL fonts
-SRC += montserrat.c
+SRC += montserratbold14.c
 SRC += montserratbold13.c
 
 BACKLIGHT_ENABLE = yes

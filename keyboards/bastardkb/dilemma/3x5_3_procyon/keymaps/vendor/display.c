@@ -28,6 +28,7 @@ lv_obj_t *ui_label_scroll;
 lv_obj_t *ui_label_rgb;
 lv_obj_t *ui_bar_rgb;
 lv_obj_t *ui_label_rgb_effect;
+lv_obj_t *ui_label_rgb_number;
 
 lv_obj_t *ui_line_1;
 lv_obj_t *ui_line_2;
@@ -94,11 +95,12 @@ void display_init(void) {
 
     ui_button_layer = lv_btn_create(cont);
     lv_obj_add_style(ui_button_layer, &style_layer_name, 0);
+    lv_obj_set_height(ui_button_layer, 30);
+    lv_obj_set_flex_grow(ui_button_layer, 1); // take all remaining space in line
 
     ui_label_layer = lv_label_create(ui_button_layer);
     ui_init_layer_name(ui_label_layer, "Layer: Base"); // todo get rid of this....
     lv_label_set_text(ui_label_layer, "Layer: base");
-    lv_obj_set_size(ui_label_layer, 200, 30);
     lv_obj_center(ui_label_layer);
 
     ui_button_mod_gui = lv_btn_create(cont);
@@ -180,16 +182,16 @@ void display_init(void) {
 
     // sniping dpi
     ui_label_s_dpi = lv_label_create(cont);
-    lv_label_set_text(ui_label_s_dpi, "Snip. DPI");
+    lv_label_set_text(ui_label_s_dpi, "SNIPING DPI");
     lv_obj_add_style(ui_label_s_dpi, &style_secondary_labels, 0);
     lv_obj_add_flag(ui_label_s_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_flex_grow(ui_label_s_dpi , 2);
+    lv_obj_set_flex_grow(ui_label_s_dpi , 4);
 
     ui_bar_s_dpi = lv_bar_create(cont);
     lv_obj_set_height(ui_bar_s_dpi, 10);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar_background, 0);
-    lv_obj_set_flex_grow(ui_bar_dpi , 6);
+    lv_obj_set_flex_grow(ui_bar_s_dpi , 4);
     
     ui_label_s_dpi_number = lv_label_create(cont);
     lv_label_set_text(ui_label_s_dpi_number, "1234");
@@ -211,11 +213,16 @@ void display_init(void) {
     lv_label_set_text(ui_label_rgb, "RGB");
     lv_obj_add_style(ui_label_rgb, &style_secondary_labels, 0);
     lv_obj_add_flag(ui_label_rgb, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
+
     ui_bar_rgb = lv_bar_create(cont);
     lv_obj_set_height(ui_bar_rgb, 10);
     lv_obj_set_flex_grow(ui_bar_rgb, 1); // take all remaining space in line
     lv_obj_add_style(ui_bar_rgb, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_rgb, &style_bar_background, 0);
+    
+    ui_label_rgb_number = lv_label_create(cont);
+    lv_label_set_text(ui_label_rgb_number, "1234");
+    lv_obj_add_style(ui_label_rgb_number, &style_secondary_labels, 0);
 
     ui_label_rgb_effect = lv_label_create(cont);
     lv_label_set_text(ui_label_rgb_effect, "effect...");
@@ -266,10 +273,10 @@ void style_pressed_init_mod_indicator(void) {
 
 void style_layer_name_init(void) {
     lv_style_init(&style_layer_name);
-    lv_style_set_text_font(&style_layer_name, &montserratbold13);
+    lv_style_set_text_font(&style_layer_name, &montserrat);
     lv_style_set_radius(&style_layer_name, 5);
-    lv_style_set_bg_opa(&style_layer_name, LV_OPA_COVER);
-    lv_style_set_bg_color(&style_layer_name, lv_color_make(23, 26, 31));
+    // lv_style_set_bg_opa(&style_layer_name, LV_OPA_COVER);
+    lv_style_set_bg_color(&style_layer_name, lv_color_black());
     lv_style_set_border_color(&style_layer_name, lv_color_make(50, 55, 67));
     lv_style_set_border_width(&style_layer_name, 2);
     lv_style_set_text_color(&style_layer_name, lv_color_white());
@@ -357,25 +364,25 @@ void housekeeping_task_screen_layer_name(void) {
         switch (g_dilemma_status.layer) {
             case 0:
             default:
-                lv_label_set_text(ui_label_layer, "Layer: Base");
+                lv_label_set_text(ui_label_layer, "LAYER: BASE");
                 break;
             case 1:
-                lv_label_set_text(ui_label_layer, "Layer: Function");
+                lv_label_set_text(ui_label_layer, "LAYER: FUNCTION");
                 break;
             case 2:
-                lv_label_set_text(ui_label_layer, "Layer: Navigation");
+                lv_label_set_text(ui_label_layer, "LAYER: NAVIGATION");
                 break;
             case 3:
-                lv_label_set_text(ui_label_layer, "Layer: Media/RGB");
+                lv_label_set_text(ui_label_layer, "LAYER: MEDIA RGB");
                 break;
             case 4:
-                lv_label_set_text(ui_label_layer, "Layer: Pointer");
+                lv_label_set_text(ui_label_layer, "LAYER: POINTER");
                 break;
             case 5:
-                lv_label_set_text(ui_label_layer, "Layer: Numeral");
+                lv_label_set_text(ui_label_layer, "LAYER: NUMERAL");
                 break;
             case 6:
-                lv_label_set_text(ui_label_layer, "Layer: Symbols");
+                lv_label_set_text(ui_label_layer, "LAYER: SYMBOLS");
                 break;
         }
     }
@@ -415,7 +422,7 @@ void housekeeping_task_screen_rgb(void) {
 
     if (!g_dilemma_status.rgb_enabled) {
         if (rgb_change) {
-            lv_label_set_text(ui_label_rgb, "RGB: Off");
+            lv_label_set_text(ui_label_rgb_number, "Off");
             lv_bar_set_value(ui_bar_rgb, 0, LV_ANIM_OFF);
             lv_label_set_text(ui_label_rgb_effect, "");
         }
@@ -423,7 +430,7 @@ void housekeeping_task_screen_rgb(void) {
         if ((rgb_change) || (g_dilemma_status.rgb_val != g_dilemma_status_prev.rgb_val)) {
             char rgbval[50];
             sprintf(rgbval, "RGB: %u", g_dilemma_status.rgb_val);
-            lv_label_set_text(ui_label_rgb, rgbval);
+            lv_label_set_text(ui_label_rgb_number, rgbval);
             float rel = (float)(g_dilemma_status.rgb_val) * 100 / 156;
             lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
         }

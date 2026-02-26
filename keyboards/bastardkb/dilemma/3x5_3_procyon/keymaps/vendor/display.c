@@ -73,10 +73,6 @@ void display_init(void) {
     */
     ui_screen_base = lv_obj_create(NULL);
 
-    // todo create init fonts function
-    LV_FONT_DECLARE(montserrat);
-    LV_FONT_DECLARE(montserrat12);
-
     style_init_mod_button();
     style_pressed_init_mod_indicator();
     style_bar_init();
@@ -211,6 +207,7 @@ void display_init(void) {
 }
 
 void style_init_mod_button(void) {
+    LV_FONT_DECLARE(montserrat);
     lv_style_init(&style_mod_btn);
     lv_style_set_text_font(&style_mod_btn, &montserrat);
     lv_style_set_radius(&style_mod_btn, 5);
@@ -261,6 +258,7 @@ void style_line_init(void){
 }
 
 void style_secondary_labels_init(void){
+    LV_FONT_DECLARE(montserrat12);
     lv_style_init(&style_secondary_labels);
     lv_style_set_text_font(&style_secondary_labels, &montserrat12);
 }

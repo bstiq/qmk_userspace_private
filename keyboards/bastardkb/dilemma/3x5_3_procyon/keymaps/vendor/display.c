@@ -190,7 +190,7 @@ void style_init_mod_button(void) {
     lv_style_set_border_width(&style_mod_btn, 2);
 
     lv_style_set_text_color(&style_mod_btn, lv_color_white());
-    lv_style_set_text_font(&style_mod_btn, LV_STATE_DEFAULT, &lv_font_montserrat_28);
+    lv_style_set_text_font(&style_mod_btn, &lv_font_montserrat_28);
 }
 
 void style_pressed_init_mod_indicator(void) {

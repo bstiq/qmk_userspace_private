@@ -844,8 +844,6 @@ static lv_font_fmt_txt_dsc_t font_dsc = {
 
 };
 
-extern const lv_font_t lv_font_montserrat_12;
-
 
 /*-----------------
  *  PUBLIC FONT
@@ -870,7 +868,6 @@ lv_font_t montserrat = {
 #endif
     .dsc = &font_dsc,          /*The custom font data. Will be accessed by `get_glyph_bitmap/dsc` */
 #if LV_VERSION_CHECK(8, 2, 0) || LVGL_VERSION_MAJOR >= 9
-    .fallback = &lv_font_montserrat_12,
 #endif
     .user_data = NULL,
 };

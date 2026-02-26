@@ -24,7 +24,7 @@ SRC += display.c
 
 # LVGL fonts
 SRC += montserrat.c
-SRC += montserrat12.c
+SRC += montserratbold13.c
 
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm

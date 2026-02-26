@@ -16,9 +16,11 @@ lv_obj_t *ui_button_mod_control;
 lv_obj_t *ui_label_mod_alt;
 lv_obj_t *ui_button_mod_alt;
 lv_obj_t *ui_label_dpi;
+lv_obj_t *ui_label_dpi_number;
 lv_obj_t *ui_bar_dpi;
 lv_obj_t *ui_label_s_dpi;
 lv_obj_t *ui_bar_s_dpi;
+lv_obj_t *ui_label_s_dpi_number;
 lv_obj_t *ui_label_sniping;
 lv_obj_t *ui_button_sniping;
 lv_obj_t *ui_button_scroll;
@@ -124,10 +126,11 @@ void display_init(void) {
     lv_label_set_text(ui_label_mod_shift, "SHFT");
     lv_obj_center(ui_label_mod_shift);
 
+    // line separator
     ui_line_1 = lv_bar_create(cont);
     lv_obj_add_flag(ui_line_1, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     lv_obj_set_flex_grow(ui_line_1, 1);                        // take all remaining space in line
-    lv_obj_set_height(ui_line_1, 2);
+    lv_obj_set_height(ui_line_1, 3);
     lv_obj_add_style(ui_line_1, &style_line, LV_PART_INDICATOR);
     lv_obj_add_style(ui_line_1, &style_line_background, 0);
 
@@ -157,30 +160,46 @@ void display_init(void) {
     lv_label_set_text(ui_label_scroll, "SCROLL");
     lv_obj_center(ui_label_scroll);
 
+    // dpi
     ui_label_dpi = lv_label_create(cont);
     lv_label_set_text(ui_label_dpi, "DPI");
     lv_obj_add_style(ui_label_dpi, &style_secondary_labels, 0);
     lv_obj_add_flag(ui_label_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
+    lv_obj_set_flex_grow(ui_label_dpi , 2);
+
     ui_bar_dpi = lv_bar_create(cont);
     lv_obj_set_height(ui_bar_dpi, 10);
-    lv_obj_set_flex_grow(ui_bar_dpi, 1); // take all remaining space in line
     lv_obj_add_style(ui_bar_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_dpi, &style_bar_background, 0);
+    lv_obj_set_flex_grow(ui_bar_dpi , 6);
+    
+    ui_label_dpi_number = lv_label_create(cont);
+    lv_label_set_text(ui_label_dpi_number, "1234");
+    lv_obj_add_style(ui_label_dpi_number, &style_secondary_labels, 0);
+    lv_obj_set_flex_grow(ui_label_dpi_number , 2);
 
+    // sniping dpi
     ui_label_s_dpi = lv_label_create(cont);
     lv_label_set_text(ui_label_s_dpi, "Snip. DPI");
     lv_obj_add_style(ui_label_s_dpi, &style_secondary_labels, 0);
     lv_obj_add_flag(ui_label_s_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
+    lv_obj_set_flex_grow(ui_label_s_dpi , 2);
+
     ui_bar_s_dpi = lv_bar_create(cont);
     lv_obj_set_height(ui_bar_s_dpi, 10);
-    lv_obj_set_flex_grow(ui_bar_s_dpi, 1); // take all remaining space in line
     lv_obj_add_style(ui_bar_s_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar_background, 0);
+    
+    ui_label_s_dpi_number = lv_label_create(cont);
+    lv_label_set_text(ui_label_s_dpi_number, "1234");
+    lv_obj_add_style(ui_label_s_dpi_number, &style_secondary_labels, 0);
+    lv_obj_set_flex_grow(ui_label_s_dpi_number , 2);
 
+    // line separator
     ui_line_2 = lv_bar_create(cont);
     lv_obj_add_flag(ui_line_2, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     lv_obj_set_flex_grow(ui_line_2, 1);                        // take all remaining space in line
-    lv_obj_set_height(ui_line_2, 2);
+    lv_obj_set_height(ui_line_2, 3);
     lv_obj_add_style(ui_line_2, &style_line, LV_PART_INDICATOR);
     lv_obj_add_style(ui_line_2, &style_line_background, 0);
 
@@ -245,7 +264,14 @@ void style_pressed_init_mod_indicator(void) {
 }
 
 void style_layer_name_init(void) {
-    lv_style_set_text_font(&style_layer_name, &montserrat);
+    lv_style_init(&style_layer_name);
+    lv_style_set_text_font(&style_layer_name, &montserrat12);
+    lv_style_set_radius(&style_mod_btn, 5);
+    lv_style_set_bg_opa(&style_mod_btn, LV_OPA_COVER);
+    lv_style_set_bg_color(&style_mod_btn, lv_color_make(23, 26, 31));
+    lv_style_set_border_color(&style_mod_btn, lv_color_make(50, 55, 67));
+    lv_style_set_border_width(&style_mod_btn, 2);
+    lv_style_set_text_color(&style_mod_btn, lv_color_white());
 }
 
 void style_line_init(void) {
@@ -415,8 +441,8 @@ void housekeeping_task_screen_pointer(void) {
         lv_bar_set_value(ui_bar_dpi, (uint16_t)rel, LV_ANIM_OFF);
 
         char c_dpi[50];
-        sprintf(c_dpi, "DPI: %u", (uint16_t)g_dilemma_status.dpi);
-        lv_label_set_text(ui_label_dpi, c_dpi);
+        sprintf(c_dpi, "%u", (uint16_t)g_dilemma_status.dpi);
+        lv_label_set_text(ui_label_dpi_number, c_dpi);
     }
 
     if (g_dilemma_status.s_dpi != g_dilemma_status_prev.s_dpi) {
@@ -424,8 +450,8 @@ void housekeeping_task_screen_pointer(void) {
         static const uint16_t rel_max_s_dpi = 100 * 4;
         const float           rel           = (float)((g_dilemma_status.s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
         lv_bar_set_value(ui_bar_s_dpi, (uint16_t)rel, LV_ANIM_OFF);
-        sprintf(c_s_dpi, "Sniper DPI: %u", (uint16_t)g_dilemma_status.s_dpi);
-        lv_label_set_text(ui_label_s_dpi, c_s_dpi);
+        sprintf(c_s_dpi, "%u", (uint16_t)g_dilemma_status.s_dpi);
+        lv_label_set_text(ui_label_s_dpi_number, c_s_dpi);
     }
 
     if (g_dilemma_status.sniping != g_dilemma_status_prev.sniping) {

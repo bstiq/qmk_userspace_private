@@ -27,6 +27,7 @@ lv_obj_t *ui_bar_rgb;
 lv_obj_t *ui_label_rgb_effect;
 
 lv_obj_t *ui_line_1;
+lv_obj_t *ui_line_2;
 
 lv_style_t style_mod_btn;
 lv_style_t style_bar;
@@ -161,6 +162,13 @@ void display_init(void) {
     lv_obj_add_style(ui_bar_s_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar_background, 0);
 
+    ui_line_2 = lv_bar_create(cont);
+    lv_obj_add_flag(ui_line_2, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
+    lv_obj_set_flex_grow(ui_line_2, 1); // take all remaining space in line
+    lv_obj_set_height(ui_line_2, 2);
+    lv_obj_add_style(ui_line_2, &style_line, LV_PART_INDICATOR);
+    lv_obj_add_style(ui_line_2, &style_line_background, 0);    
+
     /*
     Rgb info
     */
@@ -229,6 +237,7 @@ void style_line_init(void){
     lv_style_set_radius(&style_line_background, 3);
     // lv_style_set_border_color(&style_bar_background, lv_color_make(199,217,250));
     lv_style_set_border_width(&style_line_background, 0);
+    lv_style_set_bg_color(&style_line_background, lv_color_make(50, 55, 67));
 }
 
 void style_bar_init(void) {

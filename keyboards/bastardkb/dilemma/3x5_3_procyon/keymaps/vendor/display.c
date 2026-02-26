@@ -213,16 +213,18 @@ void display_init(void) {
     lv_label_set_text(ui_label_rgb, "RGB");
     lv_obj_add_style(ui_label_rgb, &style_secondary_labels, 0);
     lv_obj_add_flag(ui_label_rgb, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
+    lv_obj_set_flex_grow(ui_label_rgb, 2); 
 
     ui_bar_rgb = lv_bar_create(cont);
     lv_obj_set_height(ui_bar_rgb, 10);
-    lv_obj_set_flex_grow(ui_bar_rgb, 1); // take all remaining space in line
     lv_obj_add_style(ui_bar_rgb, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_rgb, &style_bar_background, 0);
+    lv_obj_set_flex_grow(ui_bar_rgb, 6); 
 
     ui_label_rgb_number = lv_label_create(cont);
     lv_label_set_text(ui_label_rgb_number, "1234");
     lv_obj_add_style(ui_label_rgb_number, &style_secondary_labels, 0);
+    lv_obj_set_flex_grow(ui_label_rgb_number, 2); 
 
     ui_label_rgb_effect = lv_label_create(cont);
     lv_label_set_text(ui_label_rgb_effect, "effect...");

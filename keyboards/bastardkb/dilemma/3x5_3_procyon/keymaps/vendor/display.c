@@ -97,7 +97,7 @@ void display_init(void) {
 
     ui_button_layer = lv_btn_create(cont);
     lv_obj_add_style(ui_button_layer, &style_layer_name, 0);
-    lv_obj_set_height(ui_button_layer, 30);
+    lv_obj_set_height(ui_button_layer, 33);
     lv_obj_set_flex_grow(ui_button_layer, 1); // take all remaining space in line
 
     ui_label_layer = lv_label_create(ui_button_layer);

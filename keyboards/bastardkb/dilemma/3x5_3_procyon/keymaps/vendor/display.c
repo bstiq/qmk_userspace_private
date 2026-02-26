@@ -96,7 +96,7 @@ void display_init(void) {
 
     ui_label_layer = lv_label_create(ui_button_layer);
     ui_init_layer_name(ui_label_layer, "Layer: Base"); // todo get rid of this....
-    lv_label_set_text(label, "Layer: base");
+    lv_label_set_text(ui_label_layer, "Layer: base");
     lv_obj_set_size(ui_label_layer, 200, 30);
     lv_obj_center(ui_label_layer);
 

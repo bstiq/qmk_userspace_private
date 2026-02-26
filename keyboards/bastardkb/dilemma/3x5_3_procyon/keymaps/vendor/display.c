@@ -5,7 +5,8 @@
 lv_obj_t *ui_screen_base;
 lv_obj_t *ui_screen_pointer;
 
-lv_obj_t *ui_label_layer_name_base;
+lv_obj_t *ui_label_layer;
+lv_obj_t *ui_button_layer;
 lv_obj_t *ui_label_mod_gui;
 lv_obj_t *ui_button_mod_gui;
 lv_obj_t *ui_label_mod_shift;
@@ -35,7 +36,9 @@ lv_style_t style_bar_background;
 lv_style_t style_mod_btn_pressed;
 lv_style_t style_flex_container;
 lv_style_t style_line;
+lv_style_t style_layer_name;
 lv_style_t style_line_background;
+lv_style_t style_secondary_labels;
 
 enum ui_user_events {
     EVENT_LAYER_CHANGE = 0,
@@ -79,6 +82,8 @@ void display_init(void) {
     style_bar_init();
     style_flex_container_init();
     style_line_init();
+    style_layer_name_init();
+    style_secondary_labels_init();
 
     lv_obj_t *cont = lv_obj_create(ui_screen_base);
     lv_obj_set_size(cont, LCD_WIDTH, LCD_HEIGHT);
@@ -86,11 +91,14 @@ void display_init(void) {
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
     lv_obj_add_style(cont, &style_flex_container, 0);
 
-    ui_label_layer_name_base = lv_label_create(cont);
-    lv_style_set_text_font(&ui_label_layer_name_base, &montserrat);
-    ui_init_layer_name(ui_label_layer_name_base, "Layer: Base");
-    lv_obj_set_size(ui_label_layer_name_base, 200, 30);
-    lv_obj_center(ui_label_layer_name_base);
+    ui_button_layer = lv_btn_create(cont);
+    lv_obj_add_style(ui_button_layer, &style_layer_name, 0);
+
+    ui_label_layer = lv_label_create(ui_button_layer);
+    ui_init_layer_name(ui_label_layer, "Layer: Base"); // todo get rid of this....
+    lv_label_set_text(label, "Layer: base");
+    lv_obj_set_size(ui_label_layer, 200, 30);
+    lv_obj_center(ui_label_layer);
 
     ui_button_mod_gui = lv_btn_create(cont);
     ui_init_button_mod_indicator(ui_button_mod_gui);
@@ -152,7 +160,7 @@ void display_init(void) {
 
     ui_label_dpi = lv_label_create(cont);
     lv_label_set_text(ui_label_dpi, "DPI");
-    lv_style_set_text_font(&ui_label_dpi, &montserrat12);
+    lv_obj_add_style(ui_label_dpi, &style_secondary_labels, 0);
     lv_obj_add_flag(ui_label_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_bar_dpi = lv_bar_create(cont);
     lv_obj_set_height(ui_bar_dpi, 10);
@@ -162,7 +170,7 @@ void display_init(void) {
 
     ui_label_s_dpi = lv_label_create(cont);
     lv_label_set_text(ui_label_s_dpi, "Snip. DPI");
-    lv_style_set_text_font(&ui_label_s_dpi, &montserrat12);
+    lv_obj_add_style(ui_label_s_dpi, &style_secondary_labels, 0);
     lv_obj_add_flag(ui_label_s_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_bar_s_dpi = lv_bar_create(cont);
     lv_obj_set_height(ui_bar_s_dpi, 10);
@@ -182,7 +190,7 @@ void display_init(void) {
     */
     ui_label_rgb = lv_label_create(cont);
     lv_label_set_text(ui_label_rgb, "RGB");
-    lv_style_set_text_font(&ui_label_rgb, &montserrat12);
+    lv_obj_add_style(ui_label_rgb, &style_secondary_labels, 0);
     lv_obj_add_flag(ui_label_rgb, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_bar_rgb = lv_bar_create(cont);
     lv_obj_set_height(ui_bar_rgb, 10);
@@ -237,6 +245,10 @@ void style_pressed_init_mod_indicator(void) {
     // lv_style_set_text_color(&style_mod_btn_pressed, lv_color_black());
 }
 
+void style_layer_name_init(void){
+    lv_style_set_text_font(&style_layer_name, &montserrat);
+}
+
 void style_line_init(void){
     lv_style_set_radius(&style_line, 0);
     lv_style_set_bg_color(&style_line, lv_color_make(50, 55, 67));
@@ -246,6 +258,10 @@ void style_line_init(void){
     // lv_style_set_border_color(&style_bar_background, lv_color_make(199,217,250));
     lv_style_set_border_width(&style_line_background, 0);
     lv_style_set_bg_color(&style_line_background, lv_color_make(50, 55, 67));
+}
+
+void style_secondary_labels_init(void){
+    lv_style_set_text_font(&style_secondary_labels, &montserrat12);
 }
 
 void style_bar_init(void) {
@@ -262,7 +278,7 @@ void style_bar_init(void) {
 
 void ui_init_layer_name(lv_obj_t *label, const char *layer_name) {
     lv_obj_remove_style_all(label);
-    lv_label_set_text(label, layer_name);
+    // lv_label_set_text(label, layer_name);
     lv_obj_set_width(label, LV_SIZE_CONTENT);
     lv_obj_set_x(label, 0);
     lv_obj_set_y(label, 20);
@@ -314,25 +330,25 @@ void housekeeping_task_screen_layer_name(void) {
         switch (g_dilemma_status.layer) {
             case 0:
             default:
-                lv_label_set_text(ui_label_layer_name_base, "Layer: Base");
+                lv_label_set_text(ui_label_layer, "Layer: Base");
                 break;
             case 1:
-                lv_label_set_text(ui_label_layer_name_base, "Layer: Function");
+                lv_label_set_text(ui_label_layer, "Layer: Function");
                 break;
             case 2:
-                lv_label_set_text(ui_label_layer_name_base, "Layer: Navigation");
+                lv_label_set_text(ui_label_layer, "Layer: Navigation");
                 break;
             case 3:
-                lv_label_set_text(ui_label_layer_name_base, "Layer: Media/RGB");
+                lv_label_set_text(ui_label_layer, "Layer: Media/RGB");
                 break;
             case 4:
-                lv_label_set_text(ui_label_layer_name_base, "Layer: Pointer");
+                lv_label_set_text(ui_label_layer, "Layer: Pointer");
                 break;
             case 5:
-                lv_label_set_text(ui_label_layer_name_base, "Layer: Numeral");
+                lv_label_set_text(ui_label_layer, "Layer: Numeral");
                 break;
             case 6:
-                lv_label_set_text(ui_label_layer_name_base, "Layer: Symbols");
+                lv_label_set_text(ui_label_layer, "Layer: Symbols");
                 break;
         }
     }

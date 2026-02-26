@@ -8,6 +8,8 @@ void style_pressed_init_mod_indicator(void);
 void style_bar_init(void);
 void style_line_init(void);
 void style_flex_container_init(void);
+void style_layer_name_init(void);
+void style_secondary_labels_init(void);
 
 void ui_init_layer_name(lv_obj_t *label, const char *layer_name);
 void housekeeping_task_display(void);

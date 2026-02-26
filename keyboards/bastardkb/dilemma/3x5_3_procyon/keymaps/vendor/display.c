@@ -73,7 +73,7 @@ const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER
 
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
-LV_IMG_DECLARE(scroll);
+// LV_IMG_DECLARE(scroll);
 
 void display_init(void) {
     /*
@@ -160,8 +160,8 @@ void display_init(void) {
 
     ui_button_scroll = lv_btn_create(cont);
     ui_init_button_mod_indicator(ui_button_scroll);
-    ui_image_scroll = lv_img_create(ui_button_scroll);
-    lv_img_set_src(ui_image_scroll, &scroll);
+    // ui_image_scroll = lv_img_create(ui_button_scroll);
+    // lv_img_set_src(ui_image_scroll, &scroll);
     ui_label_scroll = lv_label_create(ui_button_scroll);
     lv_label_set_text(ui_label_scroll, "SCROLL");
     lv_obj_center(ui_label_scroll);

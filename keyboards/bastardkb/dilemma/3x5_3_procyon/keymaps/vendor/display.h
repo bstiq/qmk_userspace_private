@@ -3,7 +3,7 @@
 #include QMK_KEYBOARD_H
 
 void display_init(void);
-void style_init_mod_indicator(void);
+void style_init_mod_button(void);
 void style_pressed_init_mod_indicator(void);
 void style_bar_init(void);
 void style_flex_container_init(void);

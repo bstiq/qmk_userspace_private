@@ -189,6 +189,7 @@ void display_init(void) {
     lv_obj_set_height(ui_bar_s_dpi, 10);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar_background, 0);
+    lv_obj_set_flex_grow(ui_bar_dpi , 6);
     
     ui_label_s_dpi_number = lv_label_create(cont);
     lv_label_set_text(ui_label_s_dpi_number, "1234");
@@ -266,12 +267,12 @@ void style_pressed_init_mod_indicator(void) {
 void style_layer_name_init(void) {
     lv_style_init(&style_layer_name);
     lv_style_set_text_font(&style_layer_name, &montserratbold13);
-    lv_style_set_radius(&style_mod_btn, 5);
-    lv_style_set_bg_opa(&style_mod_btn, LV_OPA_COVER);
-    lv_style_set_bg_color(&style_mod_btn, lv_color_make(23, 26, 31));
-    lv_style_set_border_color(&style_mod_btn, lv_color_make(50, 55, 67));
-    lv_style_set_border_width(&style_mod_btn, 2);
-    lv_style_set_text_color(&style_mod_btn, lv_color_white());
+    lv_style_set_radius(&style_layer_name, 5);
+    lv_style_set_bg_opa(&style_layer_name, LV_OPA_COVER);
+    lv_style_set_bg_color(&style_layer_name, lv_color_make(23, 26, 31));
+    lv_style_set_border_color(&style_layer_name, lv_color_make(50, 55, 67));
+    lv_style_set_border_width(&style_layer_name, 2);
+    lv_style_set_text_color(&style_layer_name, lv_color_white());
 }
 
 void style_line_init(void) {

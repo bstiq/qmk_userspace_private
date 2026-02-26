@@ -261,6 +261,7 @@ void style_line_init(void){
 }
 
 void style_secondary_labels_init(void){
+    lv_style_init(&style_secondary_labels);
     lv_style_set_text_font(&style_secondary_labels, &montserrat12);
 }
 

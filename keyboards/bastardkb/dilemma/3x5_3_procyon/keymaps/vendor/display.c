@@ -67,6 +67,9 @@ static dilemma_status_t g_dilemma_status      = {0};
 
 const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER", "NUM", "SYM"};
 
+LV_FONT_DECLARE(montserrat);
+LV_FONT_DECLARE(montserrat12);
+
 void display_init(void) {
     /*
         Base layer screen
@@ -123,10 +126,10 @@ void display_init(void) {
 
     ui_line_1 = lv_bar_create(cont);
     lv_obj_add_flag(ui_line_1, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_flex_grow(ui_line_1, 1); // take all remaining space in line
+    lv_obj_set_flex_grow(ui_line_1, 1);                        // take all remaining space in line
     lv_obj_set_height(ui_line_1, 2);
     lv_obj_add_style(ui_line_1, &style_line, LV_PART_INDICATOR);
-    lv_obj_add_style(ui_line_1, &style_line_background, 0);    
+    lv_obj_add_style(ui_line_1, &style_line_background, 0);
 
     // display base layer screen upon init
     lv_disp_load_scr(ui_screen_base);
@@ -176,10 +179,10 @@ void display_init(void) {
 
     ui_line_2 = lv_bar_create(cont);
     lv_obj_add_flag(ui_line_2, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_flex_grow(ui_line_2, 1); // take all remaining space in line
+    lv_obj_set_flex_grow(ui_line_2, 1);                        // take all remaining space in line
     lv_obj_set_height(ui_line_2, 2);
     lv_obj_add_style(ui_line_2, &style_line, LV_PART_INDICATOR);
-    lv_obj_add_style(ui_line_2, &style_line_background, 0);    
+    lv_obj_add_style(ui_line_2, &style_line_background, 0);
 
     /*
     Rgb info
@@ -207,7 +210,6 @@ void display_init(void) {
 }
 
 void style_init_mod_button(void) {
-    LV_FONT_DECLARE(montserrat);
     lv_style_init(&style_mod_btn);
     lv_style_set_text_font(&style_mod_btn, &montserrat);
     lv_style_set_radius(&style_mod_btn, 5);
@@ -231,7 +233,7 @@ void style_pressed_init_mod_indicator(void) {
     lv_style_set_radius(&style_mod_btn_pressed, 5);
     lv_style_set_bg_opa(&style_mod_btn_pressed, LV_OPA_COVER);
 
-    lv_style_set_bg_color(&style_mod_btn_pressed, lv_color_make(71,133,239));
+    lv_style_set_bg_color(&style_mod_btn_pressed, lv_color_make(71, 133, 239));
     // lv_style_set_bg_grad_color(&style_mod_btn_pressed, lv_palette_lighten(BK_PALETTE, 1));
     // lv_style_set_bg_grad_dir(&style_mod_btn_pressed, LV_GRAD_DIR_VER);
 
@@ -242,12 +244,11 @@ void style_pressed_init_mod_indicator(void) {
     // lv_style_set_text_color(&style_mod_btn_pressed, lv_color_black());
 }
 
-void style_layer_name_init(void){
-    LV_FONT_DECLARE(montserrat);
+void style_layer_name_init(void) {
     lv_style_set_text_font(&style_layer_name, &montserrat);
 }
 
-void style_line_init(void){
+void style_line_init(void) {
     lv_style_set_radius(&style_line, 0);
     lv_style_set_bg_color(&style_line, lv_color_make(50, 55, 67));
 
@@ -258,8 +259,7 @@ void style_line_init(void){
     lv_style_set_bg_color(&style_line_background, lv_color_make(50, 55, 67));
 }
 
-void style_secondary_labels_init(void){
-    LV_FONT_DECLARE(montserrat12);
+void style_secondary_labels_init(void) {
     lv_style_init(&style_secondary_labels);
     lv_style_set_text_font(&style_secondary_labels, &montserrat12);
 }
@@ -267,7 +267,7 @@ void style_secondary_labels_init(void){
 void style_bar_init(void) {
     // inner bar
     lv_style_set_radius(&style_bar, 0);
-    lv_style_set_bg_color(&style_bar, lv_color_make(71,133,239));
+    lv_style_set_bg_color(&style_bar, lv_color_make(71, 133, 239));
 
     // bar background
     lv_style_set_radius(&style_bar_background, 3);

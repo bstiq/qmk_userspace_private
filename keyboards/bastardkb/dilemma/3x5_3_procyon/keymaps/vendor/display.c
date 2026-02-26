@@ -113,7 +113,7 @@ void display_init(void) {
     ui_line_1 = lv_bar_create(cont);
     lv_obj_add_flag(ui_line_1, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     lv_obj_set_flex_grow(ui_line_1, 1); // take all remaining space in line
-    lv_obj_set_height(ui_bar_s_dpi, 2);
+    // lv_obj_set_height(ui_bar_s_dpi, 2);
     lv_obj_add_style(ui_line_1, &style_line, LV_PART_INDICATOR);
     lv_obj_add_style(ui_line_1, &style_line_background, 0);    
 

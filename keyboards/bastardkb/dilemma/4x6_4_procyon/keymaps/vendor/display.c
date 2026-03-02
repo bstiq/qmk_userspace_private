@@ -341,14 +341,15 @@ void update_theme_based_on_layer(void) {
                 hsv = (HSV){HSV_BLUE};
                 break;
             case 2:
-                hsv =  (HSV){HSV_ORANGE};
+                hsv = (HSV){HSV_ORANGE};
                 break;
             case 3:
-                hsv =  (HSV){HSV_AZURE};
+                hsv = (HSV){HSV_AZURE};
                 break;
 
-        lv_style_set_bg_color(&style_mod_btn_pressed, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
-        lv_style_set_bg_color(&style_bar, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+                lv_style_set_bg_color(&style_mod_btn_pressed, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+                lv_style_set_bg_color(&style_bar, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+        }
     }
 }
 
@@ -382,6 +383,7 @@ void housekeeping_task_display(void) {
     housekeeping_task_screen_rgb();
     housekeeping_task_screen_pointer();
     housekeeping_task_screen_rgb();
+    update_theme_based_on_layer();
 
     g_dilemma_status_prev = g_dilemma_status;
 }

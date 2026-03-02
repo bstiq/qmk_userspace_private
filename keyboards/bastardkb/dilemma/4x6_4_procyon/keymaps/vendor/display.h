@@ -25,6 +25,7 @@ void event_screen_pointer_sniping_toggle(lv_event_t *e);
 void event_screen_pointer_scroll_toggle(lv_event_t *e);
 
 void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mod);
+void update_theme_based_on_layer(void);
 
 bool process_records_display(uint16_t keycode, keyrecord_t *record);
 void update_dilemma_status(void);

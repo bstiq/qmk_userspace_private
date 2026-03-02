@@ -183,7 +183,7 @@ void display_init(void) {
     lv_label_set_text(ui_label_s_dpi_number, "1234");
     lv_obj_add_style(ui_label_s_dpi_number, &style_secondary_labels, 0);
     lv_obj_set_flex_grow(ui_label_s_dpi_number, 2);
-    
+
     // dpi
     ui_label_dpi = lv_label_create(cont);
     lv_label_set_text(ui_label_dpi, "DPI");
@@ -205,7 +205,7 @@ void display_init(void) {
     // line separator
     ui_line_2 = lv_bar_create(cont);
     lv_obj_add_flag(ui_line_2, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_flex_grow(ui_line_2, 1); // take all remaining space in line
+    lv_obj_set_flex_grow(ui_line_2, 1);                        // take all remaining space in line
     lv_obj_set_height(ui_line_2, 3);
     lv_obj_add_style(ui_line_2, &style_line, LV_PART_INDICATOR);
     lv_obj_add_style(ui_line_2, &style_line_background, 0);
@@ -217,18 +217,18 @@ void display_init(void) {
     lv_label_set_text(ui_label_rgb, "RGB");
     lv_obj_add_style(ui_label_rgb, &style_secondary_labels, 0);
     lv_obj_add_flag(ui_label_rgb, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_flex_grow(ui_label_rgb, 2); 
+    lv_obj_set_flex_grow(ui_label_rgb, 2);
 
     ui_bar_rgb = lv_bar_create(cont);
     lv_obj_set_height(ui_bar_rgb, 10);
     lv_obj_add_style(ui_bar_rgb, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_rgb, &style_bar_background, 0);
-    lv_obj_set_flex_grow(ui_bar_rgb, 6); 
+    lv_obj_set_flex_grow(ui_bar_rgb, 6);
 
     ui_label_rgb_number = lv_label_create(cont);
     lv_label_set_text(ui_label_rgb_number, "1234");
     lv_obj_add_style(ui_label_rgb_number, &style_secondary_labels, 0);
-    lv_obj_set_flex_grow(ui_label_rgb_number, 2); 
+    lv_obj_set_flex_grow(ui_label_rgb_number, 2);
 
     ui_label_rgb_effect = lv_label_create(cont);
     lv_label_set_text(ui_label_rgb_effect, "effect...");
@@ -327,6 +327,61 @@ void style_flex_container_init(void) {
     lv_style_set_bg_color(&style_flex_container, lv_color_black());
     lv_style_set_pad_row(&style_flex_container, 10);
     lv_style_set_border_width(&style_flex_container, 0);
+}
+
+void update_theme_based_on_layer(void) {
+    if (g_dilemma_status.layer != g_dilemma_status_prev.layer) {
+        HSV hsv;
+        switch (g_dilemma_status.layer) {
+            case 0:
+            hsv = (HSV){HSV_BLACK};
+            break;
+            case 1:
+            hsv = (HSV){HSV_BLUE};
+            break;
+        case 2:
+            return (HSV){HSV_ORANGE};
+            break;
+        case 3:
+            return (HSV){HSV_AZURE};
+            break;
+        case 4:
+            return (HSV){HSV_GREEN};
+            break;
+        case 5:
+            return (HSV){HSV_TEAL};
+            break;
+        case 6:
+            return (HSV){HSV_PURPLE};
+            break;
+        case 7:
+        default:
+            return (hsv_t){HSV_RED};
+            break;
+        }
+        
+            lv_style_set_bg_color(&style_mod_btn_pressed, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+            lv_style_set_bg_color(&style_bar, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+    }
+
+        switch (layer) {
+        case 1:
+            return (HSV){HSV_BLUE};
+        case 2:
+            return (HSV){HSV_ORANGE};
+        case 3:
+            return (HSV){HSV_AZURE};
+        case 4:
+            return (HSV){HSV_GREEN};
+        case 5:
+            return (HSV){HSV_TEAL};
+        case 6:
+            return (HSV){HSV_PURPLE};
+        case 7:
+        default:
+            return (hsv_t){HSV_RED};
+            break;
+    };
 }
 
 void ui_init_button_mod_indicator(lv_obj_t *button) {

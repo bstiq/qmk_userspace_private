@@ -101,8 +101,8 @@ void display_init(void) {
     lv_obj_set_flex_grow(ui_button_layer, 1); // take all remaining space in line
 
     ui_label_layer = lv_label_create(ui_button_layer);
-    ui_init_layer_name(ui_label_layer, "Layer: Base"); // todo get rid of this....
-    lv_label_set_text(ui_label_layer, "Layer: base");
+    ui_init_layer_name(ui_label_layer);
+    lv_label_set_text(ui_label_layer, "LAYER: BASE");
     lv_obj_center(ui_label_layer);
 
     ui_button_mod_gui = lv_btn_create(cont);
@@ -316,13 +316,11 @@ void style_bar_init(void) {
     // lv_style_set_pad_all(&style_bar_background, 6); // to make the indicator smaller
 }
 
-void ui_init_layer_name(lv_obj_t *label, const char *layer_name) {
+void ui_init_layer_name(lv_obj_t *label) {
     lv_obj_remove_style_all(label);
-    // lv_label_set_text(label, layer_name);
     lv_obj_set_width(label, LV_SIZE_CONTENT);
     lv_obj_set_x(label, 0);
     lv_obj_set_y(label, 20);
-    // lv_obj_set_align(label, LV_ALIGN_LEFT_MID);
 }
 
 void style_flex_container_init(void) {

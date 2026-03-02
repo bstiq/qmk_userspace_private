@@ -11,7 +11,7 @@ void style_flex_container_init(void);
 void style_layer_name_init(void);
 void style_secondary_labels_init(void);
 
-void ui_init_layer_name(lv_obj_t *label, const char *layer_name);
+void ui_init_layer_name(lv_obj_t *label);
 void housekeeping_task_display(void);
 void housekeeping_task_screen_base(void);
 void housekeeping_task_screen_pointer(void);

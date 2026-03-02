@@ -334,54 +334,22 @@ void update_theme_based_on_layer(void) {
         HSV hsv;
         switch (g_dilemma_status.layer) {
             case 0:
-            hsv = (HSV){HSV_BLACK};
-            break;
+            default:
+                hsv = (HSV){HSV_BLACK};
+                break;
             case 1:
-            hsv = (HSV){HSV_BLUE};
-            break;
-        case 2:
-            return (HSV){HSV_ORANGE};
-            break;
-        case 3:
-            return (HSV){HSV_AZURE};
-            break;
-        case 4:
-            return (HSV){HSV_GREEN};
-            break;
-        case 5:
-            return (HSV){HSV_TEAL};
-            break;
-        case 6:
-            return (HSV){HSV_PURPLE};
-            break;
-        case 7:
-        default:
-            return (hsv_t){HSV_RED};
-            break;
-        }
-        
-            lv_style_set_bg_color(&style_mod_btn_pressed, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
-            lv_style_set_bg_color(&style_bar, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
-    }
+                hsv = (HSV){HSV_BLUE};
+                break;
+            case 2:
+                hsv =  (HSV){HSV_ORANGE};
+                break;
+            case 3:
+                hsv =  (HSV){HSV_AZURE};
+                break;
 
-        switch (layer) {
-        case 1:
-            return (HSV){HSV_BLUE};
-        case 2:
-            return (HSV){HSV_ORANGE};
-        case 3:
-            return (HSV){HSV_AZURE};
-        case 4:
-            return (HSV){HSV_GREEN};
-        case 5:
-            return (HSV){HSV_TEAL};
-        case 6:
-            return (HSV){HSV_PURPLE};
-        case 7:
-        default:
-            return (hsv_t){HSV_RED};
-            break;
-    };
+        lv_style_set_bg_color(&style_mod_btn_pressed, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+        lv_style_set_bg_color(&style_bar, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+    }
 }
 
 void ui_init_button_mod_indicator(lv_obj_t *button) {
@@ -426,22 +394,13 @@ void housekeeping_task_screen_layer_name(void) {
                 lv_label_set_text(ui_label_layer, "LAYER: BASE");
                 break;
             case 1:
-                lv_label_set_text(ui_label_layer, "LAYER: FUNCTION");
+                lv_label_set_text(ui_label_layer, "LAYER: LOWER");
                 break;
             case 2:
-                lv_label_set_text(ui_label_layer, "LAYER: NAVIGATION");
+                lv_label_set_text(ui_label_layer, "LAYER: RAISE");
                 break;
             case 3:
-                lv_label_set_text(ui_label_layer, "LAYER: MEDIA RGB");
-                break;
-            case 4:
-                lv_label_set_text(ui_label_layer, "LAYER: POINTER");
-                break;
-            case 5:
-                lv_label_set_text(ui_label_layer, "LAYER: NUMERAL");
-                break;
-            case 6:
-                lv_label_set_text(ui_label_layer, "LAYER: SYMBOLS");
+                lv_label_set_text(ui_label_layer, "LAYER: MOUSE");
                 break;
         }
     }

@@ -335,7 +335,9 @@ void update_theme_based_on_layer(void) {
         switch (g_dilemma_status.layer) {
             case 0:
             default:
-                hsv = (HSV){HSV_BLACK};
+                hsv.h = 218;
+                hsv.s = 70;
+                hsv.v = 93;
                 break;
             case 1:
                 hsv = (HSV){HSV_BLUE};
@@ -348,7 +350,9 @@ void update_theme_based_on_layer(void) {
                 break;
 
                 lv_style_set_bg_color(&style_mod_btn_pressed, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+                lv_obj_report_style_change(&style_mod_btn_pressed);
                 lv_style_set_bg_color(&style_bar, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+                lv_obj_report_style_change(&style_bar);
         }
     }
 }

@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "config.h"
 #include QMK_KEYBOARD_H
 
 enum dilemma_keymap_layers {
@@ -38,6 +39,21 @@ enum dilemma_keymap_layers {
 #    define S_D_MOD KC_NO
 #    define SNIPING KC_NO
 #endif // !POINTING_DEVICE_ENABLE
+
+// QP stuff
+#include "qp.h"
+#include "qp_comms.h"
+#include "qp_st77xx_opcodes.h"
+#include "qp_surface.h"
+#include "keymap.h"
+#include "color.h"
+#include "display.h"
+
+painter_device_t        lcd;
+static painter_device_t surface;
+// Buffer required for a 240x280 16bpp surface:
+static uint8_t surface_buffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(LCD_WIDTH, LCD_HEIGHT, 16)];
+// end QP stuff
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -123,3 +139,35 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 // clang-format on
 #endif // ENCODER_MAP_ENABLE
+
+void keyboard_post_init_user(void) {
+    // if (is_keyboard_left()) {
+    // Display timeout
+    wait_ms(LCD_WAIT_TIME);
+
+    lcd = qp_st7789_make_spi_device(LCD_WIDTH, LCD_HEIGHT, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_SPI_DIVISOR, SPI_MODE);
+    qp_init(lcd, LCD_ROTATION);
+
+    surface = qp_make_rgb565_surface(LCD_WIDTH, LCD_HEIGHT, surface_buffer);
+    qp_init(surface, LCD_ROTATION);
+
+    // Display offset
+    qp_set_viewport_offsets(lcd, LCD_OFFSET_X, LCD_OFFSET_Y);
+
+    if(qp_lvgl_attach(lcd)){
+        display_init();
+    }
+
+    // Power on display, fill with black
+    qp_power(lcd, 1);
+    qp_rect(lcd, 0, 0, 300, 300, HSV_BLACK, 1);
+    qp_flush(lcd);
+}
+
+void housekeeping_task_user(void) {
+    housekeeping_task_display();
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    return process_records_display(keycode, record);
+}

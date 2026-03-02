@@ -329,6 +329,7 @@ void style_flex_container_init(void) {
     lv_style_set_border_width(&style_flex_container, 0);
 }
 
+// TODO colors....
 void update_theme_based_on_layer(void) {
     if (g_dilemma_status.layer != g_dilemma_status_prev.layer) {
         HSV hsv;
@@ -340,13 +341,19 @@ void update_theme_based_on_layer(void) {
                 hsv.v = 93;
                 break;
             case 1:
-                hsv = (HSV){HSV_BLUE};
+                hsv.h = 250;
+                hsv.s = 100;
+                hsv.v = 80;
                 break;
             case 2:
-                hsv = (HSV){HSV_ORANGE};
+                hsv.h = 35;
+                hsv.s = 100;
+                hsv.v = 80;
                 break;
             case 3:
-                hsv = (HSV){HSV_AZURE};
+                hsv.h = 195;
+                hsv.s = 30;
+                hsv.v = 80;
                 break;
         }
 

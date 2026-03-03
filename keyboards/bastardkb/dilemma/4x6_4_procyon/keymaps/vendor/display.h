@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include QMK_KEYBOARD_H
 
-typedef mod_button_pair_t Mod_button_pair_t;
+typedef struct mod_button_pair_t mod_button_pair_t;
 
 void display_init(void);
 void style_init_all(void);

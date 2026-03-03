@@ -75,6 +75,7 @@ LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
 LV_FONT_DECLARE(spacemono_bold_12);
 LV_FONT_DECLARE(spacemono_bold_15);
+LV_FONT_DECLARE(spacemono_bold_16);
 // LV_IMG_DECLARE(scroll);
 
 void display_init(void) {
@@ -240,15 +241,15 @@ void display_init(void) {
     /*
         Theme
     */
-    lv_disp_t  *dispp = lv_disp_get_default();
-    lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(BK_PALETTE), lv_palette_main(BK_PALETTE), true, LV_FONT_DEFAULT);
-    lv_disp_set_theme(dispp, theme);
+    // lv_disp_t  *dispp = lv_disp_get_default();
+    // lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(BK_PALETTE), lv_palette_main(BK_PALETTE), true, LV_FONT_DEFAULT);
+    // lv_disp_set_theme(dispp, theme);
 }
 
 void style_init_cyberpunk(void) {
     // mod buttons
     lv_style_init(&style_mod_btn);
-    lv_style_set_text_font(&style_mod_btn, &spacemono_bold_15);
+    lv_style_set_text_font(&style_mod_btn, &spacemono_bold_16);
     lv_style_set_radius(&style_mod_btn, 0);
     lv_style_set_bg_opa(&style_mod_btn, LV_OPA_COVER);
     lv_style_set_bg_color(&style_mod_btn, lv_color_make(0, 0, 0));
@@ -270,7 +271,7 @@ void style_init_cyberpunk(void) {
 
     // layer name
     lv_style_init(&style_layer_name);
-    lv_style_set_text_font(&style_layer_name, &spacemono_bold_15);
+    lv_style_set_text_font(&style_layer_name, &spacemono_bold_16);
     lv_style_set_radius(&style_layer_name, 6);
     lv_style_set_bg_color(&style_layer_name, lv_color_black());
     lv_style_set_border_color(&style_layer_name, lv_color_make(50, 55, 67));

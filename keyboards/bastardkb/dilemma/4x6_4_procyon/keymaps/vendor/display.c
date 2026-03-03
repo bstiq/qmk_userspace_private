@@ -3,7 +3,6 @@
 #include "quantum.h"
 
 lv_obj_t *ui_screen_base;
-lv_obj_t *ui_screen_pointer;
 
 lv_obj_t *ui_label_layer;
 lv_obj_t *ui_button_layer;
@@ -117,9 +116,6 @@ lv_obj_t *create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height) {
 }
 
 void display_init(void) {
-    /*
-        Base layer screen
-    */
     ui_screen_base = lv_obj_create(NULL);
 
     style_init_all();
@@ -135,11 +131,13 @@ void display_init(void) {
     lv_obj_set_height(ui_button_layer, 33);
     lv_obj_set_flex_grow(ui_button_layer, 1); // take all remaining space in line
 
+    // layer title
     ui_label_layer = lv_label_create(ui_button_layer);
     ui_init_layer_name(ui_label_layer);
     lv_label_set_text(ui_label_layer, "LAYER: BASE");
     lv_obj_center(ui_label_layer);
 
+    // gui buttons
     ui_button_mod_gui     = ui_create_mod_button(cont, &ui_label_mod_gui, "GUI", true);
     ui_button_mod_alt     = ui_create_mod_button(cont, &ui_label_mod_alt, "ALT", false);
     ui_button_mod_control = ui_create_mod_button(cont, &ui_label_mod_control, "CTRL", false);
@@ -151,12 +149,7 @@ void display_init(void) {
     // display base layer screen upon init
     lv_disp_load_scr(ui_screen_base);
 
-    /*
-        Pointer screen
-    */
-    // todo delete this line
-    ui_screen_pointer = lv_obj_create(NULL);
-
+    // mouse special buttons
     ui_button_sniping = ui_create_mod_button(cont, &ui_label_sniping, "SNIPE", true);
     ui_button_scroll  = ui_create_mod_button(cont, &ui_label_scroll, "SCROLL", false);
 
@@ -173,28 +166,22 @@ void display_init(void) {
     // line separator
     ui_line_2 = create_line_separator(cont, 1, 3);
 
-    /*
-    Rgb info
-    */
+    // rgb widgets
     ui_label_rgb        = create_secondary_text(cont, "RGB", true, 2);
     ui_bar_rgb          = create_progress_bar(cont, 6, 10);
     ui_label_rgb_number = create_number_label(cont, 2);
 
     ui_label_rgb_effect = create_secondary_text(cont, "effect...", true, 1);
 
-    /*
-        screen background color
-    */
-    // lv_obj_set_style_bg_color(cont,lv_palette_main(LV_PALETTE_RED),LV_PART_MAIN);
+    // theme and backgrounds
     lv_disp_t  *dispp = lv_disp_get_default();
     lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(BK_PALETTE), lv_palette_main(BK_PALETTE), true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
-    // lv_obj_set_style_bg_color(dispp, lv_color_black(), LV_PART_MAIN);
     lv_obj_set_style_bg_color(cont, lv_color_black(), LV_PART_MAIN);
 }
 
 void style_init_all(void) {
-    /* mod button */
+    // mod button 
     lv_style_init(&ui_styles.mod_btn);
     lv_style_set_text_font(&ui_styles.mod_btn, &montserratbold14);
     lv_style_set_radius(&ui_styles.mod_btn, 6);
@@ -204,14 +191,14 @@ void style_init_all(void) {
     lv_style_set_border_width(&ui_styles.mod_btn, 2);
     lv_style_set_text_color(&ui_styles.mod_btn, lv_color_white());
 
-    /* pressed mod indicator */
+    // pressed mod indicator
     lv_style_init(&ui_styles.mod_btn_pressed);
     lv_style_set_radius(&ui_styles.mod_btn_pressed, 6);
     lv_style_set_bg_opa(&ui_styles.mod_btn_pressed, LV_OPA_COVER);
     lv_style_set_bg_color(&ui_styles.mod_btn_pressed, lv_color_make(71, 133, 239));
     lv_style_set_border_color(&ui_styles.mod_btn_pressed, lv_color_white());
 
-    /* layer name label */
+    // layer name label
     lv_style_init(&ui_styles.layer_name);
     lv_style_set_text_font(&ui_styles.layer_name, &montserratbold14);
     lv_style_set_radius(&ui_styles.layer_name, 6);
@@ -220,24 +207,24 @@ void style_init_all(void) {
     lv_style_set_border_width(&ui_styles.layer_name, 2);
     lv_style_set_text_color(&ui_styles.layer_name, lv_color_white());
 
-    /* separator line */
+    // separator line
     lv_style_set_radius(&ui_styles.line, 0);
     lv_style_set_bg_color(&ui_styles.line, lv_color_make(50, 55, 67));
     lv_style_set_radius(&ui_styles.line_background, 3);
     lv_style_set_border_width(&ui_styles.line_background, 0);
     lv_style_set_bg_color(&ui_styles.line_background, lv_color_make(50, 55, 67));
 
-    /* secondary labels */
+    // secondary labels
     lv_style_init(&ui_styles.secondary_labels);
     lv_style_set_text_font(&ui_styles.secondary_labels, &montserratbold13);
 
-    /* bars */
+    // bars
     lv_style_set_radius(&ui_styles.bar, 0);
     lv_style_set_bg_color(&ui_styles.bar, lv_color_make(71, 133, 239));
     lv_style_set_radius(&ui_styles.bar_background, 3);
     lv_style_set_border_width(&ui_styles.bar_background, 0);
 
-    /* flex container */
+    // flex container
     lv_style_set_bg_color(&ui_styles.flex_container, lv_color_black());
     lv_style_set_pad_row(&ui_styles.flex_container, 10);
     lv_style_set_border_width(&ui_styles.flex_container, 0);

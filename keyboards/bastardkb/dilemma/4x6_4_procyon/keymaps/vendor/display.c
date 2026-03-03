@@ -176,26 +176,11 @@ void display_init(void) {
     /*
     Rgb info
     */
-    ui_label_rgb = lv_label_create(cont);
-    lv_label_set_text(ui_label_rgb, "RGB");
-    lv_obj_add_style(ui_label_rgb, &ui_styles.secondary_labels, 0);
-    lv_obj_add_flag(ui_label_rgb, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_flex_grow(ui_label_rgb, 2);
+    ui_label_rgb        = create_secondary_text(cont, "RGB", true, 2);
+    ui_bar_rgb          = create_progress_bar(cont, 6, 10);
+    ui_label_rgb_number = create_number_label(cont, 2);
 
-    ui_bar_rgb = lv_bar_create(cont);
-    lv_obj_set_height(ui_bar_rgb, 10);
-    lv_obj_add_style(ui_bar_rgb, &ui_styles.bar, LV_PART_INDICATOR);
-    lv_obj_add_style(ui_bar_rgb, &ui_styles.bar_background, 0);
-    lv_obj_set_flex_grow(ui_bar_rgb, 6);
-
-    ui_label_rgb_number = lv_label_create(cont);
-    lv_label_set_text(ui_label_rgb_number, "1234");
-    lv_obj_add_style(ui_label_rgb_number, &ui_styles.secondary_labels, 0);
-    lv_obj_set_flex_grow(ui_label_rgb_number, 2);
-
-    ui_label_rgb_effect = lv_label_create(cont);
-    lv_label_set_text(ui_label_rgb_effect, "effect...");
-    lv_obj_add_flag(ui_label_rgb_effect, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
+    ui_label_rgb_effect = create_secondary_text(cont, "effect...", true, 1);
 
     /*
         screen background color

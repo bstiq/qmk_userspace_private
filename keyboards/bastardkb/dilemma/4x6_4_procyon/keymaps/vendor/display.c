@@ -5,11 +5,11 @@
 lv_obj_t *ui_screen_base;
 
 /* mod button pairs: GUI, ALT, CTRL, SHIFT */
-typedef struct {
+struct mod_button_pair_t {
     lv_obj_t *button;
     lv_obj_t *label;
     uint8_t   mod_mask;
-} mod_button_pair_t;
+};
 
 static mod_button_pair_t mod_buttons[4];
 
@@ -151,8 +151,8 @@ void display_init(void) {
     lv_disp_load_scr(ui_screen_base);
 
     // mouse special buttons
-    ui_button_sniping = ui_create_mod_button(cont, &ui_label_sniping, "SNIPE", true);
-    ui_button_scroll  = ui_create_mod_button(cont, &ui_label_scroll, "SCROLL", false);
+    ui_button_sniping = ui_create_mouse_button(cont, &ui_label_sniping, "SNIPE", true);
+    ui_button_scroll  = ui_create_mouse_button(cont, &ui_label_scroll, "SCROLL", false);
 
     // sniping DPI widgets
     ui_label_s_dpi        = create_secondary_text(cont, "SNIPE DPI", true, 4);
@@ -353,11 +353,14 @@ void update_dilemma_status(void) {
 }
 
 void housekeeping_task_screen_base(void) {
-    if ((g_dilemma_status.mods & MASK) != (g_dilemma_status_prev.mods & mod_buttons[i].mod_mask)) {
-        if ((g_dilemma_status.mods & MASK)) {
-            lv_event_send(mod_buttons[i].button, LV_EVENT_PRESSED, NULL);
-        } else {
-            lv_event_send(mod_buttons[i].button, LV_EVENT_RELEASED, NULL);
+    int i = 0;
+    for (i = 0; i < 4; i++) {
+        if ((g_dilemma_status.mods & MASK) != (g_dilemma_status_prev.mods & mod_buttons[i].mod_mask)) {
+            if ((g_dilemma_status.mods & MASK)) {
+                lv_event_send(mod_buttons[i].button, LV_EVENT_PRESSED, NULL);
+            } else {
+                lv_event_send(mod_buttons[i].button, LV_EVENT_RELEASED, NULL);
+            }
         }
     }
 }

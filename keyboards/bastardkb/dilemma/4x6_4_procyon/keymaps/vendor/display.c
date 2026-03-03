@@ -355,8 +355,8 @@ void update_dilemma_status(void) {
 void housekeeping_task_screen_base(void) {
     int i = 0;
     for (i = 0; i < 4; i++) {
-        if ((g_dilemma_status.mods & MASK) != (g_dilemma_status_prev.mods & mod_buttons[i].mod_mask)) {
-            if ((g_dilemma_status.mods & MASK)) {
+        if ((g_dilemma_status.mods & mod_buttons[i].mod_mask) != (g_dilemma_status_prev.mods & mod_buttons[i].mod_mask)) {
+            if ((g_dilemma_status.mods & mod_buttons[i].mod_mask)) {
                 lv_event_send(mod_buttons[i].button, LV_EVENT_PRESSED, NULL);
             } else {
                 lv_event_send(mod_buttons[i].button, LV_EVENT_RELEASED, NULL);

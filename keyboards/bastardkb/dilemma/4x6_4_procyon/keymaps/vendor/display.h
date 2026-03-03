@@ -19,6 +19,7 @@ void housekeeping_task_screen_rgb(void);
 void housekeeping_task_screen_rgb(void);
 void housekeeping_task_screen_layer_name(void);
 void ui_init_button_mod_indicator(lv_obj_t *label);
+lv_obj_t *ui_create_mod_button(lv_obj_t *cont, lv_obj_t **label_ptr, const char *text, bool force_new_track);
 
 void event_screen_base_update_mods(lv_event_t *e);
 void event_screen_pointer_sniping_toggle(lv_event_t *e);

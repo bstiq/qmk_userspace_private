@@ -104,30 +104,10 @@ void display_init(void) {
     lv_label_set_text(ui_label_layer, "LAYER: BASE");
     lv_obj_center(ui_label_layer);
 
-    ui_button_mod_gui = lv_btn_create(cont);
-    ui_init_button_mod_indicator(ui_button_mod_gui);
-    lv_obj_add_flag(ui_button_mod_gui, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    ui_label_mod_gui = lv_label_create(ui_button_mod_gui);
-    lv_label_set_text(ui_label_mod_gui, "GUI");
-    lv_obj_center(ui_label_mod_gui);
-
-    ui_button_mod_alt = lv_btn_create(cont);
-    ui_init_button_mod_indicator(ui_button_mod_alt);
-    ui_label_mod_alt = lv_label_create(ui_button_mod_alt);
-    lv_label_set_text(ui_label_mod_alt, "ALT");
-    lv_obj_center(ui_label_mod_alt);
-
-    ui_button_mod_control = lv_btn_create(cont);
-    ui_init_button_mod_indicator(ui_button_mod_control);
-    ui_label_mod_control = lv_label_create(ui_button_mod_control);
-    lv_label_set_text(ui_label_mod_control, "CTRL");
-    lv_obj_center(ui_label_mod_control);
-
-    ui_button_mod_shift = lv_btn_create(cont);
-    ui_init_button_mod_indicator(ui_button_mod_shift);
-    ui_label_mod_shift = lv_label_create(ui_button_mod_shift);
-    lv_label_set_text(ui_label_mod_shift, "SHFT");
-    lv_obj_center(ui_label_mod_shift);
+    ui_button_mod_gui = ui_create_mod_button(cont, &ui_label_mod_gui, "GUI", true);
+    ui_button_mod_alt = ui_create_mod_button(cont, &ui_label_mod_alt, "ALT", false);
+    ui_button_mod_control = ui_create_mod_button(cont, &ui_label_mod_control, "CTRL", false);
+    ui_button_mod_shift = ui_create_mod_button(cont, &ui_label_mod_shift, "SHFT", false);
 
     // line separator
     ui_line_1 = lv_bar_create(cont);
@@ -329,6 +309,18 @@ void style_flex_container_init(void) {
     lv_style_set_bg_color(&style_flex_container, lv_color_black());
     lv_style_set_pad_row(&style_flex_container, 10);
     lv_style_set_border_width(&style_flex_container, 0);
+}
+
+lv_obj_t *ui_create_mod_button(lv_obj_t *cont, lv_obj_t **label_ptr, const char *text, bool force_new_track) {
+    lv_obj_t *button = lv_btn_create(cont);
+    ui_init_button_mod_indicator(button);
+    if (force_new_track) {
+        lv_obj_add_flag(button, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
+    }
+    *label_ptr = lv_label_create(button);
+    lv_label_set_text(*label_ptr, text);
+    lv_obj_center(*label_ptr);
+    return button;
 }
 
 // TODO colors....

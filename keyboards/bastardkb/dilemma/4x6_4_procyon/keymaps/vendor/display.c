@@ -78,7 +78,7 @@ const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
 
-static lv_obj_t *create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex) {
+lv_obj_t *create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex) {
     lv_obj_t *lbl = lv_label_create(cont);
     lv_label_set_text(lbl, text);
     lv_obj_add_style(lbl, &ui_styles.secondary_labels, 0);
@@ -89,7 +89,7 @@ static lv_obj_t *create_secondary_text(lv_obj_t *cont, const char *text, bool ne
     return lbl;
 }
 
-static lv_obj_t *create_progress_bar(lv_obj_t *cont, uint8_t flex, uint8_t height) {
+lv_obj_t *create_progress_bar(lv_obj_t *cont, uint8_t flex, uint8_t height) {
     lv_obj_t *bar = lv_bar_create(cont);
     lv_obj_set_height(bar, height);
     lv_obj_add_style(bar, &ui_styles.bar, LV_PART_INDICATOR);
@@ -98,7 +98,7 @@ static lv_obj_t *create_progress_bar(lv_obj_t *cont, uint8_t flex, uint8_t heigh
     return bar;
 }
 
-static lv_obj_t *create_number_label(lv_obj_t *cont, uint8_t flex) {
+lv_obj_t *create_number_label(lv_obj_t *cont, uint8_t flex) {
     lv_obj_t *lbl = lv_label_create(cont);
     lv_label_set_text(lbl, "1234");
     lv_obj_add_style(lbl, &ui_styles.secondary_labels, 0);
@@ -106,7 +106,7 @@ static lv_obj_t *create_number_label(lv_obj_t *cont, uint8_t flex) {
     return lbl;
 }
 
-static lv_obj_t *create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height) {
+lv_obj_t *create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height) {
     lv_obj_t *bar = lv_bar_create(cont);
     lv_obj_add_flag(bar, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
     lv_obj_set_flex_grow(bar, flex);

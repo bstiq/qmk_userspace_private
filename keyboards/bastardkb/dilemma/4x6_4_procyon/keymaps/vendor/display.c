@@ -106,6 +106,16 @@ static lv_obj_t *create_number_label(lv_obj_t *cont, uint8_t flex) {
     return lbl;
 }
 
+static lv_obj_t *create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height) {
+    lv_obj_t *bar = lv_bar_create(cont);
+    lv_obj_add_flag(bar, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
+    lv_obj_set_flex_grow(bar, flex);
+    lv_obj_set_height(bar, height);
+    lv_obj_add_style(bar, &ui_styles.line, LV_PART_INDICATOR);
+    lv_obj_add_style(bar, &ui_styles.line_background, 0);
+    return bar;
+}
+
 void display_init(void) {
     /*
         Base layer screen
@@ -136,12 +146,7 @@ void display_init(void) {
     ui_button_mod_shift   = ui_create_mod_button(cont, &ui_label_mod_shift, "SHFT", false);
 
     // line separator
-    ui_line_1 = lv_bar_create(cont);
-    lv_obj_add_flag(ui_line_1, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_flex_grow(ui_line_1, 1);                        // take all remaining space in line
-    lv_obj_set_height(ui_line_1, 3);
-    lv_obj_add_style(ui_line_1, &ui_styles.line, LV_PART_INDICATOR);
-    lv_obj_add_style(ui_line_1, &ui_styles.line_background, 0);
+    ui_line_1 = create_line_separator(cont, 1, 3);
 
     // display base layer screen upon init
     lv_disp_load_scr(ui_screen_base);
@@ -152,36 +157,21 @@ void display_init(void) {
     // todo delete this line
     ui_screen_pointer = lv_obj_create(NULL);
 
-    ui_button_sniping = lv_btn_create(cont);
-    lv_obj_add_flag(ui_button_sniping, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    ui_init_button_mod_indicator(ui_button_sniping);
-    ui_label_sniping = lv_label_create(ui_button_sniping);
-    lv_label_set_text(ui_label_sniping, "SNIPE");
-    lv_obj_center(ui_label_sniping);
-
-    ui_button_scroll = lv_btn_create(cont);
-    ui_init_button_mod_indicator(ui_button_scroll);
-    ui_label_scroll = lv_label_create(ui_button_scroll);
-    lv_label_set_text(ui_label_scroll, "SCROLL");
-    lv_obj_center(ui_label_scroll);
+    ui_button_sniping = ui_create_mod_button(cont, &ui_label_sniping, "SNIPE", true);
+    ui_button_scroll  = ui_create_mod_button(cont, &ui_label_scroll, "SCROLL", false);
 
     // sniping DPI widgets
     ui_label_s_dpi        = create_secondary_text(cont, "SNIPE DPI", true, 4);
-    ui_bar_s_dpi          = create_progress_bar(cont, 4);
+    ui_bar_s_dpi          = create_progress_bar(cont, 4, 8);
     ui_label_s_dpi_number = create_number_label(cont, 2);
 
     // regular DPI widgets
     ui_label_dpi        = create_secondary_text(cont, "DPI", true, 2);
-    ui_bar_dpi          = create_progress_bar(cont, 6);
+    ui_bar_dpi          = create_progress_bar(cont, 6, 8);
     ui_label_dpi_number = create_number_label(cont, 2);
 
     // line separator
-    ui_line_2 = lv_bar_create(cont);
-    lv_obj_add_flag(ui_line_2, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_flex_grow(ui_line_2, 1);                        // take all remaining space in line
-    lv_obj_set_height(ui_line_2, 3);
-    lv_obj_add_style(ui_line_2, &ui_styles.line, LV_PART_INDICATOR);
-    lv_obj_add_style(ui_line_2, &ui_styles.line_background, 0);
+    ui_line_2 = create_line_separator(cont, 1, 3);
 
     /*
     Rgb info

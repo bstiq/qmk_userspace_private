@@ -12,10 +12,6 @@ SRC += display.c
 # LVGL fonts
 SRC += montserratbold14.c
 SRC += montserratbold13.c
-SRC += spacemono_bold_12.c
-SRC += spacemono_bold_13.c
-SRC += spacemono_bold_15.c
-SRC += spacemono_bold_16.c
 
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm

@@ -124,10 +124,6 @@ void display_init(void) {
     // todo delete this line
     ui_screen_pointer = lv_obj_create(NULL);
 
-    // cont      = lv_obj_create(ui_screen_pointer);
-    // lv_obj_set_size(cont, 240, 280); // todo change to screen height
-    // lv_obj_add_style(cont, &style_flex_container, 0);
-
     ui_button_sniping = lv_btn_create(cont);
     lv_obj_add_flag(ui_button_sniping, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
     ui_init_button_mod_indicator(ui_button_sniping);
@@ -137,8 +133,6 @@ void display_init(void) {
 
     ui_button_scroll = lv_btn_create(cont);
     ui_init_button_mod_indicator(ui_button_scroll);
-    // ui_image_scroll = lv_img_create(ui_button_scroll);
-    // lv_img_set_src(ui_image_scroll, &scroll);
     ui_label_scroll = lv_label_create(ui_button_scroll);
     lv_label_set_text(ui_label_scroll, "SCROLL");
     lv_obj_center(ui_label_scroll);

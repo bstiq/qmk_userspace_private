@@ -4,16 +4,17 @@
 
 lv_obj_t *ui_screen_base;
 
+/* mod button pairs: GUI, ALT, CTRL, SHIFT */
+typedef struct {
+    lv_obj_t *button;
+    lv_obj_t *label;
+    uint8_t   mod_mask;
+} mod_button_pair_t;
+
+static mod_button_pair_t mod_buttons[4];
+
 lv_obj_t *ui_label_layer;
 lv_obj_t *ui_button_layer;
-lv_obj_t *ui_label_mod_gui;
-lv_obj_t *ui_button_mod_gui;
-lv_obj_t *ui_label_mod_shift;
-lv_obj_t *ui_button_mod_shift;
-lv_obj_t *ui_label_mod_control;
-lv_obj_t *ui_button_mod_control;
-lv_obj_t *ui_label_mod_alt;
-lv_obj_t *ui_button_mod_alt;
 lv_obj_t *ui_label_dpi;
 lv_obj_t *ui_label_dpi_number;
 lv_obj_t *ui_bar_dpi;
@@ -137,11 +138,11 @@ void display_init(void) {
     lv_label_set_text(ui_label_layer, "LAYER: BASE");
     lv_obj_center(ui_label_layer);
 
-    // gui buttons
-    ui_button_mod_gui     = ui_create_mod_button(cont, &ui_label_mod_gui, "GUI", true);
-    ui_button_mod_alt     = ui_create_mod_button(cont, &ui_label_mod_alt, "ALT", false);
-    ui_button_mod_control = ui_create_mod_button(cont, &ui_label_mod_control, "CTRL", false);
-    ui_button_mod_shift   = ui_create_mod_button(cont, &ui_label_mod_shift, "SHFT", false);
+    // mod buttons: SHIFT, ALT, CTRL, GUI
+    mod_buttons[0] = ui_create_mod_button(cont, "SHFT", true, MOD_MASK_SHIFT);
+    mod_buttons[1] = ui_create_mod_button(cont, "ALT", false, MOD_MASK_ALT);
+    mod_buttons[2] = ui_create_mod_button(cont, "CTRL", false, MOD_MASK_CTRL);
+    mod_buttons[3] = ui_create_mod_button(cont, "GUI", false, MOD_MASK_GUI);
 
     // line separator
     ui_line_1 = create_line_separator(cont, 1, 3);
@@ -181,7 +182,7 @@ void display_init(void) {
 }
 
 void style_init_all(void) {
-    // mod button 
+    // mod button
     lv_style_init(&ui_styles.mod_btn);
     lv_style_set_text_font(&ui_styles.mod_btn, &montserratbold14);
     lv_style_set_radius(&ui_styles.mod_btn, 6);
@@ -237,7 +238,15 @@ void ui_init_layer_name(lv_obj_t *label) {
     lv_obj_set_y(label, 20);
 }
 
-lv_obj_t *ui_create_mod_button(lv_obj_t *cont, lv_obj_t **label_ptr, const char *text, bool force_new_track) {
+mod_button_pair_t ui_create_mod_button(lv_obj_t *cont, const char *text, bool force_new_track, uint8_t mod_mask) {
+    mod_button_pair_t b = {0};
+    b.button            = ui_create_mouse_button(cont, &b.label, text, force_new_track);
+    b.mod_mask          = mod_mask;
+    return b;
+}
+
+// TODO rename this function
+lv_obj_t *ui_create_mouse_button(lv_obj_t *cont, lv_obj_t **label_ptr, const char *text, bool force_new_track) {
     lv_obj_t *button = lv_btn_create(cont);
     ui_init_button_mod_indicator(button);
     if (force_new_track) {
@@ -344,12 +353,16 @@ void update_dilemma_status(void) {
 }
 
 void housekeeping_task_screen_base(void) {
-    update_mod_button(g_dilemma_status.mods, MOD_MASK_SHIFT, ui_button_mod_shift);
-    update_mod_button(g_dilemma_status.mods, MOD_MASK_ALT, ui_button_mod_alt);
-    update_mod_button(g_dilemma_status.mods, MOD_MASK_CTRL, ui_button_mod_control);
-    update_mod_button(g_dilemma_status.mods, MOD_MASK_GUI, ui_button_mod_gui);
+    if ((g_dilemma_status.mods & MASK) != (g_dilemma_status_prev.mods & mod_buttons[i].mod_mask)) {
+        if ((g_dilemma_status.mods & MASK)) {
+            lv_event_send(mod_buttons[i].button, LV_EVENT_PRESSED, NULL);
+        } else {
+            lv_event_send(mod_buttons[i].button, LV_EVENT_RELEASED, NULL);
+        }
+    }
 }
 
+// TODO delete this, not used anymore
 void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mod) {
     if ((mods_active & MASK) != (g_dilemma_status_prev.mods & MASK)) {
         if ((mods_active & MASK)) {

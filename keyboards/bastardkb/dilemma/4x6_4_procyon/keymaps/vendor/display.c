@@ -12,6 +12,8 @@ struct mod_button_pair_t {
 };
 
 static mod_button_pair_t mod_buttons[4];
+static mod_button_pair_t mouse_buttons[2];
+
 
 lv_obj_t *ui_label_layer;
 lv_obj_t *ui_button_layer;
@@ -21,10 +23,6 @@ lv_obj_t *ui_bar_dpi;
 lv_obj_t *ui_label_s_dpi;
 lv_obj_t *ui_bar_s_dpi;
 lv_obj_t *ui_label_s_dpi_number;
-lv_obj_t *ui_label_sniping;
-lv_obj_t *ui_button_sniping;
-lv_obj_t *ui_button_scroll;
-lv_obj_t *ui_label_scroll;
 lv_obj_t *ui_image_scroll;
 lv_obj_t *ui_label_rgb;
 lv_obj_t *ui_bar_rgb;
@@ -151,8 +149,8 @@ void display_init(void) {
     lv_disp_load_scr(ui_screen_base);
 
     // mouse special buttons
-    ui_button_sniping = ui_create_mouse_button(cont, &ui_label_sniping, "SNIPE", true);
-    ui_button_scroll  = ui_create_mouse_button(cont, &ui_label_scroll, "SCROLL", false);
+    mouse_buttons[0] = ui_create_mod_button(cont, "SNIPE", true, 0);
+    mouse_buttons[1] = ui_create_mod_button(cont, "SCROLL", false, 0);
 
     // sniping DPI widgets
     ui_label_s_dpi        = create_secondary_text(cont, "SNIPE DPI", true, 4);
@@ -240,22 +238,19 @@ void ui_init_layer_name(lv_obj_t *label) {
 
 mod_button_pair_t ui_create_mod_button(lv_obj_t *cont, const char *text, bool force_new_track, uint8_t mod_mask) {
     mod_button_pair_t b = {0};
-    b.button            = ui_create_mouse_button(cont, &b.label, text, force_new_track);
-    b.mod_mask          = mod_mask;
-    return b;
-}
 
-// TODO rename this function
-lv_obj_t *ui_create_mouse_button(lv_obj_t *cont, lv_obj_t **label_ptr, const char *text, bool force_new_track) {
-    lv_obj_t *button = lv_btn_create(cont);
-    ui_init_button_mod_indicator(button);
+    b.mod_mask          = mod_mask;
+    b.button = lv_btn_create(cont);
+    ui_init_button_mod_indicator(b.button);
+
     if (force_new_track) {
-        lv_obj_add_flag(button, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
+        lv_obj_add_flag(b.button, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
     }
-    *label_ptr = lv_label_create(button);
-    lv_label_set_text(*label_ptr, text);
-    lv_obj_center(*label_ptr);
-    return button;
+    b.label = lv_label_create(b.button);
+    lv_label_set_text(b.label, text);
+    lv_obj_center(b.label);
+
+    return b;
 }
 
 // TODO colors....
@@ -365,17 +360,6 @@ void housekeeping_task_screen_base(void) {
     }
 }
 
-// TODO delete this, not used anymore
-void update_mod_button(uint8_t mods_active, uint8_t MASK, lv_obj_t *ui_button_mod) {
-    if ((mods_active & MASK) != (g_dilemma_status_prev.mods & MASK)) {
-        if ((mods_active & MASK)) {
-            lv_event_send(ui_button_mod, LV_EVENT_PRESSED, NULL);
-        } else {
-            lv_event_send(ui_button_mod, LV_EVENT_RELEASED, NULL);
-        }
-    }
-}
-
 void housekeeping_task_screen_rgb(void) {
     const bool rgb_change = (g_dilemma_status.rgb_enabled != g_dilemma_status_prev.rgb_enabled);
 
@@ -423,17 +407,17 @@ void housekeeping_task_screen_pointer(void) {
 
     if (g_dilemma_status.sniping != g_dilemma_status_prev.sniping) {
         if (g_dilemma_status.sniping) {
-            lv_event_send(ui_button_sniping, LV_EVENT_PRESSED, NULL);
+            lv_event_send(mouse_buttons[0].button, LV_EVENT_PRESSED, NULL);
         } else {
-            lv_event_send(ui_button_sniping, LV_EVENT_RELEASED, NULL);
+            lv_event_send(mouse_buttons[0].button, LV_EVENT_RELEASED, NULL);
         }
     }
 
     if (g_dilemma_status.scrolling != g_dilemma_status_prev.scrolling) {
         if (g_dilemma_status.scrolling) {
-            lv_event_send(ui_button_scroll, LV_EVENT_PRESSED, NULL);
+            lv_event_send(mouse_buttons[1].button, LV_EVENT_PRESSED, NULL);
         } else {
-            lv_event_send(ui_button_scroll, LV_EVENT_RELEASED, NULL);
+            lv_event_send(mouse_buttons[1].button, LV_EVENT_RELEASED, NULL);
         }
     }
 }

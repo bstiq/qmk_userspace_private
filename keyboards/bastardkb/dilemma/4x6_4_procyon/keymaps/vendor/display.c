@@ -84,13 +84,7 @@ void display_init(void) {
     */
     ui_screen_base = lv_obj_create(NULL);
 
-    style_init_mod_button();
-    style_pressed_init_mod_indicator();
-    style_bar_init();
-    style_flex_container_init();
-    style_line_init();
-    style_layer_name_init();
-    style_secondary_labels_init();
+    style_init_all();
 
     lv_obj_t *cont = lv_obj_create(ui_screen_base);
     lv_obj_set_size(cont, LCD_WIDTH, LCD_HEIGHT);
@@ -228,27 +222,25 @@ void display_init(void) {
     lv_obj_set_style_bg_color(cont, lv_color_black(), LV_PART_MAIN);
 }
 
-void style_init_mod_button(void) {
+void style_init_all(void) {
+    /* mod button */
     lv_style_init(&ui_styles.mod_btn);
     lv_style_set_text_font(&ui_styles.mod_btn, &montserratbold14);
     lv_style_set_radius(&ui_styles.mod_btn, 6);
     lv_style_set_bg_opa(&ui_styles.mod_btn, LV_OPA_COVER);
-
     lv_style_set_bg_color(&ui_styles.mod_btn, lv_color_make(23, 26, 31));
     lv_style_set_border_color(&ui_styles.mod_btn, lv_color_make(50, 55, 67));
     lv_style_set_border_width(&ui_styles.mod_btn, 2);
     lv_style_set_text_color(&ui_styles.mod_btn, lv_color_white());
-}
 
-void style_pressed_init_mod_indicator(void) {
+    /* pressed mod indicator */
     lv_style_init(&ui_styles.mod_btn_pressed);
     lv_style_set_radius(&ui_styles.mod_btn_pressed, 6);
     lv_style_set_bg_opa(&ui_styles.mod_btn_pressed, LV_OPA_COVER);
     lv_style_set_bg_color(&ui_styles.mod_btn_pressed, lv_color_make(71, 133, 239));
     lv_style_set_border_color(&ui_styles.mod_btn_pressed, lv_color_white());
-}
 
-void style_layer_name_init(void) {
+    /* layer name label */
     lv_style_init(&ui_styles.layer_name);
     lv_style_set_text_font(&ui_styles.layer_name, &montserratbold14);
     lv_style_set_radius(&ui_styles.layer_name, 6);
@@ -256,28 +248,28 @@ void style_layer_name_init(void) {
     lv_style_set_border_color(&ui_styles.layer_name, lv_color_make(50, 55, 67));
     lv_style_set_border_width(&ui_styles.layer_name, 2);
     lv_style_set_text_color(&ui_styles.layer_name, lv_color_white());
-}
 
-void style_line_init(void) {
+    /* separator line */
     lv_style_set_radius(&ui_styles.line, 0);
     lv_style_set_bg_color(&ui_styles.line, lv_color_make(50, 55, 67));
-
     lv_style_set_radius(&ui_styles.line_background, 3);
     lv_style_set_border_width(&ui_styles.line_background, 0);
     lv_style_set_bg_color(&ui_styles.line_background, lv_color_make(50, 55, 67));
-}
 
-void style_secondary_labels_init(void) {
+    /* secondary labels */
     lv_style_init(&ui_styles.secondary_labels);
     lv_style_set_text_font(&ui_styles.secondary_labels, &montserratbold13);
-}
 
-void style_bar_init(void) {
+    /* bars */
     lv_style_set_radius(&ui_styles.bar, 0);
     lv_style_set_bg_color(&ui_styles.bar, lv_color_make(71, 133, 239));
-
     lv_style_set_radius(&ui_styles.bar_background, 3);
     lv_style_set_border_width(&ui_styles.bar_background, 0);
+
+    /* flex container */
+    lv_style_set_bg_color(&ui_styles.flex_container, lv_color_black());
+    lv_style_set_pad_row(&ui_styles.flex_container, 10);
+    lv_style_set_border_width(&ui_styles.flex_container, 0);
 }
 
 void ui_init_layer_name(lv_obj_t *label) {
@@ -285,12 +277,6 @@ void ui_init_layer_name(lv_obj_t *label) {
     lv_obj_set_width(label, LV_SIZE_CONTENT);
     lv_obj_set_x(label, 0);
     lv_obj_set_y(label, 20);
-}
-
-void style_flex_container_init(void) {
-    lv_style_set_bg_color(&ui_styles.flex_container, lv_color_black());
-    lv_style_set_pad_row(&ui_styles.flex_container, 10);
-    lv_style_set_border_width(&ui_styles.flex_container, 0);
 }
 
 lv_obj_t *ui_create_mod_button(lv_obj_t *cont, lv_obj_t **label_ptr, const char *text, bool force_new_track) {

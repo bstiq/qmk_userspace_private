@@ -239,11 +239,14 @@ void display_init(void) {
     lv_obj_add_flag(ui_label_rgb_effect, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
 
     /*
-        Theme
+        screen background color
     */
-    // lv_disp_t  *dispp = lv_disp_get_default();
-    // lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(BK_PALETTE), lv_palette_main(BK_PALETTE), true, LV_FONT_DEFAULT);
-    // lv_disp_set_theme(dispp, theme);
+    // lv_obj_set_style_bg_color(cont,lv_palette_main(LV_PALETTE_RED),LV_PART_MAIN);
+    lv_disp_t  *dispp = lv_disp_get_default();
+    lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(BK_PALETTE), lv_palette_main(BK_PALETTE), true, LV_FONT_DEFAULT);
+    lv_disp_set_theme(dispp, theme);
+    lv_obj_set_style_bg_color(dispp, lv_color_black(), LV_PART_MAIN);
+    lv_obj_set_style_bg_color(cont, lv_color_black(), LV_PART_MAIN);
 }
 
 void style_init_cyberpunk(void) {

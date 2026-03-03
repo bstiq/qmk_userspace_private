@@ -26,3 +26,7 @@ bool process_records_display(uint16_t keycode, keyrecord_t *record);
 void update_dilemma_status(void);
 
 const char *rgb_matrix_get_effect_name(void);
+
+static lv_obj_t *create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex);
+static lv_obj_t *create_progress_bar(lv_obj_t *cont, uint8_t flex, uint8_t height);
+static lv_obj_t *create_number_label(lv_obj_t *cont, uint8_t flex);

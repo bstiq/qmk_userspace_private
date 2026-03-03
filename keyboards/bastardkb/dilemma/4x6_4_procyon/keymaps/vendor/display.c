@@ -78,6 +78,34 @@ const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
 
+static lv_obj_t *create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex) {
+    lv_obj_t *lbl = lv_label_create(cont);
+    lv_label_set_text(lbl, text);
+    lv_obj_add_style(lbl, &ui_styles.secondary_labels, 0);
+    if (new_track) {
+        lv_obj_add_flag(lbl, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
+    }
+    lv_obj_set_flex_grow(lbl, flex);
+    return lbl;
+}
+
+static lv_obj_t *create_progress_bar(lv_obj_t *cont, uint8_t flex, uint8_t height) {
+    lv_obj_t *bar = lv_bar_create(cont);
+    lv_obj_set_height(bar, height);
+    lv_obj_add_style(bar, &ui_styles.bar, LV_PART_INDICATOR);
+    lv_obj_add_style(bar, &ui_styles.bar_background, 0);
+    lv_obj_set_flex_grow(bar, flex);
+    return bar;
+}
+
+static lv_obj_t *create_number_label(lv_obj_t *cont, uint8_t flex) {
+    lv_obj_t *lbl = lv_label_create(cont);
+    lv_label_set_text(lbl, "1234");
+    lv_obj_add_style(lbl, &ui_styles.secondary_labels, 0);
+    lv_obj_set_flex_grow(lbl, flex);
+    return lbl;
+}
+
 void display_init(void) {
     /*
         Base layer screen
@@ -102,10 +130,10 @@ void display_init(void) {
     lv_label_set_text(ui_label_layer, "LAYER: BASE");
     lv_obj_center(ui_label_layer);
 
-    ui_button_mod_gui = ui_create_mod_button(cont, &ui_label_mod_gui, "GUI", true);
-    ui_button_mod_alt = ui_create_mod_button(cont, &ui_label_mod_alt, "ALT", false);
+    ui_button_mod_gui     = ui_create_mod_button(cont, &ui_label_mod_gui, "GUI", true);
+    ui_button_mod_alt     = ui_create_mod_button(cont, &ui_label_mod_alt, "ALT", false);
     ui_button_mod_control = ui_create_mod_button(cont, &ui_label_mod_control, "CTRL", false);
-    ui_button_mod_shift = ui_create_mod_button(cont, &ui_label_mod_shift, "SHFT", false);
+    ui_button_mod_shift   = ui_create_mod_button(cont, &ui_label_mod_shift, "SHFT", false);
 
     // line separator
     ui_line_1 = lv_bar_create(cont);
@@ -137,41 +165,15 @@ void display_init(void) {
     lv_label_set_text(ui_label_scroll, "SCROLL");
     lv_obj_center(ui_label_scroll);
 
-    // sniping dpi
-    ui_label_s_dpi = lv_label_create(cont);
-    lv_label_set_text(ui_label_s_dpi, "SNIPE DPI");
-    lv_obj_add_style(ui_label_s_dpi, &ui_styles.secondary_labels, 0);
-    lv_obj_add_flag(ui_label_s_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_flex_grow(ui_label_s_dpi, 4);
+    // sniping DPI widgets
+    ui_label_s_dpi        = create_secondary_text(cont, "SNIPE DPI", true, 4);
+    ui_bar_s_dpi          = create_progress_bar(cont, 4);
+    ui_label_s_dpi_number = create_number_label(cont, 2);
 
-    ui_bar_s_dpi = lv_bar_create(cont);
-    lv_obj_set_height(ui_bar_s_dpi, 8);
-    lv_obj_add_style(ui_bar_s_dpi, &ui_styles.bar, LV_PART_INDICATOR);
-    lv_obj_add_style(ui_bar_s_dpi, &ui_styles.bar_background, 0);
-    lv_obj_set_flex_grow(ui_bar_s_dpi, 4);
-
-    ui_label_s_dpi_number = lv_label_create(cont);
-    lv_label_set_text(ui_label_s_dpi_number, "1234");
-    lv_obj_add_style(ui_label_s_dpi_number, &ui_styles.secondary_labels, 0);
-    lv_obj_set_flex_grow(ui_label_s_dpi_number, 2);
-
-    // dpi
-    ui_label_dpi = lv_label_create(cont);
-    lv_label_set_text(ui_label_dpi, "DPI");
-    lv_obj_add_style(ui_label_dpi, &ui_styles.secondary_labels, 0);
-    lv_obj_add_flag(ui_label_dpi, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // force new line
-    lv_obj_set_flex_grow(ui_label_dpi, 2);
-
-    ui_bar_dpi = lv_bar_create(cont);
-    lv_obj_set_height(ui_bar_dpi, 8);
-    lv_obj_add_style(ui_bar_dpi, &ui_styles.bar, LV_PART_INDICATOR);
-    lv_obj_add_style(ui_bar_dpi, &ui_styles.bar_background, 0);
-    lv_obj_set_flex_grow(ui_bar_dpi, 6);
-
-    ui_label_dpi_number = lv_label_create(cont);
-    lv_label_set_text(ui_label_dpi_number, "1234");
-    lv_obj_add_style(ui_label_dpi_number, &ui_styles.secondary_labels, 0);
-    lv_obj_set_flex_grow(ui_label_dpi_number, 2);
+    // regular DPI widgets
+    ui_label_dpi        = create_secondary_text(cont, "DPI", true, 2);
+    ui_bar_dpi          = create_progress_bar(cont, 6);
+    ui_label_dpi_number = create_number_label(cont, 2);
 
     // line separator
     ui_line_2 = lv_bar_create(cont);

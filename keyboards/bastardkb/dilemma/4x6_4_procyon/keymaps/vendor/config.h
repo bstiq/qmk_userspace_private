@@ -54,5 +54,7 @@
 #define RGB_MATRIX_MODE_NAME_ENABLE
 #define QP_LVGL_TASK_PERIOD 33 // throttle lvgl for keyboard responsiveness
 
+#define QUANTUM_PAINTER_DISPLAY_TIMEOUT 5000
+
 // Custom display stuff
 #define BK_PALETTE LV_PALETTE_CYAN

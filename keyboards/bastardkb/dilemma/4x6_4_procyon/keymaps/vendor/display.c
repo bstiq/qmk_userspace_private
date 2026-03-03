@@ -73,6 +73,8 @@ const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER
 
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
+LV_FONT_DECLARE(spacemono_bold_12);
+LV_FONT_DECLARE(spacemono_bold_15);
 // LV_IMG_DECLARE(scroll);
 
 void display_init(void) {
@@ -81,13 +83,14 @@ void display_init(void) {
     */
     ui_screen_base = lv_obj_create(NULL);
 
-    style_init_mod_button();
-    style_pressed_init_mod_indicator();
-    style_bar_init();
-    style_flex_container_init();
-    style_line_init();
-    style_layer_name_init();
-    style_secondary_labels_init();
+    // style_init_mod_button();
+    // style_pressed_init_mod_indicator();
+    // style_bar_init();
+    // style_flex_container_init();
+    // style_line_init();
+    // style_layer_name_init();
+    // style_secondary_labels_init();
+    style_init_cyberpunk();
 
     lv_obj_t *cont = lv_obj_create(ui_screen_base);
     lv_obj_set_size(cont, LCD_WIDTH, LCD_HEIGHT);
@@ -174,7 +177,7 @@ void display_init(void) {
     lv_obj_set_flex_grow(ui_label_s_dpi, 4);
 
     ui_bar_s_dpi = lv_bar_create(cont);
-    lv_obj_set_height(ui_bar_s_dpi, 10);
+    lv_obj_set_height(ui_bar_s_dpi, 8);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_s_dpi, &style_bar_background, 0);
     lv_obj_set_flex_grow(ui_bar_s_dpi, 4);
@@ -192,7 +195,7 @@ void display_init(void) {
     lv_obj_set_flex_grow(ui_label_dpi, 2);
 
     ui_bar_dpi = lv_bar_create(cont);
-    lv_obj_set_height(ui_bar_dpi, 10);
+    lv_obj_set_height(ui_bar_dpi, 8);
     lv_obj_add_style(ui_bar_dpi, &style_bar, LV_PART_INDICATOR);
     lv_obj_add_style(ui_bar_dpi, &style_bar_background, 0);
     lv_obj_set_flex_grow(ui_bar_dpi, 6);
@@ -240,6 +243,63 @@ void display_init(void) {
     lv_disp_t  *dispp = lv_disp_get_default();
     lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(BK_PALETTE), lv_palette_main(BK_PALETTE), true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
+}
+
+void style_init_cyberpunk(void) {
+    // mod buttons
+    lv_style_init(&style_mod_btn);
+    lv_style_set_text_font(&style_mod_btn, &spacemono_bold_15);
+    lv_style_set_radius(&style_mod_btn, 0);
+    lv_style_set_bg_opa(&style_mod_btn, LV_OPA_COVER);
+    lv_style_set_bg_color(&style_mod_btn, lv_color_make(0, 0, 0));
+
+    lv_style_set_border_color(&style_mod_btn, lv_color_make(255, 255, 255));
+    lv_style_set_border_width(&style_mod_btn, 2);
+
+    lv_style_set_text_color(&style_mod_btn, lv_color_white());
+    // end mod buttons
+
+    // mod buttons, pressed
+    lv_style_init(&style_mod_btn_pressed);
+    // lv_style_set_radius(&style_mod_btn_pressed, 6);
+    lv_style_set_bg_opa(&style_mod_btn_pressed, LV_OPA_COVER);
+
+    lv_style_set_bg_color(&style_mod_btn_pressed, lv_color_make(71, 133, 239));
+    lv_style_set_border_color(&style_mod_btn_pressed, lv_color_white());
+    // end mod buttons, pressed
+
+    // layer name
+    lv_style_init(&style_layer_name);
+    lv_style_set_text_font(&style_layer_name, &spacemono_bold_15);
+    lv_style_set_radius(&style_layer_name, 6);
+    lv_style_set_bg_color(&style_layer_name, lv_color_black());
+    lv_style_set_border_color(&style_layer_name, lv_color_make(50, 55, 67));
+    lv_style_set_border_width(&style_layer_name, 2);
+    lv_style_set_text_color(&style_layer_name, lv_color_white());
+    // end layer name
+
+    // lines
+    lv_style_set_radius(&style_line, 0);
+    lv_style_set_bg_color(&style_line, lv_color_make(158, 158, 158));
+    lv_style_set_radius(&style_line_background, 3);
+    lv_style_set_border_width(&style_line_background, 0);
+    lv_style_set_bg_color(&style_line_background, lv_color_make(158,158,158));
+    // end lines
+
+    // dpi, rgb labels
+    lv_style_init(&style_secondary_labels);
+    lv_style_set_text_font(&style_secondary_labels, &spacemono_bold_12);
+    // end dpi, rgb labels
+
+    // bars
+    // inner bar
+    lv_style_set_radius(&style_bar, 0);
+    lv_style_set_bg_color(&style_bar, lv_color_make(71, 133, 239));
+
+    // bar background
+    lv_style_set_radius(&style_bar_background, 0);
+    lv_style_set_border_width(&style_bar_background, 0);
+    // end bars
 }
 
 void style_init_mod_button(void) {

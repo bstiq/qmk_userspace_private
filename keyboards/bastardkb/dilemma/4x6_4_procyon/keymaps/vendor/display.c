@@ -76,7 +76,7 @@ const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
 
-lv_obj_t *create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex) {
+lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex) {
     lv_obj_t *lbl = lv_label_create(cont);
     lv_label_set_text(lbl, text);
     lv_obj_add_style(lbl, &ui_styles.secondary_labels, 0);
@@ -87,7 +87,7 @@ lv_obj_t *create_secondary_text(lv_obj_t *cont, const char *text, bool new_track
     return lbl;
 }
 
-lv_obj_t *create_progress_bar(lv_obj_t *cont, uint8_t flex, uint8_t height) {
+lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex, uint8_t height) {
     lv_obj_t *bar = lv_bar_create(cont);
     lv_obj_set_height(bar, height);
     lv_obj_add_style(bar, &ui_styles.bar, LV_PART_INDICATOR);
@@ -96,7 +96,7 @@ lv_obj_t *create_progress_bar(lv_obj_t *cont, uint8_t flex, uint8_t height) {
     return bar;
 }
 
-lv_obj_t *create_number_label(lv_obj_t *cont, uint8_t flex) {
+lv_obj_t *ui_create_number_label(lv_obj_t *cont, uint8_t flex) {
     lv_obj_t *lbl = lv_label_create(cont);
     lv_label_set_text(lbl, "1234");
     lv_obj_add_style(lbl, &ui_styles.secondary_labels, 0);
@@ -104,7 +104,7 @@ lv_obj_t *create_number_label(lv_obj_t *cont, uint8_t flex) {
     return lbl;
 }
 
-lv_obj_t *create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height) {
+lv_obj_t *ui_create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height) {
     lv_obj_t *bar = lv_bar_create(cont);
     lv_obj_add_flag(bar, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
     lv_obj_set_flex_grow(bar, flex);
@@ -143,7 +143,7 @@ void display_init(void) {
     mod_buttons[3] = ui_create_mod_button(cont, "GUI", false, MOD_MASK_GUI);
 
     // line separator
-    ui_line_1 = create_line_separator(cont, 1, 3);
+    ui_line_1 = ui_create_line_separator(cont, 1, 3);
 
     // display base layer screen upon init
     lv_disp_load_scr(ui_screen_base);
@@ -153,24 +153,24 @@ void display_init(void) {
     mouse_buttons[1] = ui_create_mod_button(cont, "SCROLL", false, 0);
 
     // sniping DPI widgets
-    ui_label_s_dpi        = create_secondary_text(cont, "SNIPE DPI", true, 4);
-    ui_bar_s_dpi          = create_progress_bar(cont, 4, 8);
-    ui_label_s_dpi_number = create_number_label(cont, 2);
+    ui_label_s_dpi        = ui_create_secondary_text(cont, "SNIPE DPI", true, 4);
+    ui_bar_s_dpi          = ui_create_progress_bar(cont, 4, 8);
+    ui_label_s_dpi_number = ui_create_number_label(cont, 2);
 
     // regular DPI widgets
-    ui_label_dpi        = create_secondary_text(cont, "DPI", true, 2);
-    ui_bar_dpi          = create_progress_bar(cont, 6, 8);
-    ui_label_dpi_number = create_number_label(cont, 2);
+    ui_label_dpi        = ui_create_secondary_text(cont, "DPI", true, 2);
+    ui_bar_dpi          = ui_create_progress_bar(cont, 6, 8);
+    ui_label_dpi_number = ui_create_number_label(cont, 2);
 
     // line separator
-    ui_line_2 = create_line_separator(cont, 1, 3);
+    ui_line_2 = ui_create_line_separator(cont, 1, 3);
 
     // rgb widgets
-    ui_label_rgb        = create_secondary_text(cont, "RGB", true, 2);
-    ui_bar_rgb          = create_progress_bar(cont, 6, 10);
-    ui_label_rgb_number = create_number_label(cont, 2);
+    ui_label_rgb        = ui_create_secondary_text(cont, "RGB", true, 2);
+    ui_bar_rgb          = ui_create_progress_bar(cont, 6, 10);
+    ui_label_rgb_number = ui_create_number_label(cont, 2);
 
-    ui_label_rgb_effect = create_secondary_text(cont, "effect...", true, 1);
+    ui_label_rgb_effect = ui_create_secondary_text(cont, "effect...", true, 1);
 
     // theme and backgrounds
     lv_disp_t  *dispp = lv_disp_get_default();
@@ -254,7 +254,7 @@ mod_button_pair_t ui_create_mod_button(lv_obj_t *cont, const char *text, bool fo
 }
 
 // TODO colors....
-void update_theme_based_on_layer(void) {
+void update_theme_color(void) {
     if (g_dilemma_status.layer != g_dilemma_status_prev.layer) {
         HSV hsv;
         switch (g_dilemma_status.layer) {
@@ -305,17 +305,16 @@ void event_screen_base_update_mods(lv_event_t *e) {}
 void housekeeping_task_display(void) {
     update_dilemma_status();
 
-    housekeeping_task_screen_layer_name();
-    housekeeping_task_screen_base();
-    housekeeping_task_screen_rgb();
-    housekeeping_task_screen_pointer();
-    housekeeping_task_screen_rgb();
-    update_theme_based_on_layer();
+    update_layer_name();
+    update_mods();
+    update_rgb_info();
+    update_mouse_info();
+    update_theme_color();
 
     g_dilemma_status_prev = g_dilemma_status;
 }
 
-void housekeeping_task_screen_layer_name(void) {
+void update_layer_name(void) {
     if (g_dilemma_status.layer != g_dilemma_status_prev.layer) {
         switch (g_dilemma_status.layer) {
             case 0:
@@ -347,7 +346,7 @@ void update_dilemma_status(void) {
     g_dilemma_status.rgb_val         = rgb_matrix_get_val();
 }
 
-void housekeeping_task_screen_base(void) {
+void update_mods(void) {
     int i = 0;
     for (i = 0; i < 4; i++) {
         if ((g_dilemma_status.mods & mod_buttons[i].mod_mask) != (g_dilemma_status_prev.mods & mod_buttons[i].mod_mask)) {
@@ -360,7 +359,7 @@ void housekeeping_task_screen_base(void) {
     }
 }
 
-void housekeeping_task_screen_rgb(void) {
+void update_rgb_info(void) {
     const bool rgb_change = (g_dilemma_status.rgb_enabled != g_dilemma_status_prev.rgb_enabled);
 
     if (!g_dilemma_status.rgb_enabled) {
@@ -384,7 +383,7 @@ void housekeeping_task_screen_rgb(void) {
     }
 }
 
-void housekeeping_task_screen_pointer(void) {
+void update_mouse_info(void) {
     // TODO dynamically get max DPI, instead of using hardcoded values
     if (g_dilemma_status.dpi != g_dilemma_status_prev.dpi) {
         static const uint16_t rel_max_dpi = 200 * 16;
@@ -420,10 +419,6 @@ void housekeeping_task_screen_pointer(void) {
             lv_event_send(mouse_buttons[1].button, LV_EVENT_RELEASED, NULL);
         }
     }
-}
-
-bool process_records_display(uint16_t keycode, keyrecord_t *record) {
-    return true;
 }
 
 const char *rgb_matrix_get_effect_name(void) {

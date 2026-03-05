@@ -1,5 +1,7 @@
 #include "lvgl.h"
 
+void init_themes(void);
+
 typedef struct {
     lv_font_t *font;
     uint8_t border_radius;

@@ -26,7 +26,7 @@ void init_themes(void) {
             .border_width = 2,
         },
         {
-            &montserratbold14,
+            montserratbold14,
             6,
             lv_color_black(),
             lv_color_make(50, 55, 67),
@@ -34,7 +34,7 @@ void init_themes(void) {
             2,
         },
         {
-            &montserratbold13,
+            montserratbold13,
         },
         {
             0,

@@ -1,4 +1,3 @@
-#include "theme.h"
 #include "display.h"
 #include "config.h"
 #include "quantum.h"

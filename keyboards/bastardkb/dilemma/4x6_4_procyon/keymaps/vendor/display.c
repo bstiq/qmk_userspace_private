@@ -121,8 +121,8 @@ lv_obj_t *ui_create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height)
 void display_init(void) {
     ui_screen_base = lv_obj_create(NULL);
 
-    style_init_all();
     init_themes();
+    style_init_all();
 
     lv_obj_t *cont = lv_obj_create(ui_screen_base);
     lv_obj_set_size(cont, LCD_WIDTH, LCD_HEIGHT);

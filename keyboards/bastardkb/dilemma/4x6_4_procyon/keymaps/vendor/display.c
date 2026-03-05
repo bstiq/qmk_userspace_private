@@ -187,13 +187,14 @@ void display_init(void) {
 void style_init_all(void) {
     // mod button
     lv_style_init(&ui_styles.mod_btn);
-    lv_style_set_text_font(&ui_styles.mod_btn, &montserratbold14);
-    lv_style_set_radius(&ui_styles.mod_btn, 6);
-    lv_style_set_bg_opa(&ui_styles.mod_btn, LV_OPA_COVER);
-    lv_style_set_bg_color(&ui_styles.mod_btn, lv_color_make(23, 26, 31));
-    lv_style_set_border_color(&ui_styles.mod_btn, lv_color_make(50, 55, 67));
-    lv_style_set_border_width(&ui_styles.mod_btn, 2);
-    lv_style_set_text_color(&ui_styles.mod_btn, lv_color_white());
+    apply_theme_btn_normal(ui_styles.mod_btn, default_theme);
+    // lv_style_set_text_font(&ui_styles.mod_btn, &montserratbold14);
+    // lv_style_set_radius(&ui_styles.mod_btn, 6);
+    // lv_style_set_bg_opa(&ui_styles.mod_btn, LV_OPA_COVER);
+    // lv_style_set_bg_color(&ui_styles.mod_btn, lv_color_make(23, 26, 31));
+    // lv_style_set_border_color(&ui_styles.mod_btn, lv_color_make(50, 55, 67));
+    // lv_style_set_border_width(&ui_styles.mod_btn, 2);
+    // lv_style_set_text_color(&ui_styles.mod_btn, lv_color_white());
 
     // pressed mod indicator
     lv_style_init(&ui_styles.mod_btn_pressed);

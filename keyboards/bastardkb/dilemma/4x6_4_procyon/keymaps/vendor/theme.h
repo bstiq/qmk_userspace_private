@@ -1,6 +1,7 @@
 #include "lvgl.h"
 
 void init_themes(void);
+void apply_theme_btn_normal(lv_style_t *btn, ui_theme_mod_btn btn_theme);
 
 typedef struct {
     lv_font_t font;

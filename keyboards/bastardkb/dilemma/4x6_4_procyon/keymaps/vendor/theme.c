@@ -9,16 +9,16 @@ void init_themes(void) {
     ui_theme default_theme = {
         .btn_normal = {
             .font = &montserratbold14,
-            .radius = 6,
+            .border_radius = 6,
             .bg_opacity = LV_OPA_COVER,
             .bg_color = lv_color_make(23, 26, 31),
             .border_color = lv_color_make(50, 55, 67),
             .text_color = lv_color_white(),
-            2,
+            .border_width = 2,
         },
         .btn_pressed = {
             .font = &montserratbold14,
-            .radius = 6,
+            .border_radius = 6,
             .bg_opacity = LV_OPA_COVER,
             .bg_color = lv_color_make(71, 133, 239),
             .border_color = lv_color_white(),
@@ -27,7 +27,7 @@ void init_themes(void) {
         },
         .layer_name = {
             .font = &montserratbold14,
-            .radius = 6,
+            .border_radius = 6,
             .bg_color = lv_color_black(),
             .border_color = lv_color_make(50, 55, 67),
             .text_color = lv_color_white(),
@@ -37,11 +37,11 @@ void init_themes(void) {
             .font = &montserratbold13,
         },
         .line = {
-            .radius = 0,
+            .border_radius = 0,
             .bg_color = lv_color_make(71, 133, 239),
         },
         .line_background = {
-            .radius = 3,
+            .border_radius = 3,
             .border_width = 0,
             .bg_color = lv_color_make(50, 55, 67),
         },

@@ -36,11 +36,11 @@ void init_themes(void) {
         .secondary_labels = {
             .font = &montserratbold13,
         },
-        .line = {
+        .bar = {
             .border_radius = 0,
             .bg_color = lv_color_make(71, 133, 239),
         },
-        .line_background = {
+        .bar_background = {
             .border_radius = 3,
             .border_width = 0,
             .bg_color = lv_color_make(50, 55, 67),

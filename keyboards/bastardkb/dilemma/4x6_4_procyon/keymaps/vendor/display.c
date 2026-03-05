@@ -90,7 +90,7 @@ lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_tr
 
 lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {
     lv_obj_t *bar = lv_bar_create(cont);
-    lv_obj_set_height(bar, styles.bar.height);
+    lv_obj_set_height(bar, &ui_styles.bar.height);
     lv_obj_add_style(bar, &ui_styles.bar, LV_PART_INDICATOR);
     lv_obj_add_style(bar, &ui_styles.bar_background, 0);
     lv_obj_set_flex_grow(bar, flex);
@@ -156,12 +156,12 @@ void display_init(void) {
 
     // sniping DPI widgets
     ui_label_s_dpi        = ui_create_secondary_text(cont, "SNIPE DPI", true, 4);
-    ui_bar_s_dpi          = ui_create_progress_bar(cont, 4, 8);
+    ui_bar_s_dpi          = ui_create_progress_bar(cont, 4);
     ui_label_s_dpi_number = ui_create_number_label(cont, 2);
 
     // regular DPI widgets
     ui_label_dpi        = ui_create_secondary_text(cont, "DPI", true, 2);
-    ui_bar_dpi          = ui_create_progress_bar(cont, 6, 8);
+    ui_bar_dpi          = ui_create_progress_bar(cont, 6);
     ui_label_dpi_number = ui_create_number_label(cont, 2);
 
     // line separator
@@ -169,7 +169,7 @@ void display_init(void) {
 
     // rgb widgets
     ui_label_rgb        = ui_create_secondary_text(cont, "RGB", true, 2);
-    ui_bar_rgb          = ui_create_progress_bar(cont, 6, 8);
+    ui_bar_rgb          = ui_create_progress_bar(cont, 6);
     ui_label_rgb_number = ui_create_number_label(cont, 2);
 
     ui_label_rgb_effect = ui_create_secondary_text(cont, "effect...", true, 1);

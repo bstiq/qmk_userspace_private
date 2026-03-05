@@ -77,8 +77,9 @@ const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
 
-// default theme 
+// themes
 extern ui_theme default_theme;
+extern ui_theme skeu_dark_theme;
 
 lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex) {
     lv_obj_t *lbl = lv_label_create(cont);
@@ -184,18 +185,24 @@ void display_init(void) {
     lv_obj_set_style_bg_color(cont, lv_color_black(), LV_PART_MAIN);
 }
 
+void update_styles(ui_theme theme) {
+    apply_theme_btn(&(ui_styles.mod_btn), theme.btn_normal);
+    apply_theme_btn(&(ui_styles.mod_btn_pressed), theme.btn_pressed);
+    apply_theme_layer_name(&(ui_styles.layer_name), theme.layer_name);
+    apply_theme_secondary_label(&(ui_styles.secondary_labels), theme.secondary_labels);
+    apply_theme_bar(&(ui_styles.bar), theme.bar);
+    apply_theme_bar_background(&(ui_styles.bar_background), theme.bar_background);
+}
+
 void style_init_all(void) {
     // mod button
     lv_style_init(&ui_styles.mod_btn);
-    apply_theme_btn(&(ui_styles.mod_btn), default_theme.btn_normal);
 
     // pressed mod indicator
     lv_style_init(&ui_styles.mod_btn_pressed);
-    apply_theme_btn(&(ui_styles.mod_btn_pressed), default_theme.btn_pressed);
 
     // layer name label
     lv_style_init(&ui_styles.layer_name);
-    apply_theme_layer_name(&(ui_styles.layer_name), default_theme.layer_name);
 
     // separator line
     lv_style_set_radius(&ui_styles.line, 0);
@@ -206,7 +213,6 @@ void style_init_all(void) {
 
     // secondary labels
     lv_style_init(&ui_styles.secondary_labels);
-    apply_theme_secondary_label(&(ui_styles.secondary_labels), default_theme.secondary_labels);
 
     // bars
     lv_style_set_radius(&ui_styles.bar, 0);
@@ -217,6 +223,8 @@ void style_init_all(void) {
     lv_style_set_bg_color(&ui_styles.flex_container, lv_color_black());
     lv_style_set_pad_row(&ui_styles.flex_container, 10);
     lv_style_set_border_width(&ui_styles.flex_container, 0);
+
+    update_styles(skeu_dark_theme);
 }
 
 void ui_init_layer_name(lv_obj_t *label) {

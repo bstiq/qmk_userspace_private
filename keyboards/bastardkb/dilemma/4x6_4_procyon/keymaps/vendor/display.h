@@ -30,3 +30,4 @@ lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_tr
 lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex, uint8_t height);
 lv_obj_t *ui_create_number_label(lv_obj_t *cont, uint8_t flex);
 lv_obj_t *ui_create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height);
+void update_styles(ui_theme theme);

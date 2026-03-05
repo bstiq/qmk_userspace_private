@@ -90,7 +90,7 @@ lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_tr
 
 lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {
     lv_obj_t *bar = lv_bar_create(cont);
-    lv_obj_set_height(bar, &ui_styles.bar.height);
+    lv_obj_set_height(bar, skeu_dark_theme.bar.height); // TODO make a global variable pointer
     lv_obj_add_style(bar, &ui_styles.bar, LV_PART_INDICATOR);
     lv_obj_add_style(bar, &ui_styles.bar_background, 0);
     lv_obj_set_flex_grow(bar, flex);

@@ -28,7 +28,7 @@ void update_dilemma_status(void);
 const char *rgb_matrix_get_effect_name(void);
 
 lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex);
-lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex, uint8_t height);
+lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex);
 lv_obj_t *ui_create_number_label(lv_obj_t *cont, uint8_t flex);
 lv_obj_t *ui_create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height);
 void update_styles(ui_theme theme);

@@ -39,6 +39,8 @@ typedef struct {
 typedef struct {
     uint8_t    border_radius;
     lv_color_t bg_color;
+    uint16_t height;
+    uint16_t bg_opacity;
 } ui_theme_bar;
 
 typedef struct {

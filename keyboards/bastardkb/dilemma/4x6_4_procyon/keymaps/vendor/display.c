@@ -88,9 +88,9 @@ lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_tr
     return lbl;
 }
 
-lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex, uint8_t height) {
+lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {
     lv_obj_t *bar = lv_bar_create(cont);
-    lv_obj_set_height(bar, height);
+    lv_obj_set_height(bar, styles.bar.height);
     lv_obj_add_style(bar, &ui_styles.bar, LV_PART_INDICATOR);
     lv_obj_add_style(bar, &ui_styles.bar_background, 0);
     lv_obj_set_flex_grow(bar, flex);
@@ -211,7 +211,6 @@ void style_init_all(void) {
     lv_style_init(&ui_styles.secondary_labels);
 
     // bars
-    lv_style_set_radius(&ui_styles.bar, 0);
     apply_theme_bar(&(ui_styles.bar), default_theme.bar);
     apply_theme_bar_background(&(ui_styles.bar_background), default_theme.bar_background);
 
@@ -219,11 +218,7 @@ void style_init_all(void) {
     lv_style_set_bg_color(&ui_styles.flex_container, lv_color_black());
     lv_style_set_pad_row(&ui_styles.flex_container, 10);
     lv_style_set_border_width(&ui_styles.flex_container, 0);
-    lv_style_set_pad_inner(&ui_styles.flex_container, LV_STATE_DEFAULT, 0);
-    lv_style_set_pad_top(&ui_styles.flex_container, LV_STATE_DEFAULT, 0);
-    lv_style_set_pad_bottom(&ui_styles.flex_container, LV_STATE_DEFAULT, 0);
-    lv_style_set_pad_left(&ui_styles.flex_container, LV_STATE_DEFAULT, 0);
-    lv_style_set_pad_right(&ui_styles.flex_container, LV_STATE_DEFAULT, 0);
+    lv_style_set_pad_all(&ui_styles.flex_container, 0);
 
     update_styles(skeu_dark_theme);
 }

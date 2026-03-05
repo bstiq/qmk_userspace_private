@@ -48,6 +48,7 @@ void init_themes(void) {
             {
                 .border_radius = 0,
                 .bg_color      = lv_color_make(71, 133, 239),
+                .height        = 6,
             },
         .bar_background =
             {
@@ -116,12 +117,14 @@ void init_themes(void) {
             },
         .bar =
             {
-                .border_radius = 5,
+                .border_radius = 3,
                 .bg_color      = lv_color_make(232, 152, 10),
+                .height        = 4,
+                .bg_opacity    = LV_OPA_COVER,
             },
         .bar_background =
             {
-                .border_radius = 5,
+                .border_radius = 3,
                 .border_width  = 0,
             },
     };
@@ -167,6 +170,8 @@ void apply_theme_secondary_label(lv_style_t *style, ui_theme_secondary_label the
 void apply_theme_bar(lv_style_t *style, ui_theme_bar theme) {
     lv_style_set_radius(style, theme.border_radius);
     lv_style_set_bg_color(style, theme.bg_color);
+    lv_style_set_bg_opa(style, theme.bg_opacity);
+    lv_style_set_height(style, theme.height);
 }
 
 void apply_theme_bar_background(lv_style_t *style, ui_theme_bar_background theme) {

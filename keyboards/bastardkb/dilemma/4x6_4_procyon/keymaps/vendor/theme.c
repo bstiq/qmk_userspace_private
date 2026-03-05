@@ -84,6 +84,18 @@ void init_themes(void) {
                 .border_color  = lv_color_make(8, 8, 8),
                 .text_color    = lv_color_make(217, 217, 217),
                 .border_width  = 1,
+                .bg_grad_color = lv_color_make(30, 22, 0),
+                .bg_grad_dir   = LV_GRAD_DIR_VER,
+                .text_opa      = LV_OPA_COVER,
+                .shadow_color  = lv_color_make(200, 130, 0),
+                .shadow_width  = 20,
+                .shadow_ofs_x  = 0,
+                .shadow_ofs_y  = 0,
+                .shadow_spread = 0,
+                .outline_color = lv_color_make(200, 130, 0),
+                .outline_width = 1,
+                .outline_opa   = LV_OPA_20,
+                .outline_pad   = 4,
             },
         .layer_name =
             {

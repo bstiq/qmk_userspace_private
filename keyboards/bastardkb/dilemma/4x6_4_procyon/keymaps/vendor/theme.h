@@ -10,7 +10,6 @@ typedef struct {
     uint8_t          border_width;
     lv_color_t       bg_grad_color;
     lv_grad_dir_t    bg_grad_dir;
-    lv_opa_t         bg_opacity;
     lv_color_t       shadow_color;
     int16_t          shadow_width;
     int16_t          shadow_ofs_x;

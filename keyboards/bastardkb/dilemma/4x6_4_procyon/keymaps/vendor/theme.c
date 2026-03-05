@@ -64,7 +64,6 @@ void init_themes(void) {
                 .border_width  = 1,
                 .bg_grad_color = lv_color_make(23, 26, 31),
                 .bg_grad_dir   = LV_GRAD_DIR_NONE,
-                .bg_opacity    = LV_OPA_COVER,
                 .text_opa      = LV_OPA_COVER,
                 .shadow_color  = lv_color_black(),
                 .shadow_width  = 0,
@@ -124,7 +123,6 @@ void apply_theme_btn(lv_style_t *style, ui_theme_mod_btn theme) {
 
     lv_style_set_bg_grad_color(style, theme.bg_grad_color);
     lv_style_set_bg_grad_dir(style, theme.bg_grad_dir);
-    lv_style_set_bg_opa(style, theme.bg_opacity);
     lv_style_set_text_opa(style, theme.text_opa);
     lv_style_set_shadow_color(style, theme.shadow_color);
     lv_style_set_shadow_width(style, theme.shadow_width);

@@ -47,12 +47,35 @@ void init_themes(void) {
     };
 }
 
-void apply_theme_btn_normal(lv_style_t *btn, ui_theme_mod_btn theme_btn) {
-    lv_style_set_text_font(btn, theme_btn.font);
-    lv_style_set_radius(btn, theme_btn.border_radius);
-    lv_style_set_bg_opa(btn, theme_btn.bg_opacity);
-    lv_style_set_bg_color(btn, theme_btn.bg_color);
-    lv_style_set_border_color(btn, theme_btn.border_color);
-    lv_style_set_border_width(btn, theme_btn.border_width);
-    lv_style_set_text_color(btn, theme_btn.text_color);
+void apply_theme_btn(lv_style_t *style, ui_theme_mod_btn theme) {
+    lv_style_set_text_font(style, theme.font);
+    lv_style_set_radius(style, theme.border_radius);
+    lv_style_set_bg_opa(style, theme.bg_opacity);
+    lv_style_set_bg_color(style, theme.bg_color);
+    lv_style_set_border_color(style, theme.border_color);
+    lv_style_set_border_width(style, theme.border_width);
+    lv_style_set_text_color(style, theme.text_color);
+}
+
+void apply_theme_layer_name(lv_style_t *style, ui_theme_layer_name theme) {
+    lv_style_set_text_font(style, theme.font);
+    lv_style_set_radius(style, theme.border_radius);
+    lv_style_set_bg_color(style, theme.bg_color);
+    lv_style_set_border_color(style, theme.border_color);
+    lv_style_set_border_width(style, theme.border_width);
+    lv_style_set_text_color(style, theme.text_color);
+}
+
+void apply_theme_secondary_label(lv_style_t *style, ui_theme_secondary_label theme) {
+    lv_style_set_text_font(style, theme.font);
+}
+
+void apply_theme_bar(lv_style_t *style, ui_theme_bar theme) {
+    lv_style_set_radius(style, theme.border_radius);
+    lv_style_set_bg_color(style, theme.bg_color);
+}
+
+void apply_theme_bar_background(lv_style_t *style, ui_theme_bar_background theme) {
+    lv_style_set_radius(style, theme.border_radius);
+    lv_style_set_border_width(style, theme.border_width);
 }

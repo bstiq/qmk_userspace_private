@@ -187,30 +187,15 @@ void display_init(void) {
 void style_init_all(void) {
     // mod button
     lv_style_init(&ui_styles.mod_btn);
-    apply_theme_btn_normal(&(ui_styles.mod_btn), default_theme.btn_normal);
-    // lv_style_set_text_font(&ui_styles.mod_btn, &montserratbold14);
-    // lv_style_set_radius(&ui_styles.mod_btn, 6);
-    // lv_style_set_bg_opa(&ui_styles.mod_btn, LV_OPA_COVER);
-    // lv_style_set_bg_color(&ui_styles.mod_btn, lv_color_make(23, 26, 31));
-    // lv_style_set_border_color(&ui_styles.mod_btn, lv_color_make(50, 55, 67));
-    // lv_style_set_border_width(&ui_styles.mod_btn, 2);
-    // lv_style_set_text_color(&ui_styles.mod_btn, lv_color_white());
+    apply_theme_btn(&(ui_styles.mod_btn), default_theme.btn_normal);
 
     // pressed mod indicator
     lv_style_init(&ui_styles.mod_btn_pressed);
-    lv_style_set_radius(&ui_styles.mod_btn_pressed, 6);
-    lv_style_set_bg_opa(&ui_styles.mod_btn_pressed, LV_OPA_COVER);
-    lv_style_set_bg_color(&ui_styles.mod_btn_pressed, lv_color_make(71, 133, 239));
-    lv_style_set_border_color(&ui_styles.mod_btn_pressed, lv_color_white());
+    apply_theme_btn(&(ui_styles.mod_btn_pressed), default_theme.btn_pressed);
 
     // layer name label
     lv_style_init(&ui_styles.layer_name);
-    lv_style_set_text_font(&ui_styles.layer_name, &montserratbold14);
-    lv_style_set_radius(&ui_styles.layer_name, 6);
-    lv_style_set_bg_color(&ui_styles.layer_name, lv_color_black());
-    lv_style_set_border_color(&ui_styles.layer_name, lv_color_make(50, 55, 67));
-    lv_style_set_border_width(&ui_styles.layer_name, 2);
-    lv_style_set_text_color(&ui_styles.layer_name, lv_color_white());
+    apply_theme_layer_name(&(ui_styles.layer_name), default_theme.layer_name);
 
     // separator line
     lv_style_set_radius(&ui_styles.line, 0);
@@ -221,13 +206,12 @@ void style_init_all(void) {
 
     // secondary labels
     lv_style_init(&ui_styles.secondary_labels);
-    lv_style_set_text_font(&ui_styles.secondary_labels, &montserratbold13);
+    apply_theme_secondary_label(&(ui_styles.secondary_labels), default_theme.secondary_labels);
 
     // bars
     lv_style_set_radius(&ui_styles.bar, 0);
-    lv_style_set_bg_color(&ui_styles.bar, lv_color_make(71, 133, 239));
-    lv_style_set_radius(&ui_styles.bar_background, 3);
-    lv_style_set_border_width(&ui_styles.bar_background, 0);
+    apply_theme_bar(&(ui_styles.bar), default_theme.bar);
+    apply_theme_bar_background(&(ui_styles.bar_background), default_theme.bar_background);
 
     // flex container
     lv_style_set_bg_color(&ui_styles.flex_container, lv_color_black());

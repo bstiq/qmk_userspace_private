@@ -60,7 +60,7 @@ void init_themes(void) {
                 .bg_opacity    = LV_OPA_COVER,
                 .bg_color      = lv_color_make(38, 38, 38),
                 .border_color  = lv_color_make(15, 15, 15),
-                .text_color    = lv_color_make(46, 46, 46),
+                .text_color    = lv_color_make(150, 150, 150),
                 .border_width  = 1,
                 .bg_grad_color = lv_color_make(23, 26, 31),
                 .bg_grad_dir   = LV_GRAD_DIR_NONE,
@@ -82,7 +82,7 @@ void init_themes(void) {
                 .bg_opacity    = LV_OPA_COVER,
                 .bg_color      = lv_color_make(29, 29, 29),
                 .border_color  = lv_color_make(8, 8, 8),
-                .text_color    = lv_color_make(217, 217, 217),
+                .text_color    = lv_color_make(232, 152, 10),
                 .border_width  = 1,
                 .bg_grad_color = lv_color_make(30, 22, 0),
                 .bg_grad_dir   = LV_GRAD_DIR_VER,
@@ -114,7 +114,7 @@ void init_themes(void) {
         .bar =
             {
                 .border_radius = 5,
-                .bg_color      = lv_color_make(48, 32, 0),
+                .bg_color      = lv_color_make(232, 152, 10),
             },
         .bar_background =
             {

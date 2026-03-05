@@ -75,6 +75,8 @@ const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER
 
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
+LV_FONT_DECLARE(dmsans13);
+LV_FONT_DECLARE(dmsans14);
 
 // themes
 extern ui_theme default_theme;
@@ -172,7 +174,7 @@ void display_init(void) {
 
     // rgb widgets
     ui_label_rgb        = ui_create_secondary_text(cont, "RGB", true, 2);
-    ui_bar_rgb          = ui_create_progress_bar(cont, 6, 10);
+    ui_bar_rgb          = ui_create_progress_bar(cont, 6, 8);
     ui_label_rgb_number = ui_create_number_label(cont, 2);
 
     ui_label_rgb_effect = ui_create_secondary_text(cont, "effect...", true, 1);

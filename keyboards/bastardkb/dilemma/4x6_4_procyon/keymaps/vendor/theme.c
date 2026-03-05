@@ -2,6 +2,8 @@
 
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
+LV_FONT_DECLARE(dmsans13);
+LV_FONT_DECLARE(dmsans14);
 
 ui_theme default_theme;
 ui_theme skeu_dark_theme;
@@ -55,7 +57,7 @@ void init_themes(void) {
     skeu_dark_theme = (ui_theme){
         .btn_normal =
             {
-                .font          = &montserratbold14,
+                .font          = &dmsans14,
                 .border_radius = 8,
                 .bg_opacity    = LV_OPA_COVER,
                 .bg_color      = lv_color_make(38, 38, 38),
@@ -77,7 +79,7 @@ void init_themes(void) {
             },
         .btn_pressed =
             {
-                .font          = &montserratbold14,
+                .font          = &dmsans14,
                 .border_radius = 8,
                 .bg_opacity    = LV_OPA_COVER,
                 .bg_color      = lv_color_make(29, 29, 29),
@@ -99,7 +101,7 @@ void init_themes(void) {
             },
         .layer_name =
             {
-                .font          = &montserratbold14,
+                .font          = &dmsans14,
                 .border_radius = 6,
                 .bg_color      = lv_color_make(26, 26, 26),
                 .border_color  = lv_color_make(12, 12, 12),
@@ -108,8 +110,8 @@ void init_themes(void) {
             },
         .secondary_labels =
             {
-                .font       = &montserratbold13,
-                .text_color = lv_color_make(46, 46, 46),
+                .font       = &dmsans13,
+                .text_color    = lv_color_make(150, 150, 150),
             },
         .bar =
             {

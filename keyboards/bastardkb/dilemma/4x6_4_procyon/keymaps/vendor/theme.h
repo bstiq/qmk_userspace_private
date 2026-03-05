@@ -1,4 +1,5 @@
-#include <cstdint>
+#include "lvgl.h"
+
 typedef struct {
     lv_font_t *font;
     uint8_t border_radius;

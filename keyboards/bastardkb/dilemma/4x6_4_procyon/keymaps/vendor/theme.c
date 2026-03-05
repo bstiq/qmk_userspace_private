@@ -8,6 +8,7 @@ LV_FONT_DECLARE(dmsans14bold);
 
 ui_theme default_theme;
 ui_theme skeu_dark_theme;
+ui_theme terminal_theme;
 
 void init_themes(void) {
     default_theme = (ui_theme){
@@ -126,6 +127,84 @@ void init_themes(void) {
             {
                 .border_radius = 3,
                 .border_width  = 0,
+            },
+    };
+    terminal_theme = (ui_theme){
+        // Green phosphor CRT — inactive: near-black bg, dim green border/text
+        .btn_normal =
+            {
+                .font          = &dmsans14bold,
+                .border_radius = 0,
+                .bg_opacity    = LV_OPA_COVER,
+                .bg_color      = lv_color_make(5, 14, 5),
+                .border_color  = lv_color_make(26, 58, 26),
+                .text_color    = lv_color_make(42, 106, 42),
+                .border_width  = 1,
+                .bg_grad_color = lv_color_make(5, 14, 5),
+                .bg_grad_dir   = LV_GRAD_DIR_NONE,
+                .text_opa      = LV_OPA_COVER,
+                .shadow_color  = lv_color_black(),
+                .shadow_width  = 0,
+                .shadow_ofs_x  = 0,
+                .shadow_ofs_y  = 0,
+                .shadow_spread = 0,
+                .outline_color = lv_color_black(),
+                .outline_width = 0,
+                .outline_opa   = LV_OPA_TRANSP,
+                .outline_pad   = 0,
+            },
+        // Active/pressed: solid phosphor green fill, dark text — like .term-mode-btn.on
+        .btn_pressed =
+            {
+                .font          = &dmsans14bold,
+                .border_radius = 0,
+                .bg_opacity    = LV_OPA_COVER,
+                .bg_color      = lv_color_make(0, 255, 65),
+                .border_color  = lv_color_make(0, 255, 65),
+                .text_color    = lv_color_make(5, 14, 5),
+                .border_width  = 1,
+                .bg_grad_color = lv_color_make(0, 255, 65),
+                .bg_grad_dir   = LV_GRAD_DIR_NONE,
+                .text_opa      = LV_OPA_COVER,
+                .shadow_color  = lv_color_make(0, 255, 65),
+                .shadow_width  = 10,
+                .shadow_ofs_x  = 0,
+                .shadow_ofs_y  = 0,
+                .shadow_spread = 0,
+                .outline_color = lv_color_make(0, 255, 65),
+                .outline_width = 1,
+                .outline_opa   = LV_OPA_20,
+                .outline_pad   = 3,
+            },
+        // Layer name: bright phosphor green text on near-black bg
+        .layer_name =
+            {
+                .font          = &dmsans14bold,
+                .border_radius = 0,
+                .bg_color      = lv_color_make(5, 14, 5),
+                .border_color  = lv_color_make(26, 58, 26),
+                .text_color    = lv_color_make(0, 255, 65),
+                .border_width  = 1,
+            },
+        // Secondary labels: dim green, like .term-key / .term-layer-sub
+        .secondary_labels =
+            {
+                .font       = &dmsans13,
+                .text_color = lv_color_make(42, 106, 42),
+            },
+        // Bar fill: bright phosphor green, sharp corners
+        .bar =
+            {
+                .border_radius = 0,
+                .bg_color      = lv_color_make(0, 255, 65),
+                .height        = 4,
+                .bg_opacity    = LV_OPA_COVER,
+            },
+        // Bar background: dark green trough, no border radius
+        .bar_background =
+            {
+                .border_radius = 0,
+                .border_width  = 1,
             },
     };
 }

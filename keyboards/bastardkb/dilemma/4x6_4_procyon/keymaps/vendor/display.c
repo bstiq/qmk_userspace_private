@@ -220,7 +220,7 @@ void style_init_all(void) {
     lv_style_set_border_width(&ui_styles.flex_container, 0);
     lv_style_set_pad_all(&ui_styles.flex_container, 0);
 
-    update_styles(skeu_dark_theme);
+    update_styles(terminal_theme);
 }
 
 void ui_init_layer_name(lv_obj_t *label) {

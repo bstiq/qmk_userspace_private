@@ -21,6 +21,7 @@ typedef struct {
 
 typedef struct {
     const lv_font_t *font;
+    lv_color_t text_color;
 } ui_theme_secondary_label;
 
 typedef struct {

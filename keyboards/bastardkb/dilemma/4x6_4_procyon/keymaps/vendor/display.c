@@ -306,7 +306,7 @@ void housekeeping_task_display(void) {
     update_mods();
     update_rgb_info();
     update_mouse_info();
-    update_theme_color();
+    // update_theme_color();
 
     g_dilemma_status_prev = g_dilemma_status;
 }

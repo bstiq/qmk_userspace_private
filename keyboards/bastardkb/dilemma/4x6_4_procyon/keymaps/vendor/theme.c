@@ -62,6 +62,19 @@ void init_themes(void) {
                 .border_color  = lv_color_make(15, 15, 15),
                 .text_color    = lv_color_make(46, 46, 46),
                 .border_width  = 1,
+                .bg_grad_color = lv_color_make(23, 26, 31),
+                .bg_grad_dir   = LV_GRAD_DIR_NONE,
+                .bg_opacity    = LV_OPA_COVER,
+                .text_opa      = LV_OPA_COVER,
+                .shadow_color  = lv_color_black(),
+                .shadow_width  = 0,
+                .shadow_ofs_x  = 0,
+                .shadow_ofs_y  = 0,
+                .shadow_spread = 0,
+                .outline_color = lv_color_black(),
+                .outline_width = 0,
+                .outline_opa   = LV_OPA_TRANSP,
+                .outline_pad   = 0,
             },
         .btn_pressed =
             {
@@ -84,7 +97,8 @@ void init_themes(void) {
             },
         .secondary_labels =
             {
-                .font = &montserratbold13,
+                .font       = &montserratbold13,
+                .text_color = lv_color_make(46, 46, 46),
             },
         .bar =
             {
@@ -107,6 +121,20 @@ void apply_theme_btn(lv_style_t *style, ui_theme_mod_btn theme) {
     lv_style_set_border_color(style, theme.border_color);
     lv_style_set_border_width(style, theme.border_width);
     lv_style_set_text_color(style, theme.text_color);
+
+    lv_style_set_bg_grad_color(style, theme.bg_grad_color);
+    lv_style_set_bg_grad_dir(style, theme.bg_grad_dir);
+    lv_style_set_bg_opa(style, theme.bg_opacity);
+    lv_style_set_text_opa(style, theme.text_opa);
+    lv_style_set_shadow_color(style, theme.shadow_color);
+    lv_style_set_shadow_width(style, theme.shadow_width);
+    lv_style_set_shadow_ofs_x(style, theme.shadow_ofs_x);
+    lv_style_set_shadow_ofs_y(style, theme.shadow_ofs_y);
+    lv_style_set_shadow_spread(style, theme.shadow_spread);
+    lv_style_set_outline_color(style, theme.outline_color);
+    lv_style_set_outline_width(style, theme.outline_width);
+    lv_style_set_outline_opa(style, theme.outline_opa);
+    lv_style_set_outline_pad(style, theme.outline_pad);
 }
 
 void apply_theme_layer_name(lv_style_t *style, ui_theme_layer_name theme) {
@@ -120,6 +148,7 @@ void apply_theme_layer_name(lv_style_t *style, ui_theme_layer_name theme) {
 
 void apply_theme_secondary_label(lv_style_t *style, ui_theme_secondary_label theme) {
     lv_style_set_text_font(style, theme.font);
+    lv_style_set_text_color(style, theme.text_color);
 }
 
 void apply_theme_bar(lv_style_t *style, ui_theme_bar theme) {

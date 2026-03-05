@@ -10,7 +10,7 @@ void init_themes(void) {
         .btn_normal = {
             .font = &montserratbold14,
             .radius = 6,
-            .bg_opa = LV_OPA_COVER,
+            .bg_opacity = LV_OPA_COVER,
             .bg_color = lv_color_make(23, 26, 31),
             .border_color = lv_color_make(50, 55, 67),
             .text_color = lv_color_white(),
@@ -19,7 +19,7 @@ void init_themes(void) {
         .btn_pressed = {
             .font = &montserratbold14,
             .radius = 6,
-            .bg_opa = LV_OPA_COVER,
+            .bg_opacity = LV_OPA_COVER,
             .bg_color = lv_color_make(71, 133, 239),
             .border_color = lv_color_white(),
             .text_color = lv_color_white(),

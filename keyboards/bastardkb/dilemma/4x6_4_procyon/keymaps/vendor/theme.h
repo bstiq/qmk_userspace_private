@@ -1,8 +1,5 @@
 #include "lvgl.h"
 
-void init_themes(void);
-void apply_theme_btn_normal(lv_style_t *btn, ui_theme_mod_btn btn_theme);
-
 typedef struct {
     lv_font_t font;
     uint8_t border_radius;
@@ -45,3 +42,7 @@ typedef struct {
     ui_theme_bar_background bar_background;
     // SEPARATOR LINE -- TODO
 } ui_theme;
+
+
+void init_themes(void);
+void apply_theme_btn_normal(lv_style_t *btn, ui_theme_mod_btn btn_theme);

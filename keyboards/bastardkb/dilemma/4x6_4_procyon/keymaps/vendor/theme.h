@@ -45,4 +45,4 @@ typedef struct {
 
 
 void init_themes(void);
-void apply_theme_btn_normal(lv_style_t *btn, ui_theme_mod_btn btn_theme);
+void apply_theme_btn_normal(lv_style_t *btn, ui_theme_mod_btn theme_btn);

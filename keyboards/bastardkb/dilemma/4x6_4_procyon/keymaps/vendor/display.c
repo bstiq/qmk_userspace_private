@@ -187,7 +187,7 @@ void display_init(void) {
 void style_init_all(void) {
     // mod button
     lv_style_init(&ui_styles.mod_btn);
-    apply_theme_btn_normal(ui_styles.mod_btn, default_theme);
+    apply_theme_btn_normal(ui_styles.mod_btn, default_theme.btn_normal);
     // lv_style_set_text_font(&ui_styles.mod_btn, &montserratbold14);
     // lv_style_set_radius(&ui_styles.mod_btn, 6);
     // lv_style_set_bg_opa(&ui_styles.mod_btn, LV_OPA_COVER);

@@ -43,17 +43,16 @@ void init_themes(void) {
         .bar_background = {
             .border_radius = 3,
             .border_width = 0,
-            .bg_color = lv_color_make(50, 55, 67),
         },
     };
 }
 
-void apply_theme_btn_normal(lv_style_t *btn, ui_theme theme) {
-    lv_style_set_text_font(btn, theme.btn_normal.font);
-    lv_style_set_radius(btn, theme.btn_normal.border_radius);
-    lv_style_set_bg_opa(btn, theme.btn_normal.bg_opa);
-    lv_style_set_bg_color(btn, theme.btn_normal.bg_color);
-    lv_style_set_border_color(btn, theme.btn_normal.border_color);
-    lv_style_set_border_width(btn, theme.btn_normal.border_width);
-    lv_style_set_text_color(btn, theme.btn_normal.text_color);
+void apply_theme_btn_normal(lv_style_t *btn, ui_theme_mod_btn theme_btn) {
+    lv_style_set_text_font(btn, theme_btn.font);
+    lv_style_set_radius(btn, theme_btn.border_radius);
+    lv_style_set_bg_opa(btn, theme_btn.bg_opacity);
+    lv_style_set_bg_color(btn, theme_btn.bg_color);
+    lv_style_set_border_color(btn, theme_btn.border_color);
+    lv_style_set_border_width(btn, theme_btn.border_width);
+    lv_style_set_text_color(btn, theme_btn.text_color);
 }

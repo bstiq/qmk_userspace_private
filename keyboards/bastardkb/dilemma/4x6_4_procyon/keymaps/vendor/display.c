@@ -219,6 +219,11 @@ void style_init_all(void) {
     lv_style_set_bg_color(&ui_styles.flex_container, lv_color_black());
     lv_style_set_pad_row(&ui_styles.flex_container, 10);
     lv_style_set_border_width(&ui_styles.flex_container, 0);
+    lv_style_set_pad_inner(&ui_styles.flex_container, LV_STATE_DEFAULT, 0);
+    lv_style_set_pad_top(&ui_styles.flex_container, LV_STATE_DEFAULT, 0);
+    lv_style_set_pad_bottom(&ui_styles.flex_container, LV_STATE_DEFAULT, 0);
+    lv_style_set_pad_left(&ui_styles.flex_container, LV_STATE_DEFAULT, 0);
+    lv_style_set_pad_right(&ui_styles.flex_container, LV_STATE_DEFAULT, 0);
 
     update_styles(skeu_dark_theme);
 }

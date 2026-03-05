@@ -66,7 +66,7 @@ void init_themes(void) {
                 .text_color    = lv_color_make(150, 150, 150),
                 .border_width  = 1,
                 .bg_grad_color = lv_color_make(23, 26, 31),
-                .bg_grad_dir   = LV_GRAD_DIR_NONE,
+                .bg_grad_dir   = LV_GRAD_DIR_VER,
                 .text_opa      = LV_OPA_COVER,
                 .shadow_color  = lv_color_black(),
                 .shadow_width  = 0,

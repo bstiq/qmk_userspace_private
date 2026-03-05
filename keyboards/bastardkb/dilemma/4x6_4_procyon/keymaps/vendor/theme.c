@@ -5,6 +5,8 @@ LV_FONT_DECLARE(montserratbold13);
 LV_FONT_DECLARE(dmsans13);
 LV_FONT_DECLARE(dmsans14);
 LV_FONT_DECLARE(dmsans14bold);
+LV_FONT_DECLARE(jetbrainsmono13);
+LV_FONT_DECLARE(jetbrainsmono14bold);
 
 ui_theme default_theme;
 ui_theme skeu_dark_theme;
@@ -133,7 +135,7 @@ void init_themes(void) {
         // Green phosphor CRT — inactive: near-black bg, dim green border/text
         .btn_normal =
             {
-                .font          = &dmsans14bold,
+                .font          = &jetbrainsmono14bold,
                 .border_radius = 0,
                 .bg_opacity    = LV_OPA_COVER,
                 .bg_color      = lv_color_make(5, 14, 5),
@@ -156,7 +158,7 @@ void init_themes(void) {
         // Active/pressed: solid phosphor green fill, dark text — like .term-mode-btn.on
         .btn_pressed =
             {
-                .font          = &dmsans14bold,
+                .font          = &jetbrainsmono14bold,
                 .border_radius = 0,
                 .bg_opacity    = LV_OPA_COVER,
                 .bg_color      = lv_color_make(0, 255, 65),
@@ -179,7 +181,7 @@ void init_themes(void) {
         // Layer name: bright phosphor green text on near-black bg
         .layer_name =
             {
-                .font          = &dmsans14bold,
+                .font          = &jetbrainsmono14bold,
                 .border_radius = 0,
                 .bg_color      = lv_color_make(5, 14, 5),
                 .border_color  = lv_color_make(26, 58, 26),
@@ -189,7 +191,7 @@ void init_themes(void) {
         // Secondary labels: dim green, like .term-key / .term-layer-sub
         .secondary_labels =
             {
-                .font       = &dmsans13,
+                .font       = &jetbrainsmono13,
                 .text_color = lv_color_make(42, 106, 42),
             },
         // Bar fill: bright phosphor green, sharp corners

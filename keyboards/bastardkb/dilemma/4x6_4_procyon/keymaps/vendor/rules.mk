@@ -15,6 +15,7 @@ SRC += montserratbold14.c
 SRC += montserratbold13.c
 SRC += dmsans13.c
 SRC += dmsans14.c
+SRC += dmsans14bold.c
 
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm

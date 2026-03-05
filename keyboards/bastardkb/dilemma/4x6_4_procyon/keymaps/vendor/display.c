@@ -73,11 +73,6 @@ static dilemma_status_t g_dilemma_status      = {0};
 
 const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER", "NUM", "SYM"};
 
-LV_FONT_DECLARE(montserratbold14);
-LV_FONT_DECLARE(montserratbold13);
-LV_FONT_DECLARE(dmsans13);
-LV_FONT_DECLARE(dmsans14);
-
 // themes
 extern ui_theme default_theme;
 extern ui_theme skeu_dark_theme;

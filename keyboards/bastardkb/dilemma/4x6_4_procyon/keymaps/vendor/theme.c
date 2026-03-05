@@ -3,7 +3,7 @@
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
 
-static ui_theme default_theme = {
+ui_theme default_theme = {
     .btn_normal = {
         .font = &montserratbold14,
         .border_radius = 6,

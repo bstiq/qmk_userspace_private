@@ -78,7 +78,7 @@ LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
 
 // default theme 
-extern static ui_theme default_theme;
+extern ui_theme default_theme;
 
 lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex) {
     lv_obj_t *lbl = lv_label_create(cont);

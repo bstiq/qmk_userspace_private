@@ -1,36 +1,36 @@
 #include "lvgl.h"
 
 typedef struct {
-    const lv_font_t *font;
-    const uint8_t border_radius;
-    const uint16_t bg_opacity;
-    const lv_color_t bg_color;
-    const lv_color_t border_color;
-    const lv_color_t text_color;
+    lv_font_t *font;
+    uint8_t border_radius;
+    uint16_t bg_opacity;
+    lv_color_t bg_color;
+    lv_color_t border_color;
+    lv_color_t text_color;
     uint8_t border_width;
 } ui_theme_mod_btn;
 
 typedef struct {
-    const lv_font_t *font;
-    const uint8_t border_radius;
-    const lv_color_t border_color;
-    const lv_color_t text_color;
-    const lv_color_t bg_color;
+    lv_font_t *font;
+    uint8_t border_radius;
+    lv_color_t border_color;
+    lv_color_t text_color;
+    lv_color_t bg_color;
     uint8_t border_width;
 } ui_theme_layer_name;
 
 typedef struct {
-    const lv_font_t *font;
+    lv_font_t *font;
 } ui_theme_secondary_label;
 
 typedef struct {
-    const uint8_t border_radius;
-    const lv_color_t bg_color;
+    uint8_t border_radius;
+    lv_color_t bg_color;
 } ui_theme_bar;
 
 typedef struct {
-    const uint8_t border_radius;
-    const uint8_t border_width;
+    uint8_t border_radius;
+    uint8_t border_width;
 } ui_theme_bar_background;
 
 typedef struct {

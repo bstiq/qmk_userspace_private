@@ -5,7 +5,7 @@ LV_FONT_DECLARE(montserratbold13);
 
 static ui_theme default_theme = {
     .btn_normal = {
-        .font = montserratbold14,
+        .font = &montserratbold14,
         .border_radius = 6,
         .bg_opacity = LV_OPA_COVER,
         .bg_color = lv_color_make(23, 26, 31),
@@ -14,7 +14,7 @@ static ui_theme default_theme = {
         .border_width = 2,
     },
     .btn_pressed = {
-        .font = montserratbold14,
+        .font = &montserratbold14,
         .border_radius = 6,
         .bg_opacity = LV_OPA_COVER,
         .bg_color = lv_color_make(71, 133, 239),
@@ -23,7 +23,7 @@ static ui_theme default_theme = {
         .border_width = 2,
     },
     .layer_name = {
-        .font = montserratbold14,
+        .font = &montserratbold14,
         .border_radius = 6,
         .bg_color = lv_color_black(),
         .border_color = lv_color_make(50, 55, 67),
@@ -31,7 +31,7 @@ static ui_theme default_theme = {
         .border_width = 2,
     },
     .secondary_labels = {
-        .font = montserratbold13,
+        .font = &montserratbold13,
     },
     .bar = {
         .border_radius = 0,

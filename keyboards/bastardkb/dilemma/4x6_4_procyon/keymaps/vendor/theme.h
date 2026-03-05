@@ -1,7 +1,7 @@
 #include "lvgl.h"
 
 typedef struct {
-    lv_font_t font;
+    const lv_font_t *font;
     uint8_t border_radius;
     uint16_t bg_opacity;
     lv_color_t bg_color;
@@ -11,7 +11,7 @@ typedef struct {
 } ui_theme_mod_btn;
 
 typedef struct {
-    lv_font_t font;
+    const lv_font_t *font;
     uint8_t border_radius;
     lv_color_t border_color;
     lv_color_t text_color;
@@ -20,7 +20,7 @@ typedef struct {
 } ui_theme_layer_name;
 
 typedef struct {
-    lv_font_t font;
+    const lv_font_t *font;
 } ui_theme_secondary_label;
 
 typedef struct {

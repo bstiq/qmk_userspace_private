@@ -1,9 +1,3 @@
-QUANTUM_PAINTER_ENABLE = yes
-# QUANTUM_PAINTER_DRIVERS += st7789_spi // TODO enable after moving it out of the keyboard rules.mk
-# QUANTUM_PAINTER_DRIVERS += surface // TODO enable
-QUANTUM_PAINTER_LVGL_INTEGRATION = yes
-ST7789 = true
-
 SRC += theme.c
 
 # LVGL fonts

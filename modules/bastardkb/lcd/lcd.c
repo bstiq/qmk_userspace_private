@@ -1,4 +1,4 @@
-#include "display.h"
+#include "lcd.h"
 #include "config.h"
 #include "quantum.h"
 

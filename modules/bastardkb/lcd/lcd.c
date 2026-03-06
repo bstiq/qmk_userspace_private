@@ -130,7 +130,8 @@ lv_obj_t *ui_create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height)
 
 void keyboard_post_init_lcd(void) {
 
-        if (is_keyboard_left()) {
+    // TODO only do if keyboard is left....
+        // if (is_keyboard_left()) {
     // Display timeout
     wait_ms(LCD_WAIT_TIME);
 

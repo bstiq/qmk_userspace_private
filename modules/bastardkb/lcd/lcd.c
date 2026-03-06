@@ -297,7 +297,7 @@ void event_screen_pointer_scroll_toggle(lv_event_t *e) {}
 // TODO what is this?
 void event_screen_base_update_mods(lv_event_t *e) {}
 
-void housekeeping_task_display(void) {
+void housekeeping_task_lcd(void) {
     update_dilemma_status();
 
     update_layer_name();

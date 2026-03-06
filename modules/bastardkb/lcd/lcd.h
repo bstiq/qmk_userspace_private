@@ -9,7 +9,7 @@ void keyboard_post_init_lcd(void);
 void style_init_all(void);
 
 void ui_init_layer_name(lv_obj_t *label);
-void housekeeping_task_display(void);
+void housekeeping_task_lcd(void);
 void update_mods(void);
 void update_mouse_info(void);
 void update_rgb_info(void);

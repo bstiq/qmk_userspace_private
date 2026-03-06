@@ -154,6 +154,7 @@ void keyboard_post_init_user(void) {
     qp_set_viewport_offsets(lcd, LCD_OFFSET_X, LCD_OFFSET_Y);
 
     if(qp_lvgl_attach(lcd)){
+     // TODO is this done automagically? add defines?
         keyboard_post_init_lcd();
     }
 
@@ -163,6 +164,7 @@ void keyboard_post_init_user(void) {
     qp_flush(lcd);
 }
 
+// TODO delete this function, does it still update automagically?
 void housekeeping_task_user(void) {
-    housekeeping_task_display();
+    housekeeping_task_lcd();
 }

@@ -5,7 +5,7 @@
 
 typedef struct mod_button_pair_t mod_button_pair_t;
 
-void display_init(void);
+void keyboard_post_init_lcd(void);
 void style_init_all(void);
 
 void ui_init_layer_name(lv_obj_t *label);

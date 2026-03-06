@@ -116,7 +116,7 @@ lv_obj_t *ui_create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height)
     return bar;
 }
 
-void display_init(void) {
+void keyboard_post_init_lcd(void) {
     ui_screen_base = lv_obj_create(NULL);
 
     init_themes();

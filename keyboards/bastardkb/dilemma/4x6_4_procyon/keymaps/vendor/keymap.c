@@ -154,7 +154,7 @@ void keyboard_post_init_user(void) {
     qp_set_viewport_offsets(lcd, LCD_OFFSET_X, LCD_OFFSET_Y);
 
     if(qp_lvgl_attach(lcd)){
-        display_init();
+        keyboard_post_init_lcd();
     }
 
     // Power on display, fill with black

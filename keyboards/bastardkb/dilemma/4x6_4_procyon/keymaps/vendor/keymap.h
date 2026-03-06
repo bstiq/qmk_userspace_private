@@ -1,7 +1,3 @@
-painter_font_handle_t  bk_font_layer;
-painter_font_handle_t  bk_font_menu;
-painter_font_handle_t  bk_font_menu_off;
-painter_image_handle_t rect_mods;
 // static uint8_t         prev_layer;
 // static uint8_t        prev_mods;
 

@@ -41,6 +41,7 @@ enum dilemma_keymap_layers {
 #endif // !POINTING_DEVICE_ENABLE
 
 // QP stuff
+// TODO removees
 #include "qp.h"
 #include "qp_comms.h"
 #include "qp_st77xx_opcodes.h"
@@ -140,28 +141,7 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 #endif // ENCODER_MAP_ENABLE
 
 void keyboard_post_init_user(void) {
-    // if (is_keyboard_left()) {
-    // Display timeout
-//     wait_ms(LCD_WAIT_TIME);
 
-//     lcd = qp_st7789_make_spi_device(LCD_WIDTH, LCD_HEIGHT, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_SPI_DIVISOR, SPI_MODE);
-//     qp_init(lcd, LCD_ROTATION);
-
-//     surface = qp_make_rgb565_surface(LCD_WIDTH, LCD_HEIGHT, surface_buffer);
-//     qp_init(surface, LCD_ROTATION);
-
-//     // Display offset
-//     qp_set_viewport_offsets(lcd, LCD_OFFSET_X, LCD_OFFSET_Y);
-
-//     if(qp_lvgl_attach(lcd)){
-//      // TODO is this done automagically? add defines?
-//      //    keyboard_post_init_lcd();
-//     }
-
-//     // Power on display, fill with black
-//     qp_power(lcd, 1);
-//     qp_rect(lcd, 0, 0, 300, 300, HSV_BLACK, 1);
-//     qp_flush(lcd);
 }
 
 // TODO delete this function, does it still update automagically?

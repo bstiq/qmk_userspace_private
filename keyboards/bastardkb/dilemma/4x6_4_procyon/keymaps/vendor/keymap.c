@@ -48,10 +48,10 @@ enum dilemma_keymap_layers {
 #include "keymap.h"
 #include "color.h"
 
-painter_device_t        lcd;
-static painter_device_t surface;
+// painter_device_t        lcd;
+// static painter_device_t surface;
 // Buffer required for a 240x280 16bpp surface:
-static uint8_t surface_buffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(LCD_WIDTH, LCD_HEIGHT, 16)];
+// static uint8_t surface_buffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(LCD_WIDTH, LCD_HEIGHT, 16)];
 // end QP stuff
 
 // clang-format off

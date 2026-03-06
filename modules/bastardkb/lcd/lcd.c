@@ -367,28 +367,28 @@ void update_layer_name(void) {
 }
 
 void update_dilemma_status(void) {
-    // g_dilemma_status.mods            = get_mods();
-    // g_dilemma_status.layer           = get_highest_layer(layer_state);
-    // g_dilemma_status.sniping         = dilemma_get_pointer_sniping_enabled();
-    // g_dilemma_status.dpi             = dilemma_get_pointer_default_dpi();
-    // g_dilemma_status.s_dpi           = dilemma_get_pointer_sniping_dpi();
-    // g_dilemma_status.scrolling       = dilemma_get_pointer_dragscroll_enabled();
-    // g_dilemma_status.rgb_enabled     = rgb_matrix_is_enabled();
-    // g_dilemma_status.rgb_effect_mode = rgb_matrix_get_mode();
-    // g_dilemma_status.rgb_val         = rgb_matrix_get_val();
+    g_dilemma_status.mods            = get_mods();
+    g_dilemma_status.layer           = get_highest_layer(layer_state);
+    g_dilemma_status.sniping         = dilemma_get_pointer_sniping_enabled();
+    g_dilemma_status.dpi             = dilemma_get_pointer_default_dpi();
+    g_dilemma_status.s_dpi           = dilemma_get_pointer_sniping_dpi();
+    g_dilemma_status.scrolling       = dilemma_get_pointer_dragscroll_enabled();
+    g_dilemma_status.rgb_enabled     = rgb_matrix_is_enabled();
+    g_dilemma_status.rgb_effect_mode = rgb_matrix_get_mode();
+    g_dilemma_status.rgb_val         = rgb_matrix_get_val();
 }
 
 void update_mods(void) {
-    // int i = 0;
-    // for (i = 0; i < 4; i++) {
-    //     if ((g_dilemma_status.mods & mod_buttons[i].mod_mask) != (g_dilemma_status_prev.mods & mod_buttons[i].mod_mask)) {
-    //         if ((g_dilemma_status.mods & mod_buttons[i].mod_mask)) {
-    //             lv_event_send(mod_buttons[i].button, LV_EVENT_PRESSED, NULL);
-    //         } else {
-    //             lv_event_send(mod_buttons[i].button, LV_EVENT_RELEASED, NULL);
-    //         }
-    //     }
-    // }
+    int i = 0;
+    for (i = 0; i < 4; i++) {
+        if ((g_dilemma_status.mods & mod_buttons[i].mod_mask) != (g_dilemma_status_prev.mods & mod_buttons[i].mod_mask)) {
+            if ((g_dilemma_status.mods & mod_buttons[i].mod_mask)) {
+                lv_event_send(mod_buttons[i].button, LV_EVENT_PRESSED, NULL);
+            } else {
+                lv_event_send(mod_buttons[i].button, LV_EVENT_RELEASED, NULL);
+            }
+        }
+    }
 }
 
 void update_rgb_info(void) {

@@ -155,7 +155,7 @@ void keyboard_post_init_user(void) {
 
     if(qp_lvgl_attach(lcd)){
      // TODO is this done automagically? add defines?
-        keyboard_post_init_lcd();
+     //    keyboard_post_init_lcd();
     }
 
     // Power on display, fill with black
@@ -166,5 +166,5 @@ void keyboard_post_init_user(void) {
 
 // TODO delete this function, does it still update automagically?
 void housekeeping_task_user(void) {
-    housekeeping_task_lcd();
+//     housekeeping_task_lcd();
 }

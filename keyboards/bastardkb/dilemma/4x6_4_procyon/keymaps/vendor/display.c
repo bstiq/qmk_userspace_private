@@ -219,7 +219,7 @@ void style_init_all(void) {
     lv_style_set_bg_color(&ui_styles.flex_container, lv_color_black());
     lv_style_set_pad_row(&ui_styles.flex_container, 10);
     lv_style_set_border_width(&ui_styles.flex_container, 0);
-    lv_style_set_pad_all(&ui_styles.flex_container, 0);
+    // lv_style_set_pad_all(&ui_styles.flex_container, 0);
 
     update_styles(terminal_theme);
 }

@@ -87,7 +87,7 @@ extern ui_theme default_theme;
 extern ui_theme skeu_dark_theme;
 extern ui_theme terminal_theme;
 uint8_t current_theme = 0;
-ui_theme themes[] = {default_theme, skeu_dark_theme, terminal_theme};
+ui_theme *themes[] = {&default_theme, &skeu_dark_theme, &terminal_theme};
 
 
 painter_device_t        lcd;
@@ -107,7 +107,7 @@ lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_tr
 }
 
 ui_theme get_current_theme(void) {
-    return themes[current_theme];
+    return *themes[current_theme];
 }
 
 lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {

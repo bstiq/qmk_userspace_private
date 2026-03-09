@@ -1,6 +1,5 @@
-#include "introspection.h"
-
 #include QMK_KEYBOARD_H
+#include "introspection.h"
 
 #include "lcd.h"
 #include "config.h"

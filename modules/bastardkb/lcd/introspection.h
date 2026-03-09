@@ -8,9 +8,6 @@
 #define LCD_DC_PIN GP12   // vik_gp1
 #define LCD_CS_PIN GP11   // vik_gp2
 #define LCD_BLK_PIN GP4   // not used
-#ifdef BACKLIGHT_LEVELS
-#    undef BACKLIGHT_LEVELS
-#endif
 #define BACKLIGHT_LEVELS 16
 #define BACKLIGHT_PIN GP20 // backlight pin for lcd
 #define BACKLIGHT_PWM_DRIVER PWMD2

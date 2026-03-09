@@ -1,7 +1,9 @@
+#include QMK_KEYBOARD_H
+
 #include "lvgl.h"
 #include <ctype.h>
 #include "theme.h"
-#include QMK_KEYBOARD_H
+#include "introspection.h"
 
 typedef struct mod_button_pair_t mod_button_pair_t;
 

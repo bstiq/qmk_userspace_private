@@ -9,7 +9,6 @@
 #include "qp_st77xx_opcodes.h"
 #include "qp_surface.h"
 #include "color.h"
-#include "introspection.h"
 
 lv_obj_t *ui_screen_base;
 

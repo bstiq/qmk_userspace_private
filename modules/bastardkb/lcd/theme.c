@@ -116,7 +116,7 @@ void init_themes(void) {
         .secondary_labels =
             {
                 .font       = &dmsans13,
-                .text_color    = lv_color_make(150, 150, 150),
+                .text_color = lv_color_make(150, 150, 150),
             },
         .bar =
             {
@@ -223,7 +223,9 @@ void apply_theme_btn(lv_style_t *style, ui_theme_mod_btn theme) {
 
     lv_style_set_bg_grad_color(style, theme.bg_grad_color);
     lv_style_set_bg_grad_dir(style, theme.bg_grad_dir);
-    lv_style_set_text_opa(style, theme.text_opa);
+    if (theme.text_opa) {
+        lv_style_set_text_opa(style, theme.text_opa);
+    }
     lv_style_set_shadow_color(style, theme.shadow_color);
     lv_style_set_shadow_width(style, theme.shadow_width);
     lv_style_set_shadow_ofs_x(style, theme.shadow_ofs_x);

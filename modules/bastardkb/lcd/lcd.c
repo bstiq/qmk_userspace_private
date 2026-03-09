@@ -23,7 +23,6 @@ struct mod_button_pair_t {
 static mod_button_pair_t mod_buttons[4];
 static mod_button_pair_t mouse_buttons[2];
 
-
 lv_obj_t *ui_label_layer;
 lv_obj_t *ui_button_layer;
 lv_obj_t *ui_label_dpi;
@@ -86,9 +85,8 @@ const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER
 extern ui_theme default_theme;
 extern ui_theme skeu_dark_theme;
 extern ui_theme terminal_theme;
-uint8_t current_theme = 0;
-ui_theme *themes[] = {&default_theme, &skeu_dark_theme, &terminal_theme};
-
+uint8_t         current_theme = 0;
+ui_theme       *themes[]      = {&default_theme, &skeu_dark_theme, &terminal_theme};
 
 painter_device_t        lcd;
 static painter_device_t surface;
@@ -138,9 +136,8 @@ lv_obj_t *ui_create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height)
 }
 
 void keyboard_post_init_lcd(void) {
-
     // TODO only do if keyboard is left....
-        // if (is_keyboard_left()) {
+    // if (is_keyboard_left()) {
     // Display timeout
     wait_ms(LCD_WAIT_TIME);
 
@@ -154,8 +151,8 @@ void keyboard_post_init_lcd(void) {
     qp_set_viewport_offsets(lcd, LCD_OFFSET_X, LCD_OFFSET_Y);
 
     // if(qp_lvgl_attach(lcd)){
-     // TODO is this done automagically? add defines?
-     //    keyboard_post_init_lcd();
+    // TODO is this done automagically? add defines?
+    //    keyboard_post_init_lcd();
     // }
     qp_lvgl_attach(lcd);
 
@@ -165,7 +162,7 @@ void keyboard_post_init_lcd(void) {
     qp_flush(lcd);
     ui_screen_base = lv_obj_create(NULL);
 
-    init_themes();    
+    init_themes();
     style_init_all();
 
     lv_obj_t *cont = lv_obj_create(ui_screen_base);
@@ -257,7 +254,7 @@ void style_init_all(void) {
     // secondary labels
     lv_style_init(&ui_styles.secondary_labels);
 
-    // bars 
+    // bars
     // TODO move this out? this is an apply theme...
     apply_theme_bar(&(ui_styles.bar), get_current_theme().bar);
     apply_theme_bar_background(&(ui_styles.bar_background), get_current_theme().bar_background);
@@ -281,8 +278,8 @@ void ui_init_layer_name(lv_obj_t *label) {
 mod_button_pair_t ui_create_mod_button(lv_obj_t *cont, const char *text, bool force_new_track, uint8_t mod_mask) {
     mod_button_pair_t b = {0};
 
-    b.mod_mask          = mod_mask;
-    b.button = lv_btn_create(cont);
+    b.mod_mask = mod_mask;
+    b.button   = lv_btn_create(cont);
     ui_init_button_mod_indicator(b.button);
 
     if (force_new_track) {
@@ -297,37 +294,37 @@ mod_button_pair_t ui_create_mod_button(lv_obj_t *cont, const char *text, bool fo
 
 // TODO colors....
 void update_theme_color(void) {
-    if (g_dilemma_status.layer != g_dilemma_status_prev.layer) {
-        HSV hsv;
-        switch (g_dilemma_status.layer) {
-            case 0:
-            default:
-                hsv.h = 218;
-                hsv.s = 70;
-                hsv.v = 93;
-                break;
-            case 1:
-                hsv.h = 250;
-                hsv.s = 100;
-                hsv.v = 80;
-                break;
-            case 2:
-                hsv.h = 35;
-                hsv.s = 100;
-                hsv.v = 80;
-                break;
-            case 3:
-                hsv.h = 195;
-                hsv.s = 30;
-                hsv.v = 80;
-                break;
-        }
+    // if (g_dilemma_status.layer != g_dilemma_status_prev.layer) {
+    //     HSV hsv;
+    //     switch (g_dilemma_status.layer) {
+    //         case 0:
+    //         default:
+    //             hsv.h = 218;
+    //             hsv.s = 70;
+    //             hsv.v = 93;
+    //             break;
+    //         case 1:
+    //             hsv.h = 250;
+    //             hsv.s = 100;
+    //             hsv.v = 80;
+    //             break;
+    //         case 2:
+    //             hsv.h = 35;
+    //             hsv.s = 100;
+    //             hsv.v = 80;
+    //             break;
+    //         case 3:
+    //             hsv.h = 195;
+    //             hsv.s = 30;
+    //             hsv.v = 80;
+    //             break;
+    //     }
 
-        lv_style_set_bg_color(&ui_styles.mod_btn_pressed, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
-        lv_obj_report_style_change(&ui_styles.mod_btn_pressed);
-        lv_style_set_bg_color(&ui_styles.bar, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
-        lv_obj_report_style_change(&ui_styles.bar);
-    }
+    //     lv_style_set_bg_color(&ui_styles.mod_btn_pressed, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+    //     lv_obj_report_style_change(&ui_styles.mod_btn_pressed);
+    //     lv_style_set_bg_color(&ui_styles.bar, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+    //     lv_obj_report_style_change(&ui_styles.bar);
+    // }
 }
 
 void ui_init_button_mod_indicator(lv_obj_t *button) {
@@ -464,12 +461,13 @@ void update_mouse_info(void) {
 }
 
 bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
-    switch(keycode){
+    switch (keycode) {
         case LCD_MODULE_CHANGE_THEME:
             if (record->event.pressed) {
                 current_theme = (current_theme + 1) % (sizeof(themes) / sizeof(ui_theme *));
                 update_styles(get_current_theme());
                 housekeeping_task_lcd();
+                qp_flush(lcd);
             }
             break;
     }

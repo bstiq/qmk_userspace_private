@@ -212,6 +212,7 @@ void init_themes(void) {
 }
 
 void apply_theme_btn(lv_style_t *style, ui_theme_mod_btn theme) {
+    lv_style_init(style);
     lv_style_set_text_font(style, theme.font);
     lv_style_set_radius(style, theme.border_radius);
     lv_style_set_bg_opa(style, theme.bg_opacity);
@@ -235,6 +236,7 @@ void apply_theme_btn(lv_style_t *style, ui_theme_mod_btn theme) {
 }
 
 void apply_theme_layer_name(lv_style_t *style, ui_theme_layer_name theme) {
+    lv_style_init(style);
     lv_style_set_text_font(style, theme.font);
     lv_style_set_radius(style, theme.border_radius);
     lv_style_set_bg_color(style, theme.bg_color);
@@ -244,11 +246,13 @@ void apply_theme_layer_name(lv_style_t *style, ui_theme_layer_name theme) {
 }
 
 void apply_theme_secondary_label(lv_style_t *style, ui_theme_secondary_label theme) {
+    lv_style_init(style);
     lv_style_set_text_font(style, theme.font);
     lv_style_set_text_color(style, theme.text_color);
 }
 
 void apply_theme_bar(lv_style_t *style, ui_theme_bar theme) {
+    lv_style_init(style);
     lv_style_set_radius(style, theme.border_radius);
     lv_style_set_bg_color(style, theme.bg_color);
     lv_style_set_bg_opa(style, theme.bg_opacity);
@@ -256,6 +260,7 @@ void apply_theme_bar(lv_style_t *style, ui_theme_bar theme) {
 }
 
 void apply_theme_bar_background(lv_style_t *style, ui_theme_bar_background theme) {
+    lv_style_init(style);
     lv_style_set_radius(style, theme.border_radius);
     lv_style_set_border_width(style, theme.border_width);
 }

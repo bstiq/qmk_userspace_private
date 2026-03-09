@@ -469,6 +469,7 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 current_theme = (current_theme + 1) % (sizeof(themes) / sizeof(ui_theme *));
                 update_styles(get_current_theme());
+                housekeeping_task_lcd();
             }
             break;
     }

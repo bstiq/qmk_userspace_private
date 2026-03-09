@@ -79,7 +79,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
        RM_TOGG, KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, XXXXXXX,    KC_PPLS,   KC_P4,   KC_P5,   KC_P6, KC_PMNS, KC_PEQL,
   // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-       RM_PREV, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    KC_PAST,   KC_P1,   KC_P2,   KC_P3, KC_PSLS, KC_PDOT,
+       RM_PREV, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, LCD_THEME,  KC_PAST,   KC_P1,   KC_P2,   KC_P3, KC_PSLS, KC_PDOT,
   // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
                          XXXXXXX, XXXXXXX, XXXXXXX, _______,    XXXXXXX, _______, XXXXXXX, XXXXXXX
   //                    ╰───────────────────────────────────╯ ╰───────────────────────────────────╯
@@ -140,11 +140,9 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 // clang-format on
 #endif // ENCODER_MAP_ENABLE
 
-void keyboard_post_init_user(void) {
-
-}
+void keyboard_post_init_user(void) {}
 
 // TODO delete this function, does it still update automagically?
 void housekeeping_task_user(void) {
-//     housekeeping_task_lcd();
+    //     housekeeping_task_lcd();
 }

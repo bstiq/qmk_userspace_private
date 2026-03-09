@@ -48,7 +48,7 @@ void init_themes(void) {
         .secondary_labels =
             {
                 .font = &montserratbold13,
-                .text_opa      = LV_OPA_COVER,
+                .text_color    = lv_color_make(150, 150, 150),
             },
         .bar =
             {

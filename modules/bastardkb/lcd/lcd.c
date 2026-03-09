@@ -419,7 +419,7 @@ void update_rgb_info(void) {
 }
 
 void update_mouse_info(void) {
-    TODO dynamically get max DPI, instead of using hardcoded values
+    // TODO dynamically get max DPI, instead of using hardcoded values
     if (g_dilemma_status.dpi != g_dilemma_status_prev.dpi) {
         static const uint16_t rel_max_dpi = 200 * 16;
         const float           rel         = (float)((g_dilemma_status.dpi + 200 - 400)) * 100 / rel_max_dpi;

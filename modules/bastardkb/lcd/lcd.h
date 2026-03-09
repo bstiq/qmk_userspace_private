@@ -33,3 +33,5 @@ lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex);
 lv_obj_t *ui_create_number_label(lv_obj_t *cont, uint8_t flex);
 lv_obj_t *ui_create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height);
 void      update_styles(ui_theme theme);
+bool process_record_lcd(uint16_t keycode, keyrecord_t *record);
+ui_theme get_current_theme(void);

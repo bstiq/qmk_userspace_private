@@ -86,6 +86,8 @@ const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER
 extern ui_theme default_theme;
 extern ui_theme skeu_dark_theme;
 extern ui_theme terminal_theme;
+uint8_t current_theme = 0;
+ui_theme themes[] = {default_theme, skeu_dark_theme, terminal_theme};
 
 
 painter_device_t        lcd;
@@ -104,9 +106,13 @@ lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_tr
     return lbl;
 }
 
+ui_theme get_current_theme(void) {
+    return themes[current_theme];
+}
+
 lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {
     lv_obj_t *bar = lv_bar_create(cont);
-    lv_obj_set_height(bar, skeu_dark_theme.bar.height); // TODO make a global variable pointer
+    lv_obj_set_height(bar, get_current_theme().bar.height); // TODO make a global variable pointer
     lv_obj_add_style(bar, &ui_styles.bar, LV_PART_INDICATOR);
     lv_obj_add_style(bar, &ui_styles.bar_background, 0);
     lv_obj_set_flex_grow(bar, flex);
@@ -159,7 +165,7 @@ void keyboard_post_init_lcd(void) {
     qp_flush(lcd);
     ui_screen_base = lv_obj_create(NULL);
 
-    init_themes();
+    init_themes();    
     style_init_all();
 
     lv_obj_t *cont = lv_obj_create(ui_screen_base);
@@ -251,9 +257,10 @@ void style_init_all(void) {
     // secondary labels
     lv_style_init(&ui_styles.secondary_labels);
 
-    // bars
-    apply_theme_bar(&(ui_styles.bar), default_theme.bar);
-    apply_theme_bar_background(&(ui_styles.bar_background), default_theme.bar_background);
+    // bars 
+    // TODO move this out? this is an apply theme...
+    apply_theme_bar(&(ui_styles.bar), get_current_theme().bar);
+    apply_theme_bar_background(&(ui_styles.bar_background), get_current_theme().bar_background);
 
     // flex container
     lv_style_set_bg_color(&ui_styles.flex_container, lv_color_black());
@@ -261,7 +268,7 @@ void style_init_all(void) {
     lv_style_set_border_width(&ui_styles.flex_container, 0);
     // lv_style_set_pad_all(&ui_styles.flex_container, 0);
 
-    update_styles(terminal_theme);
+    update_styles(get_current_theme());
 }
 
 void ui_init_layer_name(lv_obj_t *label) {
@@ -453,6 +460,17 @@ void update_mouse_info(void) {
         } else {
             lv_event_send(mouse_buttons[1].button, LV_EVENT_RELEASED, NULL);
         }
+    }
+}
+
+bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
+    switch(keycode){
+        case LCD_MODULE_CHANGE_THEME:
+            if (record->event.pressed) {
+                current_theme = (current_theme + 1) % (sizeof(themes) / sizeof(ui_theme));
+                update_styles(get_current_theme());
+            }
+            break;
     }
 }
 

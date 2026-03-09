@@ -472,6 +472,7 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
             }
             break;
     }
+    return true;
 }
 
 const char *rgb_matrix_get_effect_name(void) {

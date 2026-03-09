@@ -350,23 +350,23 @@ void housekeeping_task_lcd(void) {
 }
 
 void update_layer_name(void) {
-    // if (g_dilemma_status.layer != g_dilemma_status_prev.layer) {
-    //     switch (g_dilemma_status.layer) {
-    //         case 0:
-    //         default:
-    //             lv_label_set_text(ui_label_layer, "LAYER: BASE");
-    //             break;
-    //         case 1:
-    //             lv_label_set_text(ui_label_layer, "LAYER: LOWER");
-    //             break;
-    //         case 2:
-    //             lv_label_set_text(ui_label_layer, "LAYER: RAISE");
-    //             break;
-    //         case 3:
-    //             lv_label_set_text(ui_label_layer, "LAYER: MOUSE");
-    //             break;
-    //     }
-    // }
+    if (g_dilemma_status.layer != g_dilemma_status_prev.layer) {
+        switch (g_dilemma_status.layer) {
+            case 0:
+            default:
+                lv_label_set_text(ui_label_layer, "LAYER: BASE");
+                break;
+            case 1:
+                lv_label_set_text(ui_label_layer, "LAYER: LOWER");
+                break;
+            case 2:
+                lv_label_set_text(ui_label_layer, "LAYER: RAISE");
+                break;
+            case 3:
+                lv_label_set_text(ui_label_layer, "LAYER: MOUSE");
+                break;
+        }
+    }
 }
 
 void update_dilemma_status(void) {
@@ -395,84 +395,84 @@ void update_mods(void) {
 }
 
 void update_rgb_info(void) {
-    // const bool rgb_change = (g_dilemma_status.rgb_enabled != g_dilemma_status_prev.rgb_enabled);
+    const bool rgb_change = (g_dilemma_status.rgb_enabled != g_dilemma_status_prev.rgb_enabled);
 
-    // if (!g_dilemma_status.rgb_enabled) {
-    //     if (rgb_change) {
-    //         lv_label_set_text(ui_label_rgb_number, "Off");
-    //         lv_bar_set_value(ui_bar_rgb, 0, LV_ANIM_OFF);
-    //         lv_label_set_text(ui_label_rgb_effect, "");
-    //     }
-    // } else {
-    //     if ((rgb_change) || (g_dilemma_status.rgb_val != g_dilemma_status_prev.rgb_val)) {
-    //         char rgbval[50];
-    //         sprintf(rgbval, "%u", g_dilemma_status.rgb_val);
-    //         lv_label_set_text(ui_label_rgb_number, rgbval);
-    //         float rel = (float)(g_dilemma_status.rgb_val) * 100 / 156;
-    //         lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
-    //     }
-    //     if ((rgb_change) || (g_dilemma_status.rgb_effect_mode != g_dilemma_status_prev.rgb_effect_mode)) {
-    //         const char *effect_name = rgb_matrix_get_effect_name();
-    //         lv_label_set_text(ui_label_rgb_effect, effect_name);
-    //     }
-    // }
+    if (!g_dilemma_status.rgb_enabled) {
+        if (rgb_change) {
+            lv_label_set_text(ui_label_rgb_number, "Off");
+            lv_bar_set_value(ui_bar_rgb, 0, LV_ANIM_OFF);
+            lv_label_set_text(ui_label_rgb_effect, "");
+        }
+    } else {
+        if ((rgb_change) || (g_dilemma_status.rgb_val != g_dilemma_status_prev.rgb_val)) {
+            char rgbval[50];
+            sprintf(rgbval, "%u", g_dilemma_status.rgb_val);
+            lv_label_set_text(ui_label_rgb_number, rgbval);
+            float rel = (float)(g_dilemma_status.rgb_val) * 100 / 156;
+            lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
+        }
+        if ((rgb_change) || (g_dilemma_status.rgb_effect_mode != g_dilemma_status_prev.rgb_effect_mode)) {
+            const char *effect_name = rgb_matrix_get_effect_name();
+            lv_label_set_text(ui_label_rgb_effect, effect_name);
+        }
+    }
 }
 
 void update_mouse_info(void) {
-    // TODO dynamically get max DPI, instead of using hardcoded values
-    // if (g_dilemma_status.dpi != g_dilemma_status_prev.dpi) {
-    //     static const uint16_t rel_max_dpi = 200 * 16;
-    //     const float           rel         = (float)((g_dilemma_status.dpi + 200 - 400)) * 100 / rel_max_dpi;
-    //     lv_bar_set_value(ui_bar_dpi, (uint16_t)rel, LV_ANIM_OFF);
+    TODO dynamically get max DPI, instead of using hardcoded values
+    if (g_dilemma_status.dpi != g_dilemma_status_prev.dpi) {
+        static const uint16_t rel_max_dpi = 200 * 16;
+        const float           rel         = (float)((g_dilemma_status.dpi + 200 - 400)) * 100 / rel_max_dpi;
+        lv_bar_set_value(ui_bar_dpi, (uint16_t)rel, LV_ANIM_OFF);
 
-    //     char c_dpi[50];
-    //     sprintf(c_dpi, "%u", (uint16_t)g_dilemma_status.dpi);
-    //     lv_label_set_text(ui_label_dpi_number, c_dpi);
-    // }
+        char c_dpi[50];
+        sprintf(c_dpi, "%u", (uint16_t)g_dilemma_status.dpi);
+        lv_label_set_text(ui_label_dpi_number, c_dpi);
+    }
 
-    // if (g_dilemma_status.s_dpi != g_dilemma_status_prev.s_dpi) {
-    //     char                  c_s_dpi[50];
-    //     static const uint16_t rel_max_s_dpi = 100 * 4;
-    //     const float           rel           = (float)((g_dilemma_status.s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
-    //     lv_bar_set_value(ui_bar_s_dpi, (uint16_t)rel, LV_ANIM_OFF);
-    //     sprintf(c_s_dpi, "%u", (uint16_t)g_dilemma_status.s_dpi);
-    //     lv_label_set_text(ui_label_s_dpi_number, c_s_dpi);
-    // }
+    if (g_dilemma_status.s_dpi != g_dilemma_status_prev.s_dpi) {
+        char                  c_s_dpi[50];
+        static const uint16_t rel_max_s_dpi = 100 * 4;
+        const float           rel           = (float)((g_dilemma_status.s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
+        lv_bar_set_value(ui_bar_s_dpi, (uint16_t)rel, LV_ANIM_OFF);
+        sprintf(c_s_dpi, "%u", (uint16_t)g_dilemma_status.s_dpi);
+        lv_label_set_text(ui_label_s_dpi_number, c_s_dpi);
+    }
 
-    // if (g_dilemma_status.sniping != g_dilemma_status_prev.sniping) {
-    //     if (g_dilemma_status.sniping) {
-    //         lv_event_send(mouse_buttons[0].button, LV_EVENT_PRESSED, NULL);
-    //     } else {
-    //         lv_event_send(mouse_buttons[0].button, LV_EVENT_RELEASED, NULL);
-    //     }
-    // }
+    if (g_dilemma_status.sniping != g_dilemma_status_prev.sniping) {
+        if (g_dilemma_status.sniping) {
+            lv_event_send(mouse_buttons[0].button, LV_EVENT_PRESSED, NULL);
+        } else {
+            lv_event_send(mouse_buttons[0].button, LV_EVENT_RELEASED, NULL);
+        }
+    }
 
-    // if (g_dilemma_status.scrolling != g_dilemma_status_prev.scrolling) {
-    //     if (g_dilemma_status.scrolling) {
-    //         lv_event_send(mouse_buttons[1].button, LV_EVENT_PRESSED, NULL);
-    //     } else {
-    //         lv_event_send(mouse_buttons[1].button, LV_EVENT_RELEASED, NULL);
-    //     }
-    // }
+    if (g_dilemma_status.scrolling != g_dilemma_status_prev.scrolling) {
+        if (g_dilemma_status.scrolling) {
+            lv_event_send(mouse_buttons[1].button, LV_EVENT_PRESSED, NULL);
+        } else {
+            lv_event_send(mouse_buttons[1].button, LV_EVENT_RELEASED, NULL);
+        }
+    }
 }
 
 const char *rgb_matrix_get_effect_name(void) {
     // thank you drashna!
     static char    buf[32]     = {0};
-    // static uint8_t last_effect = 0;
-    // if (last_effect != rgb_matrix_get_mode()) {
-    //     last_effect = rgb_matrix_get_mode();
-    //     snprintf(buf, sizeof(buf), "%s", rgb_matrix_get_mode_name(rgb_matrix_get_mode()));
-    //     for (uint8_t i = 1; i < sizeof(buf); ++i) {
-    //         if (buf[i] == 0)
-    //             break;
-    //         else if (buf[i] == '_')
-    //             buf[i] = ' ';
-    //         else if (buf[i - 1] == ' ')
-    //             buf[i] = toupper(buf[i]);
-    //         else if (buf[i - 1] != ' ')
-    //             buf[i] = tolower(buf[i]);
-    //     }
-    // }
+    static uint8_t last_effect = 0;
+    if (last_effect != rgb_matrix_get_mode()) {
+        last_effect = rgb_matrix_get_mode();
+        snprintf(buf, sizeof(buf), "%s", rgb_matrix_get_mode_name(rgb_matrix_get_mode()));
+        for (uint8_t i = 1; i < sizeof(buf); ++i) {
+            if (buf[i] == 0)
+                break;
+            else if (buf[i] == '_')
+                buf[i] = ' ';
+            else if (buf[i - 1] == ' ')
+                buf[i] = toupper(buf[i]);
+            else if (buf[i - 1] != ' ')
+                buf[i] = tolower(buf[i]);
+        }
+    }
     return buf;
 }

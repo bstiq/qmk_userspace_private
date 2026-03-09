@@ -23,6 +23,10 @@
 
 #define ENCODER_RESOLUTION 4
 
+
+// LCD configuration
+
 #define BACKLIGHT_PIN GP20 // backlight pin for lcd
 #define BACKLIGHT_PWM_DRIVER PWMD2
 #define BACKLIGHT_PWM_CHANNEL RP2040_PWM_CHANNEL_A
+#define SPI_DRIVER SPID0

@@ -23,6 +23,7 @@ void init_themes(void) {
                 .border_color  = lv_color_make(50, 55, 67),
                 .text_color    = lv_color_white(),
                 .border_width  = 2,
+                .text_opa      = LV_OPA_COVER,
             },
         .btn_pressed =
             {
@@ -33,6 +34,7 @@ void init_themes(void) {
                 .border_color  = lv_color_white(),
                 .text_color    = lv_color_white(),
                 .border_width  = 2,
+                .text_opa      = LV_OPA_COVER,
             },
         .layer_name =
             {
@@ -46,6 +48,7 @@ void init_themes(void) {
         .secondary_labels =
             {
                 .font = &montserratbold13,
+                .text_opa      = LV_OPA_COVER,
             },
         .bar =
             {

@@ -1,4 +1,5 @@
 #include QMK_KEYBOARD_H
+#include "introspection.h"
 #include "lvgl.h"
 #include <ctype.h>
 #include "theme.h"

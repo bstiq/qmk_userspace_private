@@ -1,2 +1,17 @@
+#ifndef BK_LCD_INTROSPECTION_H
+#define BK_LCD_INTROSPECTION_H
+
 #include QMK_KEYBOARD_H
 
+#ifdef RP_I2C_USE_I2C0
+#    undef RP_I2C_USE_I2C0
+#endif
+#define RP_I2C_USE_I2C0 FALSE
+
+#ifdef RP_I2C_USE_I2C1
+#    undef RP_I2C_USE_I2C1
+#endif
+#define RP_I2C_USE_I2C1 TRUE
+// end QP stuff
+
+#endif // BK_LCD_INTROSPECTION_H

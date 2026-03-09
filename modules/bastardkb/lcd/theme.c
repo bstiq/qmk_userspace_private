@@ -55,6 +55,7 @@ void init_themes(void) {
                 .border_radius = 0,
                 .bg_color      = lv_color_make(71, 133, 239),
                 .height        = 6,
+                .bg_opacity    = LV_OPA_COVER,
             },
         .bar_background =
             {

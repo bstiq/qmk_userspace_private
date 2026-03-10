@@ -40,20 +40,13 @@ enum dilemma_keymap_layers {
 #    define SNIPING KC_NO
 #endif // !POINTING_DEVICE_ENABLE
 
-// QP stuff
-// TODO removees
+// TODO remove those
 #include "qp.h"
 #include "qp_comms.h"
 #include "qp_st77xx_opcodes.h"
 #include "qp_surface.h"
 #include "keymap.h"
 #include "color.h"
-
-// painter_device_t        lcd;
-// static painter_device_t surface;
-// Buffer required for a 240x280 16bpp surface:
-// static uint8_t surface_buffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(LCD_WIDTH, LCD_HEIGHT, 16)];
-// end QP stuff
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {

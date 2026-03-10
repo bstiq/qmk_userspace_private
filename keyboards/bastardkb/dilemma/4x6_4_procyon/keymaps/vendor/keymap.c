@@ -139,10 +139,3 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
 };
 // clang-format on
 #endif // ENCODER_MAP_ENABLE
-
-void keyboard_post_init_user(void) {}
-
-// TODO delete this function, does it still update automagically?
-void housekeeping_task_user(void) {
-    //     housekeeping_task_lcd();
-}

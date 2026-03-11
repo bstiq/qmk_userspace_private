@@ -64,15 +64,15 @@ enum ui_user_events {
 
 // todo define bits
 typedef struct {
-        uint8_t  mods;
-        bool     sniping;
-        bool     scrolling;
-        uint8_t  rgb_enabled;
-        uint8_t  rgb_effect_mode;
-        uint16_t rgb_val;
-        uint16_t dpi;
-        uint16_t s_dpi;
-        uint8_t  layer;
+    uint8_t  mods;
+    bool     sniping;
+    bool     scrolling;
+    uint8_t  rgb_enabled;
+    uint8_t  rgb_effect_mode;
+    uint16_t rgb_val;
+    uint16_t dpi;
+    uint16_t s_dpi;
+    uint8_t  layer;
 } dilemma_status_t;
 
 static dilemma_status_t g_dilemma_status_prev = {0};
@@ -344,10 +344,19 @@ void event_screen_pointer_scroll_toggle(lv_event_t *e) {}
 void event_screen_base_update_mods(lv_event_t *e) {}
 
 void housekeeping_task_lcd(void) {
+    update_dilemma_status();
+
+    if (is_keyboard_left()) {
+        update_layer_name();
+        update_mods();
+        update_rgb_info();
+        update_mouse_info();
+        update_theme_color();
+    }
+
     if (is_keyboard_master()) {
         bool            needs_sync = false;
         static uint32_t last_sync  = 0;
-        update_dilemma_status();
         // // Check if the state values are different.
         if (memcmp(&g_dilemma_status, &g_dilemma_status_prev, sizeof(g_dilemma_status))) {
             needs_sync            = true;
@@ -364,13 +373,6 @@ void housekeeping_task_lcd(void) {
             }
         }
         g_dilemma_status_prev = g_dilemma_status;
-    }
-    if (is_keyboard_left()) {
-        update_layer_name();
-        update_mods();
-        update_rgb_info();
-        update_mouse_info();
-        update_theme_color();
     }
 }
 
@@ -520,6 +522,6 @@ const char *rgb_matrix_get_effect_name(void) {
 void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
     if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {
         g_dilemma_status_prev = g_dilemma_status;
-        g_dilemma_status = *(const dilemma_status_t *)initiator2target_buffer;
+        g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
     }
 }

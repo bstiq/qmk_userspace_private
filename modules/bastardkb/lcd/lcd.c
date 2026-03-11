@@ -343,7 +343,7 @@ void event_screen_pointer_scroll_toggle(lv_event_t *e) {}
 // TODO what is this?
 void event_screen_base_update_mods(lv_event_t *e) {}
 
-void update_info(void) {
+void refresh_lcd_info(void) {
     update_layer_name();
     update_mods();
     update_rgb_info();
@@ -356,7 +356,7 @@ void housekeeping_task_lcd(void) {
         if (is_keyboard_master()) {
             // no need to sync
             update_dilemma_status();
-            update_info();
+            refresh_lcd_info();
             g_dilemma_status_prev = g_dilemma_status;
         }
     } else {
@@ -532,6 +532,6 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
     if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {
         g_dilemma_status_prev = g_dilemma_status;
         g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
-        update_info();
+        refresh_lcd_info();
     }
 }

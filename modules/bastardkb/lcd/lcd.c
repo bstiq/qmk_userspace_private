@@ -357,10 +357,20 @@ void housekeeping_task_lcd(void) {
     if(is_keyboard_master()) {
         bool needs_sync = false;
         // // Check if the state values are different.
-        // if (memcmp(&g_dilemma_status, &last_dilemma_status_prev, sizeof(g_dilemma_status))) {
-        //     needs_sync = true;
-        //     memcpy(&g_dilemma_status_prev, &g_dilemma_status, sizeof(g_dilemma_status));
-        // }
+        if (memcmp(&g_dilemma_status, &last_dilemma_status_prev, sizeof(g_dilemma_status))) {
+            needs_sync = true;
+            memcpy(&g_dilemma_status_prev, &g_dilemma_status, sizeof(g_dilemma_status));
+        }
+        // Send to slave every 500ms regardless of state change.
+        if (timer_elapsed32(last_sync) > 500) {
+            needs_sync = true;
+        }
+        // Perform the sync if requested.
+        if (needs_sync) {
+            if (transaction_rpc_send(RPC_ID_KB_CONFIG_SYNC, sizeof(g_charybdis_config), &g_charybdis_config)) {
+                last_sync = timer_read32();
+            }
+        }
     }
     if(is_keyboard_left()) {
         // update_dilemma_status();

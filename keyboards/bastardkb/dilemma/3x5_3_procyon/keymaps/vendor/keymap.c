@@ -48,13 +48,7 @@ enum dilemma_keymap_layers {
 #    define SNIPING KC_NO
 #endif // !POINTING_DEVICE_ENABLE
 
-// QP stuff
-#include "qp.h"
-#include "qp_comms.h"
-#include "qp_st77xx_opcodes.h"
-#include "qp_surface.h"
 #include "keymap.h"
-#include "color.h"
 
 // clang-format off
 /** \brief QWERTY layout (3 rows, 10 columns). */

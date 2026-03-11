@@ -352,35 +352,35 @@ void refresh_lcd_info(void) {
 }
 
 void housekeeping_task_lcd(void) {
-    if (is_keyboard_left()) {
-        if (is_keyboard_master()) {
+    if (is_keyboard_master()) {
+        if (is_keyboard_left()) {
             // no need to sync
             update_dilemma_status();
             refresh_lcd_info();
             g_dilemma_status_prev = g_dilemma_status;
-        }
-    } else {
-        if (is_keyboard_master()) {
-            // update the dilemma status, and let the left half handle the LCD update
-            bool            needs_sync = false;
-            static uint32_t last_sync  = 0;
-            update_dilemma_status();
-            // // Check if the state values are different.
-            if (memcmp(&g_dilemma_status, &g_dilemma_status_prev, sizeof(g_dilemma_status))) {
-                needs_sync            = true;
+        } else {
+            if (is_keyboard_master()) {
+                // update the dilemma status, and let the left half handle the LCD update
+                bool            needs_sync = false;
+                static uint32_t last_sync  = 0;
+                update_dilemma_status();
+                // // Check if the state values are different.
+                if (memcmp(&g_dilemma_status, &g_dilemma_status_prev, sizeof(g_dilemma_status))) {
+                    needs_sync            = true;
+                    g_dilemma_status_prev = g_dilemma_status;
+                }
+                // Send to slave every 500ms regardless of state change.
+                if (timer_elapsed32(last_sync) > 500) {
+                    needs_sync = true;
+                }
+                // Perform the sync if requested.
+                if (needs_sync) {
+                    if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(g_dilemma_status), &g_dilemma_status)) {
+                        last_sync = timer_read32();
+                    }
+                }
                 g_dilemma_status_prev = g_dilemma_status;
             }
-            // Send to slave every 500ms regardless of state change.
-            if (timer_elapsed32(last_sync) > 500) {
-                needs_sync = true;
-            }
-            // Perform the sync if requested.
-            if (needs_sync) {
-                if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(g_dilemma_status), &g_dilemma_status)) {
-                    last_sync = timer_read32();
-                }
-            }
-            g_dilemma_status_prev = g_dilemma_status;
         }
     }
 }

@@ -35,3 +35,6 @@ lv_obj_t *ui_create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height)
 void      update_styles(ui_theme theme);
 bool process_record_lcd(uint16_t keycode, keyrecord_t *record);
 ui_theme get_current_theme(void);
+
+void mouse_info_sync_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data);
+void sync_mouse_info(void);

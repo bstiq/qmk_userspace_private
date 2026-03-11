@@ -93,6 +93,13 @@ static painter_device_t surface;
 // Buffer required for a 240x280 16bpp surface:
 static uint8_t surface_buffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(LCD_WIDTH, LCD_HEIGHT, 16)];
 
+typedef struct PACKED mouse_info_msg_t {
+    bool snipe;
+    bool scroll;
+    uint16_t  snipe_dpi;
+    uint16_t  dpi;
+} mouse_info_msg_t;
+
 lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex) {
     lv_obj_t *lbl = lv_label_create(cont);
     lv_label_set_text(lbl, text);
@@ -222,6 +229,9 @@ void keyboard_post_init_lcd(void) {
         lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(BK_PALETTE), lv_palette_main(BK_PALETTE), true, LV_FONT_DEFAULT);
         lv_disp_set_theme(dispp, theme);
         lv_obj_set_style_bg_color(cont, lv_color_black(), LV_PART_MAIN);
+
+        // sync mouse data across halves
+        transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
     }
 }
 
@@ -343,12 +353,16 @@ void event_screen_base_update_mods(lv_event_t *e) {}
 
 void housekeeping_task_lcd(void) {
     if(is_keyboard_left()) {
-        update_dilemma_status();
+        // update_dilemma_status();
         update_layer_name();
         update_mods();
         update_rgb_info();
         update_mouse_info();
         update_theme_color();
+    }
+    if (is_keyboard_master()) {
+        update_dilemma_status();
+        sync_mouse_info();
         g_dilemma_status_prev = g_dilemma_status;
     }
 }
@@ -493,4 +507,36 @@ const char *rgb_matrix_get_effect_name(void) {
         }
     }
     return buf;
+}
+
+// TODO?
+// _Static_assert(sizeof(mouse_info_msg_t) <= RPC_M2S_BUFFER_SIZE, "Mouse info message size exceeds buffer size!");
+
+void mouse_info_sync_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
+    const mouse_info_msg_t* msg = (const mouse_info_msg_t*)in_data;
+    g_dilemma_status.sniping = msg->snipe;
+    g_dilemma_status.scrolling = msg->scroll;
+    g_dilemma_status.s_dpi = msg->snipe_dpi;
+    g_dilemma_status.dpi = msg->dpi;
+}
+
+void sync_mouse_info(void) {
+    // static uint16_t last_layer_map[LAYER_MAP_ROWS][LAYER_MAP_COLS] = {0};
+    static uint16_t last_sync_time                                 = 0;
+
+    // if (memcmp(layer_map, last_layer_map, sizeof(last_layer_map)) != 0 || timer_elapsed(last_sync_time) >= 1000) {
+    if (timer_elapsed(last_sync_time) >= 1000) {
+        // memcpy(last_layer_map, layer_map, sizeof(last_layer_map));
+        // for (uint8_t i = 0; i < LAYER_MAP_ROWS; i++) {
+            mouse_info_msg_t msg = {
+               g_dilemma_status.sniping,
+                g_dilemma_status.scrolling,
+                g_dilemma_status.s_dpi,
+                g_dilemma_status.dpi
+            };
+            // memcpy(msg.layer_map, layer_map[i], sizeof(msg.layer_map));
+            transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(mouse_info_msg_t), &msg);
+        last_sync_time = timer_read();
+        }
+    }
 }

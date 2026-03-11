@@ -4,6 +4,7 @@
 #include "lcd.h"
 #include "config.h"
 #include "quantum.h"
+#include <stdio.h>
 
 #include "qp.h"
 #include "qp_comms.h"
@@ -524,6 +525,7 @@ void sync_mouse_info(void) {
     // static uint16_t last_layer_map[LAYER_MAP_ROWS][LAYER_MAP_COLS] = {0};
     static uint16_t last_sync_time                                 = 0;
 
+    // TODO also add trigger if contents of struct are different... but only the snipe/scroll info, not the rest.
     // if (memcmp(layer_map, last_layer_map, sizeof(last_layer_map)) != 0 || timer_elapsed(last_sync_time) >= 1000) {
     if (timer_elapsed(last_sync_time) >= 1000) {
         // memcpy(last_layer_map, layer_map, sizeof(last_layer_map));

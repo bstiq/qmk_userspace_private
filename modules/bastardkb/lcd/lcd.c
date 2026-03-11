@@ -363,6 +363,7 @@ void housekeeping_task_lcd(void) {
                 last_sync = timer_read32();
             }
         }
+        g_dilemma_status_prev = g_dilemma_status;
     }
     if (is_keyboard_left()) {
         update_layer_name();
@@ -515,12 +516,9 @@ const char *rgb_matrix_get_effect_name(void) {
     return buf;
 }
 
-// TODO?
-// _Static_assert(sizeof(mouse_info_msg_t) <= RPC_M2S_BUFFER_SIZE, "Mouse info message size exceeds buffer size!");
-
+// called by primary, executed by secondary
 void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
     if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {
-        // TODO get rid of the memcpy here, make it easier to read
         g_dilemma_status_prev = g_dilemma_status;
         g_dilemma_status = *(const dilemma_status_t *)initiator2target_buffer;
     }

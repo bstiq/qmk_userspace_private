@@ -74,3 +74,5 @@
 
 // Custom display stuff
 #define BK_PALETTE LV_PALETTE_CYAN
+
+#define SPLIT_TRANSPORT_MIRROR

@@ -63,8 +63,7 @@ enum ui_user_events {
 };
 
 // todo define bits
-typedef union {
-    struct {
+typedef struct {
         uint8_t  mods;
         bool     sniping;
         bool     scrolling;
@@ -74,7 +73,6 @@ typedef union {
         uint16_t dpi;
         uint16_t s_dpi;
         uint8_t  layer;
-    } __attribute__((packed));
 } dilemma_status_t;
 
 static dilemma_status_t g_dilemma_status_prev = {0};
@@ -525,21 +523,4 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
         // TODO get rid of the memcpy here, make it easier to read
         memcpy(&g_dilemma_status, initiator2target_buffer, sizeof(g_dilemma_status));
     }
-}
-
-void sync_mouse_info(void) {
-    // static uint16_t last_layer_map[LAYER_MAP_ROWS][LAYER_MAP_COLS] = {0};
-    static uint16_t last_sync_time = 0;
-
-    // TODO also add trigger if contents of struct are different... but only the snipe/scroll info, not the rest.
-    // if (memcmp(layer_map, last_layer_map, sizeof(last_layer_map)) != 0 || timer_elapsed(last_sync_time) >= 1000) {
-    if (timer_elapsed(last_sync_time) >= 1000) {
-        // memcpy(last_layer_map, layer_map, sizeof(last_layer_map));
-        // for (uint8_t i = 0; i < LAYER_MAP_ROWS; i++) {
-        mouse_info_msg_t msg = {g_dilemma_status.sniping, g_dilemma_status.scrolling, g_dilemma_status.s_dpi, g_dilemma_status.dpi};
-        // memcpy(msg.layer_map, layer_map[i], sizeof(msg.layer_map));
-        transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(mouse_info_msg_t), &msg);
-        last_sync_time = timer_read();
-    }
-}
 }

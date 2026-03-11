@@ -354,6 +354,14 @@ void event_screen_pointer_scroll_toggle(lv_event_t *e) {}
 void event_screen_base_update_mods(lv_event_t *e) {}
 
 void housekeeping_task_lcd(void) {
+    if(is_keyboard_master()) {
+        bool needs_sync = false;
+        // // Check if the state values are different.
+        // if (memcmp(&g_dilemma_status, &last_dilemma_status_prev, sizeof(g_dilemma_status))) {
+        //     needs_sync = true;
+        //     memcpy(&g_dilemma_status_prev, &g_dilemma_status, sizeof(g_dilemma_status));
+        // }
+    }
     if(is_keyboard_left()) {
         // update_dilemma_status();
         update_layer_name();
@@ -514,12 +522,10 @@ const char *rgb_matrix_get_effect_name(void) {
 // TODO?
 // _Static_assert(sizeof(mouse_info_msg_t) <= RPC_M2S_BUFFER_SIZE, "Mouse info message size exceeds buffer size!");
 
-void mouse_info_sync_handler(uint8_t in_buflen, const void* in_data, uint8_t out_buflen, void* out_data) {
-    const mouse_info_msg_t* msg = (const mouse_info_msg_t*)in_data;
-    g_dilemma_status.sniping = msg->snipe;
-    g_dilemma_status.scrolling = msg->scroll;
-    g_dilemma_status.s_dpi = msg->snipe_dpi;
-    g_dilemma_status.dpi = msg->dpi;
+void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
+    if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {
+        memcpy(&g_dilemma_status, initiator2target_buffer, sizeof(g_dilemma_status));
+    }
 }
 
 void sync_mouse_info(void) {

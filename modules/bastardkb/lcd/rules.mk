@@ -17,3 +17,7 @@ SRC += jetbrainsmono14bold.c
 
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm
+
+# screen stuff
+OPT_DEFS += -DHAL_USE_RTC=TRUE
+OPT_DEFS += -URP_PWM_USE_PWM2 -DRP_PWM_USE_PWM2=TRUE

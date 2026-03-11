@@ -95,13 +95,6 @@ static painter_device_t surface;
 // Buffer required for a 240x280 16bpp surface:
 static uint8_t surface_buffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(LCD_WIDTH, LCD_HEIGHT, 16)];
 
-typedef struct PACKED mouse_info_msg_t {
-    bool snipe;
-    bool scroll;
-    uint16_t  snipe_dpi;
-    uint16_t  dpi;
-} mouse_info_msg_t;
-
 lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex) {
     lv_obj_t *lbl = lv_label_create(cont);
     lv_label_set_text(lbl, text);
@@ -356,10 +349,11 @@ void event_screen_base_update_mods(lv_event_t *e) {}
 void housekeeping_task_lcd(void) {
     if(is_keyboard_master()) {
         bool needs_sync = false;
+        update_dilemma_status();
         // // Check if the state values are different.
         if (memcmp(&g_dilemma_status, &last_dilemma_status_prev, sizeof(g_dilemma_status))) {
             needs_sync = true;
-            memcpy(&g_dilemma_status_prev, &g_dilemma_status, sizeof(g_dilemma_status));
+            g_dilemma_status_prev = g_dilemma_status;
         }
         // Send to slave every 500ms regardless of state change.
         if (timer_elapsed32(last_sync) > 500) {
@@ -367,23 +361,17 @@ void housekeeping_task_lcd(void) {
         }
         // Perform the sync if requested.
         if (needs_sync) {
-            if (transaction_rpc_send(RPC_ID_KB_CONFIG_SYNC, sizeof(g_charybdis_config), &g_charybdis_config)) {
+            if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(g_dilemma_status), &g_dilemma_status)) {
                 last_sync = timer_read32();
             }
         }
     }
     if(is_keyboard_left()) {
-        // update_dilemma_status();
         update_layer_name();
         update_mods();
         update_rgb_info();
         update_mouse_info();
         update_theme_color();
-    }
-    if (is_keyboard_master()) {
-        update_dilemma_status();
-        sync_mouse_info();
-        g_dilemma_status_prev = g_dilemma_status;
     }
 }
 

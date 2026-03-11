@@ -64,7 +64,6 @@ enum ui_user_events {
 
 // todo define bits
 typedef union {
-    uint8_t raw;
     struct {
         uint8_t  mods;
         bool     sniping;
@@ -347,12 +346,13 @@ void event_screen_pointer_scroll_toggle(lv_event_t *e) {}
 void event_screen_base_update_mods(lv_event_t *e) {}
 
 void housekeeping_task_lcd(void) {
-    if(is_keyboard_master()) {
-        bool needs_sync = false;
+    if (is_keyboard_master()) {
+        bool            needs_sync = false;
+        static uint32_t last_sync  = 0;
         update_dilemma_status();
         // // Check if the state values are different.
         if (memcmp(&g_dilemma_status, &g_dilemma_status_prev, sizeof(g_dilemma_status))) {
-            needs_sync = true;
+            needs_sync            = true;
             g_dilemma_status_prev = g_dilemma_status;
         }
         // Send to slave every 500ms regardless of state change.
@@ -366,7 +366,7 @@ void housekeeping_task_lcd(void) {
             }
         }
     }
-    if(is_keyboard_left()) {
+    if (is_keyboard_left()) {
         update_layer_name();
         update_mods();
         update_rgb_info();
@@ -520,7 +520,7 @@ const char *rgb_matrix_get_effect_name(void) {
 // TODO?
 // _Static_assert(sizeof(mouse_info_msg_t) <= RPC_M2S_BUFFER_SIZE, "Mouse info message size exceeds buffer size!");
 
-void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
+void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
     if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {
         // TODO get rid of the memcpy here, make it easier to read
         memcpy(&g_dilemma_status, initiator2target_buffer, sizeof(g_dilemma_status));
@@ -529,22 +529,17 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void* i
 
 void sync_mouse_info(void) {
     // static uint16_t last_layer_map[LAYER_MAP_ROWS][LAYER_MAP_COLS] = {0};
-    static uint16_t last_sync_time                                 = 0;
+    static uint16_t last_sync_time = 0;
 
     // TODO also add trigger if contents of struct are different... but only the snipe/scroll info, not the rest.
     // if (memcmp(layer_map, last_layer_map, sizeof(last_layer_map)) != 0 || timer_elapsed(last_sync_time) >= 1000) {
     if (timer_elapsed(last_sync_time) >= 1000) {
         // memcpy(last_layer_map, layer_map, sizeof(last_layer_map));
         // for (uint8_t i = 0; i < LAYER_MAP_ROWS; i++) {
-            mouse_info_msg_t msg = {
-               g_dilemma_status.sniping,
-                g_dilemma_status.scrolling,
-                g_dilemma_status.s_dpi,
-                g_dilemma_status.dpi
-            };
-            // memcpy(msg.layer_map, layer_map[i], sizeof(msg.layer_map));
-            transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(mouse_info_msg_t), &msg);
+        mouse_info_msg_t msg = {g_dilemma_status.sniping, g_dilemma_status.scrolling, g_dilemma_status.s_dpi, g_dilemma_status.dpi};
+        // memcpy(msg.layer_map, layer_map[i], sizeof(msg.layer_map));
+        transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(mouse_info_msg_t), &msg);
         last_sync_time = timer_read();
-        }
     }
+}
 }

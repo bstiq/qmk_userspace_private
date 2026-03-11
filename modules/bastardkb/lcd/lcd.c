@@ -342,17 +342,15 @@ void event_screen_pointer_scroll_toggle(lv_event_t *e) {}
 void event_screen_base_update_mods(lv_event_t *e) {}
 
 void housekeeping_task_lcd(void) {
-    if (is_keyboard_left()) {
-        update_dilemma_status();
+    update_dilemma_status();
 
-        update_layer_name();
-        update_mods();
-        update_rgb_info();
-        update_mouse_info();
-        update_theme_color();
+    update_layer_name();
+    update_mods();
+    update_rgb_info();
+    update_mouse_info();
+    update_theme_color();
 
-        g_dilemma_status_prev = g_dilemma_status;
-    }
+    g_dilemma_status_prev = g_dilemma_status;
 }
 
 void update_layer_name(void) {

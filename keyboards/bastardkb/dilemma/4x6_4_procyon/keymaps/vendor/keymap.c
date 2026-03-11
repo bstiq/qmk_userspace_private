@@ -40,13 +40,7 @@ enum dilemma_keymap_layers {
 #    define SNIPING KC_NO
 #endif // !POINTING_DEVICE_ENABLE
 
-// TODO remove those
-#include "qp.h"
-#include "qp_comms.h"
-#include "qp_st77xx_opcodes.h"
-#include "qp_surface.h"
 #include "keymap.h"
-#include "color.h"
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {

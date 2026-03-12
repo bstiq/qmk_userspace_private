@@ -535,13 +535,14 @@ const char *rgb_matrix_get_effect_name(void) {
 void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
     if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {
         bool needs_theme_update = false;
+        dilemma_status_t new_status = *(const dilemma_status_t *)initiator2target_buffer;
 
-        if (g_dilemma_status_prev.theme_effects.current_theme_id != g_dilemma_status.theme_effects.current_theme_id) {
+        if (new_status.theme_effects.current_theme_id != g_dilemma_status.theme_effects.current_theme_id) {
             needs_theme_update = true;
         }
 
         g_dilemma_status_prev = g_dilemma_status;
-        g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
+        g_dilemma_status      = new_status;
 
         if (needs_theme_update) {
             update_styles(get_current_theme());

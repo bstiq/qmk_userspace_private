@@ -239,10 +239,11 @@ void keyboard_post_init_lcd(void) {
     if (is_keyboard_left()) {
         init_display();
         refresh_lcd_info();
-    } else {
-        // do one sync at keyboard plug-in
-        transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(g_dilemma_status), &g_dilemma_status);
     }
+    // else {
+    //     // do one sync at keyboard plug-in
+    //     transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(g_dilemma_status), &g_dilemma_status);
+    // }
 }
 
 void update_styles(ui_theme theme) {

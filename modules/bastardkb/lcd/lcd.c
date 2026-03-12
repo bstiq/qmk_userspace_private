@@ -109,7 +109,8 @@ lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_tr
 }
 
 ui_theme get_current_theme(void) {
-    return *themes[g_dilemma_status.current_theme_id];
+    uint8_t theme_id = (g_dilemma_status.current_theme_id) % (sizeof(themes) / sizeof(ui_theme *));
+    return *themes[theme_id];
 }
 
 lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {
@@ -535,6 +536,7 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
         if (g_dilemma_status_prev.current_theme_id != g_dilemma_status.current_theme_id) {
             g_dilemma_config_theme_t.current_theme_id = g_dilemma_status.current_theme_id;
             update_styles(get_current_theme());
+            // write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
         }
 
         refresh_lcd_info();

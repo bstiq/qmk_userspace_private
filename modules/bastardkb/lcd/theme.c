@@ -14,6 +14,7 @@ ui_theme terminal_theme;
 
 void init_themes(void) {
     default_theme = (ui_theme){
+        .change_colors_on_layer_change = true,
         .btn_normal =
             {
                 .font          = &montserratbold14,

@@ -55,6 +55,7 @@ typedef struct {
     ui_theme_secondary_label secondary_labels;
     ui_theme_bar             bar;
     ui_theme_bar_background  bar_background;
+    bool change_colors_on_layer_change;
     // SEPARATOR LINE -- TODO
 } ui_theme;
 

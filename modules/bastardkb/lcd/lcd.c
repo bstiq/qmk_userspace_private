@@ -294,39 +294,41 @@ mod_button_pair_t ui_create_mod_button(lv_obj_t *cont, const char *text, bool fo
     return b;
 }
 
-// TODO colors....
+// TODO get colors based on real layer colors, instead of hardcoding them
 void update_theme_color(void) {
-    // if (g_dilemma_status.layer != g_dilemma_status_prev.layer) {
-    //     HSV hsv;
-    //     switch (g_dilemma_status.layer) {
-    //         case 0:
-    //         default:
-    //             hsv.h = 218;
-    //             hsv.s = 70;
-    //             hsv.v = 93;
-    //             break;
-    //         case 1:
-    //             hsv.h = 250;
-    //             hsv.s = 100;
-    //             hsv.v = 80;
-    //             break;
-    //         case 2:
-    //             hsv.h = 35;
-    //             hsv.s = 100;
-    //             hsv.v = 80;
-    //             break;
-    //         case 3:
-    //             hsv.h = 195;
-    //             hsv.s = 30;
-    //             hsv.v = 80;
-    //             break;
-    //     }
+    if (get_current_theme().change_colors_on_layer_change) {
+        if (g_dilemma_status.layer != g_dilemma_status_prev.layer) {
+            HSV hsv;
+            switch (g_dilemma_status.layer) {
+                case 0:
+                default:
+                    hsv.h = 218;
+                    hsv.s = 70;
+                    hsv.v = 93;
+                    break;
+                case 1:
+                    hsv.h = 250;
+                    hsv.s = 100;
+                    hsv.v = 80;
+                    break;
+                case 2:
+                    hsv.h = 35;
+                    hsv.s = 100;
+                    hsv.v = 80;
+                    break;
+                case 3:
+                    hsv.h = 195;
+                    hsv.s = 30;
+                    hsv.v = 80;
+                    break;
+            }
 
-    //     lv_style_set_bg_color(&ui_styles.mod_btn_pressed, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
-    //     lv_obj_report_style_change(&ui_styles.mod_btn_pressed);
-    //     lv_style_set_bg_color(&ui_styles.bar, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
-    //     lv_obj_report_style_change(&ui_styles.bar);
-    // }
+            lv_style_set_bg_color(&ui_styles.mod_btn_pressed, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+            lv_obj_report_style_change(&ui_styles.mod_btn_pressed);
+            lv_style_set_bg_color(&ui_styles.bar, lv_color_hsv_to_rgb(hsv.h, hsv.s, hsv.v));
+            lv_obj_report_style_change(&ui_styles.bar);
+        }
+    }
 }
 
 void ui_init_button_mod_indicator(lv_obj_t *button) {
@@ -335,7 +337,6 @@ void ui_init_button_mod_indicator(lv_obj_t *button) {
     lv_obj_set_height(button, 33);
     lv_obj_set_flex_grow(button, 1);
 }
-
 
 void refresh_lcd_info(void) {
     update_layer_name();

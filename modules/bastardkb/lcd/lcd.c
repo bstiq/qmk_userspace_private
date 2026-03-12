@@ -366,7 +366,6 @@ void housekeeping_task_lcd(void) {
             // // Check if the state values are different.
             if (memcmp(&g_dilemma_status, &g_dilemma_status_prev, sizeof(g_dilemma_status))) {
                 needs_sync            = true;
-                g_dilemma_status_prev = g_dilemma_status;
             }
             // Perform the sync if requested.
             if (needs_sync) {
@@ -529,7 +528,7 @@ const char *rgb_matrix_get_effect_name(void) {
 
 // called by primary, executed by secondary
 void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
-    bool needs_theme_update = false;
+    // bool needs_theme_update = false;
     if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {
         if (g_dilemma_status_prev.current_theme_id != g_dilemma_status.current_theme_id) {
             needs_theme_update = true;

@@ -316,7 +316,7 @@ mod_button_pair_t ui_create_mod_button(lv_obj_t *cont, const char *text, bool fo
 }
 
 // TODO get colors based on real layer colors, instead of hardcoding them
-void update_theme_color(void) {
+void update_theme_color(bool force) {
     if (get_current_theme().change_colors_on_layer_change) {
         if (g_dilemma_status.layer != g_dilemma_status_prev.layer || force) {
             HSV hsv;

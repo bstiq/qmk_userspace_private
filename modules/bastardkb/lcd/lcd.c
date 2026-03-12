@@ -233,15 +233,16 @@ void keyboard_post_init_lcd(void) {
     read_dilemma_theme_config_from_eeprom(&g_dilemma_config_theme_t);
     g_dilemma_status.current_theme_id = g_dilemma_config_theme_t.current_theme_id;
 
+    // important when connecting both sides with a different-than-standard config
+    g_dilemma_status_prev = g_dilemma_status;
+
     // sync mouse data across halves
     transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
 
     if (is_keyboard_left()) {
         init_display();
         refresh_lcd_info();
-    } else {
-        wait_ms(LCD_WAIT_TIME * 2);
-    }
+    } 
 }
 
 void update_styles(ui_theme theme) {

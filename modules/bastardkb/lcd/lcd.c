@@ -428,7 +428,7 @@ void update_mods(bool force) {
 void update_rgb_info(bool force) {
     const bool rgb_change = (g_dilemma_status.theme_effects.rgb_enabled != g_dilemma_status_prev.theme_effects.rgb_enabled);
 
-    if (!g_dilemma_status.rgb_enabled) {
+    if (!g_dilemma_status.theme_effects.rgb_enabled) {
         if (rgb_change || force) {
             lv_label_set_text(ui_label_rgb_number, "Off");
             lv_bar_set_value(ui_bar_rgb, 0, LV_ANIM_OFF);
@@ -439,7 +439,7 @@ void update_rgb_info(bool force) {
             char rgbval[50];
             sprintf(rgbval, "%u", g_dilemma_status.theme_effects.rgb_val);
             lv_label_set_text(ui_label_rgb_number, rgbval);
-            float rel = (float)(g_dilemma_status.rgb_val) * 100 / 156;
+            float rel = (float)(g_dilemma_status.theme_effectsrgb_val) * 100 / 156;
             lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
         }
         if ((rgb_change) || (g_dilemma_status.theme_effects.rgb_effect_mode != g_dilemma_status_prev.theme_effects.rgb_effect_mode) || force) {
@@ -464,9 +464,9 @@ void update_mouse_info(bool force) {
     if (g_dilemma_status.theme_effects.s_dpi != g_dilemma_status_prev.theme_effects.s_dpi || force) {
         char                  c_s_dpi[50];
         static const uint16_t rel_max_s_dpi = 100 * 4;
-        const float           rel           = (float)((g_dilemma_status.s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
+        const float           rel           = (float)((g_dilemma_status.theme_effectss_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
         lv_bar_set_value(ui_bar_s_dpi, (uint16_t)rel, LV_ANIM_OFF);
-        sprintf(c_s_dpi, "%u", (uint16_t)g_dilemma_status.s_dpi);
+        sprintf(c_s_dpi, "%u", (uint16_t)g_dilemma_status.theme_effects.s_dpi);
         lv_label_set_text(ui_label_s_dpi_number, c_s_dpi);
     }
 
@@ -506,7 +506,6 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
 void cycle_theme(void) {
     g_dilemma_status.theme_effects.current_theme_id = (g_dilemma_status.theme_effects.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
     update_styles(get_current_theme());
-    g_dilemma_status_theme_t.theme_effects.current_theme_id = g_dilemma_status.theme_effects.current_theme_id;
     write_dilemma_theme_config_to_eeprom(&g_dilemma_status_theme_t);
 }
 
@@ -531,6 +530,7 @@ const char *rgb_matrix_get_effect_name(void) {
     return buf;
 }
 
+// TODO move this sync out of the LCD module, into the main QMK code, with eeprom kb instead of eeprom user.
 // called by primary, executed by secondary
 void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
     if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {

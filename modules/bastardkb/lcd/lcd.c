@@ -240,12 +240,14 @@ void keyboard_post_init_lcd(void) {
 }
 
 void update_styles(ui_theme theme) {
-    apply_theme_btn(&(ui_styles.mod_btn), theme.btn_normal);
-    apply_theme_btn(&(ui_styles.mod_btn_pressed), theme.btn_pressed);
-    apply_theme_layer_name(&(ui_styles.layer_name), theme.layer_name);
-    apply_theme_secondary_label(&(ui_styles.secondary_labels), theme.secondary_labels);
-    apply_theme_bar(&(ui_styles.bar), theme.bar);
-    apply_theme_bar_background(&(ui_styles.bar_background), theme.bar_background);
+    if (is_keyboard_left()) {
+        apply_theme_btn(&(ui_styles.mod_btn), theme.btn_normal);
+        apply_theme_btn(&(ui_styles.mod_btn_pressed), theme.btn_pressed);
+        apply_theme_layer_name(&(ui_styles.layer_name), theme.layer_name);
+        apply_theme_secondary_label(&(ui_styles.secondary_labels), theme.secondary_labels);
+        apply_theme_bar(&(ui_styles.bar), theme.bar);
+        apply_theme_bar_background(&(ui_styles.bar_background), theme.bar_background);
+    }
 }
 
 void style_init_all(void) {
@@ -347,7 +349,7 @@ void ui_init_button_mod_indicator(lv_obj_t *button) {
     lv_obj_add_style(button, &ui_styles.mod_btn, 0);
     lv_obj_add_style(button, &ui_styles.mod_btn_pressed, LV_STATE_PRESSED);
     lv_obj_set_height(button, 33);
-    lv_obj_set_flex_grow(button, 1);    
+    lv_obj_set_flex_grow(button, 1);
 }
 
 void refresh_lcd_info(void) {
@@ -490,7 +492,7 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case LCD_MODULE_CHANGE_THEME:
             if (record->event.pressed) {
-                if(is_keyboard_master()) {
+                if (is_keyboard_master()) {
                     cycle_theme();
                 }
                 // housekeeping_task_lcd();
@@ -537,7 +539,7 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
         g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
         if (g_dilemma_status_prev.current_theme_id != g_dilemma_status.current_theme_id) {
             g_dilemma_config_theme_t.current_theme_id = g_dilemma_status.current_theme_id;
-            // update_styles(get_current_theme());
+            update_styles(get_current_theme());
             // write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
         }
 

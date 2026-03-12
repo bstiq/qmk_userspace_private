@@ -1,3 +1,4 @@
+#include QMK_KEYBOARD_H
 #include "theme.h"
 
 LV_FONT_DECLARE(montserratbold14);

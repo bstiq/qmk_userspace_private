@@ -358,35 +358,22 @@ void refresh_lcd_info(void) {
 
 void housekeeping_task_lcd(void) {
     if (is_keyboard_master()) {
+        update_dilemma_status();
         if (is_keyboard_left()) {
-            // no need to sync
-            update_dilemma_status();
             refresh_lcd_info();
-            g_dilemma_status_prev = g_dilemma_status;
         } else {
-            if (is_keyboard_master()) {
-                // update the dilemma status, and let the left half handle the LCD update
-                bool            needs_sync = false;
-                // static uint32_t last_sync  = 0;
-                update_dilemma_status();
-                // // Check if the state values are different.
-                if (memcmp(&g_dilemma_status, &g_dilemma_status_prev, sizeof(g_dilemma_status))) {
-                    needs_sync            = true;
-                    g_dilemma_status_prev = g_dilemma_status;
-                }
-                // Send to slave every 500ms regardless of state change.
-                // if (timer_elapsed32(last_sync) > 500) {
-                //     needs_sync = true;
-                // }
-                // Perform the sync if requested.
-                if (needs_sync) {
-                    if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(g_dilemma_status), &g_dilemma_status)) {
-                        // last_sync = timer_read32();
-                    }
-                }
+            bool needs_sync = false;
+            // // Check if the state values are different.
+            if (memcmp(&g_dilemma_status, &g_dilemma_status_prev, sizeof(g_dilemma_status))) {
+                needs_sync            = true;
                 g_dilemma_status_prev = g_dilemma_status;
             }
+            // Perform the sync if requested.
+            if (needs_sync) {
+                    transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(g_dilemma_status), &g_dilemma_status));
+            }
         }
+        g_dilemma_status_prev = g_dilemma_status;
     }
 }
 
@@ -542,14 +529,21 @@ const char *rgb_matrix_get_effect_name(void) {
 
 // called by primary, executed by secondary
 void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
+    bool needs_theme_update = false;
     if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {
         if (g_dilemma_status_prev.current_theme_id != g_dilemma_status.current_theme_id) {
-            update_styles(get_current_theme());
-            g_dilemma_config_theme_t.current_theme_id = g_dilemma_status.current_theme_id;
-            write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
+            needs_theme_update = true;
         }
+
         g_dilemma_status_prev = g_dilemma_status;
         g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
+
+        if (needs_theme_update) {
+            g_dilemma_config_theme_t.current_theme_id = g_dilemma_status.current_theme_id;
+            update_styles(get_current_theme());
+            write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
+        }
+
         refresh_lcd_info();
     }
 }

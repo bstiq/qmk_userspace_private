@@ -499,7 +499,7 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-// TODO move this to theme.h?3
+// TODO move this to theme.h?
 void cycle_theme(void) {
     g_dilemma_status.current_theme_id = (g_dilemma_status.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
     update_styles(get_current_theme());
@@ -535,7 +535,7 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
         g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
         if (g_dilemma_status_prev.current_theme_id != g_dilemma_status.current_theme_id) {
             g_dilemma_config_theme_t.current_theme_id = g_dilemma_status.current_theme_id;
-            update_styles(get_current_theme());
+            // update_styles(get_current_theme());
             // write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
         }
 

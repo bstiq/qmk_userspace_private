@@ -512,7 +512,7 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
 void cycle_theme(void) {
     g_dilemma_status.current_theme_id = (g_dilemma_status.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
     update_styles(get_current_theme());
-    g_dilemma_config_theme_t.current_theme_id = get_current_theme();
+    g_dilemma_config_theme_t.current_theme_id = g_dilemma_status.current_theme_id;
     write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
 }
 

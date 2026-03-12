@@ -19,10 +19,6 @@ void              update_layer_name(void);
 void              ui_init_button_mod_indicator(lv_obj_t *label);
 mod_button_pair_t ui_create_mod_button(lv_obj_t *cont, const char *text, bool force_new_track, uint8_t mod_mask);
 
-void event_screen_base_update_mods(lv_event_t *e);
-void event_screen_pointer_sniping_toggle(lv_event_t *e);
-void event_screen_pointer_scroll_toggle(lv_event_t *e);
-
 void update_theme_color(void);
 void update_dilemma_status(void);
 

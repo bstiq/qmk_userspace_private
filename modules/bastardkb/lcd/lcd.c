@@ -332,16 +332,10 @@ void update_theme_color(void) {
 void ui_init_button_mod_indicator(lv_obj_t *button) {
     lv_obj_add_style(button, &ui_styles.mod_btn, 0);
     lv_obj_add_style(button, &ui_styles.mod_btn_pressed, LV_STATE_PRESSED);
-    lv_obj_add_event_cb(button, event_screen_base_update_mods, LV_EVENT_ALL, NULL);
     lv_obj_set_height(button, 33);
     lv_obj_set_flex_grow(button, 1);
 }
 
-void event_screen_pointer_sniping_toggle(lv_event_t *e) {}
-void event_screen_pointer_scroll_toggle(lv_event_t *e) {}
-
-// TODO what is this?
-void event_screen_base_update_mods(lv_event_t *e) {}
 
 void refresh_lcd_info(void) {
     update_layer_name();

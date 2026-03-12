@@ -73,6 +73,7 @@ typedef struct {
     uint16_t dpi;
     uint16_t s_dpi;
     uint8_t  layer;
+    uint8_t current_theme_id;
 } dilemma_status_t;
 
 static dilemma_status_t g_dilemma_status_prev = {0};
@@ -85,7 +86,6 @@ const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER
 extern ui_theme default_theme;
 extern ui_theme skeu_dark_theme;
 extern ui_theme terminal_theme;
-uint8_t         current_theme = 0;
 ui_theme       *themes[]      = {&default_theme, &skeu_dark_theme, &terminal_theme};
 
 // TODO move this out to themes.c/.h ?
@@ -108,7 +108,7 @@ lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_tr
 }
 
 ui_theme get_current_theme(void) {
-    return *themes[current_theme];
+    return *themes[g_dilemma_status.current_theme_id];
 }
 
 lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {
@@ -231,7 +231,7 @@ void keyboard_post_init_lcd(void) {
     }
 
     read_dilemma_theme_config_from_eeprom(&g_dilemma_config_theme_t);
-    current_theme = g_dilemma_config_theme_t.current_theme;
+    g_dilemma_status.current_theme_id = g_dilemma_config_theme_t.current_theme_id;
 }
 
 void update_styles(ui_theme theme) {
@@ -417,6 +417,7 @@ void update_dilemma_status(void) {
     g_dilemma_status.rgb_enabled     = rgb_matrix_is_enabled();
     g_dilemma_status.rgb_effect_mode = rgb_matrix_get_mode();
     g_dilemma_status.rgb_val         = rgb_matrix_get_val();
+    // current theme: already updated. TODO move it here?
 }
 
 void update_mods(void) {
@@ -507,9 +508,9 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-// TODO move this to theme.h?
+// TODO move this to theme.h?3
 void cycle_theme(void) {
-    current_theme = (current_theme + 1) % (sizeof(themes) / sizeof(ui_theme *));
+    g_dilemma_status.current_theme_id = (g_dilemma_status.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
     update_styles(get_current_theme());
     write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
 }

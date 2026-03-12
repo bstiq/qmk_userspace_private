@@ -62,7 +62,7 @@ typedef struct {
 typedef union {
     uint8_t raw;
     struct {
-        uint8_t current_theme : 5; // up to 32 themes
+        uint8_t current_theme_id : 5; // up to 32 themes
     } __attribute__((packed));
 } dilemma_config_theme_t;
 

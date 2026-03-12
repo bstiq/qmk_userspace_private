@@ -369,7 +369,7 @@ void housekeeping_task_lcd(void) {
         }
         bool needs_sync = false;
         // // Check if the state values are different.
-        if (memcmp(&g_dilemma_status.theme_effects, &g_dilemma_status_prev.theme_effects, sizeof(g_dilemma_status.theme_effects))) {
+        if (memcmp(&g_dilemma_status, &g_dilemma_status_prev, sizeof(g_dilemma_status))) {
             needs_sync = true;
         }
         // Perform the sync if requested.

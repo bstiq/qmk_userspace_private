@@ -354,11 +354,13 @@ void ui_init_button_mod_indicator(lv_obj_t *button) {
 }
 
 void refresh_lcd_info(bool force) {
-    update_layer_name(force);
-    update_mods(force);
-    update_rgb_info(force);
-    update_mouse_info(force);
-    update_theme_color(force);
+    if (is_keyboard_left()) {
+        update_layer_name(force);
+        update_mods(force);
+        update_rgb_info(force);
+        update_mouse_info(force);
+        update_theme_color(force);
+    }
 }
 
 void housekeeping_task_lcd(void) {

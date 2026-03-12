@@ -275,10 +275,10 @@ void apply_theme_bar_background(lv_style_t *style, ui_theme_bar_background theme
     lv_obj_report_style_change(style);
 }
 
-void read_dilemma_theme_config_from_eeprom(dilemma_config_theme_t *config) {
+void read_dilemma_theme_config_from_eeprom(dilemma_status_theme_t *config) {
     config->raw = eeconfig_read_user() & 0xff;
 }
 
-void write_dilemma_theme_config_to_eeprom(dilemma_config_theme_t *config) {
+void write_dilemma_theme_config_to_eeprom(dilemma_status_theme_t *config) {
     eeconfig_update_user(config->raw);
 }

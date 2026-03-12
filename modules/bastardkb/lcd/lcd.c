@@ -64,16 +64,11 @@ enum ui_user_events {
 
 // todo define bits
 typedef struct {
-    uint8_t  mods;
-    bool     sniping;
-    bool     scrolling;
-    uint8_t  rgb_enabled;
-    uint8_t  rgb_effect_mode;
-    uint16_t rgb_val;
-    uint16_t dpi;
-    uint16_t s_dpi;
-    uint8_t  layer;
-    uint8_t  current_theme_id;
+    uint8_t                mods;
+    bool                   sniping;
+    bool                   scrolling;
+    uint8_t                layer;
+    dilemma_status_theme_t theme_effects;
 } dilemma_status_t;
 
 static dilemma_status_t g_dilemma_status_prev = {0};
@@ -90,7 +85,7 @@ ui_theme       *themes[] = {&default_theme, &skeu_dark_theme, &terminal_theme};
 
 // TODO move this out to themes.c/.h ?
 // TODO add brightness configuration
-static dilemma_config_theme_t g_dilemma_config_theme_t = {0};
+static dilemma_status_theme_t g_dilemma_status_theme_t = {0};
 
 painter_device_t        lcd;
 static painter_device_t surface;
@@ -230,8 +225,7 @@ void init_display(void) {
 
 void keyboard_post_init_lcd(void) {
     update_dilemma_status();
-    read_dilemma_theme_config_from_eeprom(&g_dilemma_config_theme_t);
-    g_dilemma_status.current_theme_id = g_dilemma_config_theme_t.current_theme_id;
+    read_dilemma_theme_config_from_eeprom(&g_dilemma_status.theme_effects);
 
     // important when connecting both sides with a different-than-standard config
     // otherwise master tries to send an RPC message when left is not ready yet (lcd init takes time...)
@@ -243,7 +237,7 @@ void keyboard_post_init_lcd(void) {
     if (is_keyboard_left()) {
         init_display();
         refresh_lcd_info(true);
-    } 
+    }
 }
 
 void update_styles(ui_theme theme) {
@@ -372,23 +366,22 @@ void housekeeping_task_lcd(void) {
         update_dilemma_status();
         if (is_keyboard_left()) {
             refresh_lcd_info(false);
-        } else {
-            bool needs_sync = false;
-            // // Check if the state values are different.
-            if (memcmp(&g_dilemma_status, &g_dilemma_status_prev, sizeof(g_dilemma_status))) {
-                needs_sync = true;
-            }
-            // Perform the sync if requested.
-            if (needs_sync) {
-                transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(g_dilemma_status), &g_dilemma_status);
-            }
+        }
+        bool needs_sync = false;
+        // // Check if the state values are different.
+        if (memcmp(&g_dilemma_status.theme_effects, &g_dilemma_status_prev.theme_effects, sizeof(g_dilemma_status.theme_effects))) {
+            needs_sync = true;
+        }
+        // Perform the sync if requested.
+        if (needs_sync) {
+            transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(g_dilemma_status.theme_effects), &g_dilemma_status.theme_effects);
         }
         g_dilemma_status_prev = g_dilemma_status;
     }
 }
 
 void update_layer_name(bool force) {
-    if (g_dilemma_status.layer != g_dilemma_status_prev.layer  || force) {
+    if (g_dilemma_status.layer != g_dilemma_status_prev.layer || force) {
         switch (g_dilemma_status.layer) {
             case 0:
             default:
@@ -434,7 +427,7 @@ void update_mods(bool force) {
 }
 
 void update_rgb_info(bool force) {
-    const bool rgb_change = (g_dilemma_status.rgb_enabled != g_dilemma_status_prev.rgb_enabled);
+    const bool rgb_change = (g_dilemma_status.theme_effects.rgb_enabled != g_dilemma_status_prev.theme_effects.rgb_enabled);
 
     if (!g_dilemma_status.rgb_enabled) {
         if (rgb_change || force) {
@@ -443,14 +436,14 @@ void update_rgb_info(bool force) {
             lv_label_set_text(ui_label_rgb_effect, "");
         }
     } else {
-        if ((rgb_change) || (g_dilemma_status.rgb_val != g_dilemma_status_prev.rgb_val) || force) {
+        if ((rgb_change) || (g_dilemma_status.theme_effects.rgb_val != g_dilemma_status_prev.theme_effects.rgb_val) || force) {
             char rgbval[50];
-            sprintf(rgbval, "%u", g_dilemma_status.rgb_val);
+            sprintf(rgbval, "%u", g_dilemma_status.theme_effects.rgb_val);
             lv_label_set_text(ui_label_rgb_number, rgbval);
             float rel = (float)(g_dilemma_status.rgb_val) * 100 / 156;
             lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
         }
-        if ((rgb_change) || (g_dilemma_status.rgb_effect_mode != g_dilemma_status_prev.rgb_effect_mode) || force) {
+        if ((rgb_change) || (g_dilemma_status.theme_effects.rgb_effect_mode != g_dilemma_status_prev.theme_effects.rgb_effect_mode) || force) {
             const char *effect_name = rgb_matrix_get_effect_name();
             lv_label_set_text(ui_label_rgb_effect, effect_name);
         }
@@ -459,17 +452,17 @@ void update_rgb_info(bool force) {
 
 void update_mouse_info(bool force) {
     // TODO dynamically get max DPI, instead of using hardcoded values
-    if (g_dilemma_status.dpi != g_dilemma_status_prev.dpi || force) {
+    if (g_dilemma_status.theme_effects.dpi != g_dilemma_status_prev.theme_effects.dpi || force) {
         static const uint16_t rel_max_dpi = 200 * 16;
-        const float           rel         = (float)((g_dilemma_status.dpi + 200 - 400)) * 100 / rel_max_dpi;
+        const float           rel         = (float)((g_dilemma_status.theme_effects.dpi + 200 - 400)) * 100 / rel_max_dpi;
         lv_bar_set_value(ui_bar_dpi, (uint16_t)rel, LV_ANIM_OFF);
 
         char c_dpi[50];
-        sprintf(c_dpi, "%u", (uint16_t)g_dilemma_status.dpi);
+        sprintf(c_dpi, "%u", (uint16_t)g_dilemma_status.theme_effects.dpi);
         lv_label_set_text(ui_label_dpi_number, c_dpi);
     }
 
-    if (g_dilemma_status.s_dpi != g_dilemma_status_prev.s_dpi || force) {
+    if (g_dilemma_status.theme_effects.s_dpi != g_dilemma_status_prev.theme_effects.s_dpi || force) {
         char                  c_s_dpi[50];
         static const uint16_t rel_max_s_dpi = 100 * 4;
         const float           rel           = (float)((g_dilemma_status.s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
@@ -512,10 +505,10 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
 
 // TODO move this to theme.h?
 void cycle_theme(void) {
-    g_dilemma_status.current_theme_id = (g_dilemma_status.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
+    g_dilemma_status.theme_effects.current_theme_id = (g_dilemma_status.theme_effects.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
     update_styles(get_current_theme());
-    g_dilemma_config_theme_t.current_theme_id = g_dilemma_status.current_theme_id;
-    write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
+    g_dilemma_status_theme_t.current_theme_id = g_dilemma_status.theme_effects.current_theme_id;
+    write_dilemma_theme_config_to_eeprom(&g_dilemma_status_theme_t);
 }
 
 const char *rgb_matrix_get_effect_name(void) {
@@ -542,14 +535,20 @@ const char *rgb_matrix_get_effect_name(void) {
 // called by primary, executed by secondary
 void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
     if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {
-        g_dilemma_status_prev = g_dilemma_status;
-        g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
-        if (g_dilemma_status_prev.current_theme_id != g_dilemma_status.current_theme_id) {
-            g_dilemma_config_theme_t.current_theme_id = g_dilemma_status.current_theme_id;
-            update_styles(get_current_theme());
-            write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
+        bool needs_theme_update = false; 
+
+        if (g_dilemma_status_prev.theme_effects.current_theme_id != g_dilemma_status.theme_effects.current_theme_id) {
+            needs_theme_update = true;
         }
 
+        g_dilemma_status_prev = g_dilemma_status;
+        g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
+
+        if(needs_theme_update){
+             update_styles(get_current_theme());
+        }
+        
+        write_dilemma_theme_config_to_eeprom(&g_dilemma_status_theme_t);
         refresh_lcd_info(false);
     }
 }

@@ -464,7 +464,7 @@ void update_mouse_info(bool force) {
     if (g_dilemma_status.theme_effects.s_dpi != g_dilemma_status_prev.theme_effects.s_dpi || force) {
         char                  c_s_dpi[50];
         static const uint16_t rel_max_s_dpi = 100 * 4;
-        const float           rel           = (float)((g_dilemma_status.theme_effectss_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
+        const float           rel           = (float)((g_dilemma_status.theme_effects.s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
         lv_bar_set_value(ui_bar_s_dpi, (uint16_t)rel, LV_ANIM_OFF);
         sprintf(c_s_dpi, "%u", (uint16_t)g_dilemma_status.theme_effects.s_dpi);
         lv_label_set_text(ui_label_s_dpi_number, c_s_dpi);

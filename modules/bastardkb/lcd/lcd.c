@@ -540,10 +540,10 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
         if (g_dilemma_status_prev.current_theme_id != g_dilemma_status.current_theme_id) {
             g_dilemma_config_theme_t.current_theme_id = g_dilemma_status.current_theme_id;
             update_styles(get_current_theme());
-            // write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
+            write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
         }
 
         // TODO necessary?...
-        refresh_lcd_info();
+        // refresh_lcd_info();
     }
 }

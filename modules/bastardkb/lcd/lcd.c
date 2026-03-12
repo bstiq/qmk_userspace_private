@@ -104,7 +104,7 @@ lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_tr
 }
 
 ui_theme get_current_theme(void) {
-    uint8_t theme_id = (g_dilemma_status.current_theme_id) % (sizeof(themes) / sizeof(ui_theme *));
+    uint8_t theme_id = (g_dilemma_status.theme_effects.current_theme_id) % (sizeof(themes) / sizeof(ui_theme *));
     return *themes[theme_id];
 }
 
@@ -401,16 +401,15 @@ void update_layer_name(bool force) {
 }
 
 void update_dilemma_status(void) {
-    g_dilemma_status.mods            = get_mods();
-    g_dilemma_status.layer           = get_highest_layer(layer_state);
-    g_dilemma_status.sniping         = dilemma_get_pointer_sniping_enabled();
-    g_dilemma_status.dpi             = dilemma_get_pointer_default_dpi();
-    g_dilemma_status.s_dpi           = dilemma_get_pointer_sniping_dpi();
-    g_dilemma_status.scrolling       = dilemma_get_pointer_dragscroll_enabled();
-    g_dilemma_status.rgb_enabled     = rgb_matrix_is_enabled();
-    g_dilemma_status.rgb_effect_mode = rgb_matrix_get_mode();
-    g_dilemma_status.rgb_val         = rgb_matrix_get_val();
-    // current theme: already updated. TODO move it here?
+    g_dilemma_status.mods                          = get_mods();
+    g_dilemma_status.layer                         = get_highest_layer(layer_state);
+    g_dilemma_status.sniping                       = dilemma_get_pointer_sniping_enabled();
+    g_dilemma_status.theme_effects.dpi             = dilemma_get_pointer_default_dpi();
+    g_dilemma_status.theme_effects.s_dpi           = dilemma_get_pointer_sniping_dpi();
+    g_dilemma_status.scrolling                     = dilemma_get_pointer_dragscroll_enabled();
+    g_dilemma_status.theme_effects.rgb_enabled     = rgb_matrix_is_enabled();
+    g_dilemma_status.theme_effects.rgb_effect_mode = rgb_matrix_get_mode();
+    g_dilemma_status.theme_effects.rgb_val         = rgb_matrix_get_val();
 }
 
 void update_mods(bool force) {
@@ -507,7 +506,7 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
 void cycle_theme(void) {
     g_dilemma_status.theme_effects.current_theme_id = (g_dilemma_status.theme_effects.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
     update_styles(get_current_theme());
-    g_dilemma_status_theme_t.current_theme_id = g_dilemma_status.theme_effects.current_theme_id;
+    g_dilemma_status_theme_t.theme_effects.current_theme_id = g_dilemma_status.theme_effects.current_theme_id;
     write_dilemma_theme_config_to_eeprom(&g_dilemma_status_theme_t);
 }
 
@@ -535,7 +534,7 @@ const char *rgb_matrix_get_effect_name(void) {
 // called by primary, executed by secondary
 void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
     if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {
-        bool needs_theme_update = false; 
+        bool needs_theme_update = false;
 
         if (g_dilemma_status_prev.theme_effects.current_theme_id != g_dilemma_status.theme_effects.current_theme_id) {
             needs_theme_update = true;
@@ -544,10 +543,10 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
         g_dilemma_status_prev = g_dilemma_status;
         g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
 
-        if(needs_theme_update){
-             update_styles(get_current_theme());
+        if (needs_theme_update) {
+            update_styles(get_current_theme());
         }
-        
+
         write_dilemma_theme_config_to_eeprom(&g_dilemma_status_theme_t);
         refresh_lcd_info(false);
     }

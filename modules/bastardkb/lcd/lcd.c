@@ -542,11 +542,11 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
     if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {
         g_dilemma_status_prev = g_dilemma_status;
         g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
+        // if(g_dilemma_status_prev.current_theme_id != g_dilemma_status.current_theme_id) {
+        //     update_styles(get_current_theme());
+        //     g_dilemma_config_theme_t.current_theme_id = g_dilemma_status.current_theme_id;
+        //     write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
+        // }
         refresh_lcd_info();
-        if(g_dilemma_status_prev.current_theme_id != g_dilemma_status.current_theme_id) {
-            update_styles(get_current_theme());
-            g_dilemma_config_theme_t.current_theme_id = g_dilemma_status.current_theme_id;
-            write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
-        }
     }
 }

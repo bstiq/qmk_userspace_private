@@ -59,9 +59,18 @@ typedef struct {
     // SEPARATOR LINE -- TODO
 } ui_theme;
 
+typedef union {
+    uint8_t raw;
+    struct {
+        uint8_t current_theme : 5; // up to 32 themes
+    } __attribute__((packed));
+} dilemma_config_theme_t;
+
 void init_themes(void);
 void apply_theme_btn(lv_style_t *btn, ui_theme_mod_btn theme_btn);
 void apply_theme_layer_name(lv_style_t *style, ui_theme_layer_name theme);
 void apply_theme_secondary_label(lv_style_t *style, ui_theme_secondary_label theme);
 void apply_theme_bar(lv_style_t *style, ui_theme_bar theme);
 void apply_theme_bar_background(lv_style_t *style, ui_theme_bar_background theme);
+void read_dilemma_theme_config_from_eeprom(dilemma_config_theme_t *config);
+void write_dilemma_theme_config_to_eeprom(dilemma_config_theme_t *config);

@@ -81,11 +81,15 @@ static dilemma_status_t g_dilemma_status      = {0};
 const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER", "NUM", "SYM"};
 
 // themes
+// TODO move those into theme.h and theme.c, declare here only themes as extern.
 extern ui_theme default_theme;
 extern ui_theme skeu_dark_theme;
 extern ui_theme terminal_theme;
 uint8_t         current_theme = 0;
 ui_theme       *themes[]      = {&default_theme, &skeu_dark_theme, &terminal_theme};
+
+// TODO move this out to themes.c/.h ?
+static dilemma_config_theme_t g_dilemma_config_theme_t = {0};
 
 painter_device_t        lcd;
 static painter_device_t surface;
@@ -225,6 +229,9 @@ void keyboard_post_init_lcd(void) {
         // sync mouse data across halves
         transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
     }
+
+    read_dilemma_theme_config_from_eeprom(&g_dilemma_config_theme_t);
+    current_theme = g_dilemma_config_theme_t.current_theme;
 }
 
 void update_styles(ui_theme theme) {
@@ -491,14 +498,20 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case LCD_MODULE_CHANGE_THEME:
             if (record->event.pressed) {
-                current_theme = (current_theme + 1) % (sizeof(themes) / sizeof(ui_theme *));
-                update_styles(get_current_theme());
+                cycle_theme();
                 housekeeping_task_lcd();
                 qp_flush(lcd);
             }
             break;
     }
     return true;
+}
+
+// TODO move this to theme.h?
+void cycle_theme(void) {
+    current_theme = (current_theme + 1) % (sizeof(themes) / sizeof(ui_theme *));
+    update_styles(get_current_theme());
+    write_dilemma_theme_config_to_eeprom(&config);
 }
 
 const char *rgb_matrix_get_effect_name(void) {
@@ -529,4 +542,8 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
         g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
         refresh_lcd_info();
     }
+}
+
+static void write_theme_config_to_eeprom(uint8_t theme_number) {
+    eeconfig_update_kb(config->raw);
 }

@@ -544,6 +544,6 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
         }
 
         // TODO necessary?...
-        // refresh_lcd_info();
+        refresh_lcd_info();
     }
 }

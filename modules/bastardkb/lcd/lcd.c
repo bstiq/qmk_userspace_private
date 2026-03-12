@@ -370,7 +370,7 @@ void housekeeping_task_lcd(void) {
             }
             // Perform the sync if requested.
             if (needs_sync) {
-                    transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(g_dilemma_status), &g_dilemma_status));
+                    transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(g_dilemma_status), &g_dilemma_status);
             }
         }
         g_dilemma_status_prev = g_dilemma_status;
@@ -412,7 +412,7 @@ void update_dilemma_status(void) {
 
 void update_mods(void) {
     int i = 0;
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < (sizeof(mod_buttons) / sizeof(mod_button_pair_t); i++) {
         if ((g_dilemma_status.mods & mod_buttons[i].mod_mask) != (g_dilemma_status_prev.mods & mod_buttons[i].mod_mask)) {
             if ((g_dilemma_status.mods & mod_buttons[i].mod_mask)) {
                 lv_event_send(mod_buttons[i].button, LV_EVENT_PRESSED, NULL);

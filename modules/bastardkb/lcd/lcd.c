@@ -511,7 +511,7 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
 void cycle_theme(void) {
     current_theme = (current_theme + 1) % (sizeof(themes) / sizeof(ui_theme *));
     update_styles(get_current_theme());
-    write_dilemma_theme_config_to_eeprom(&config);
+    write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
 }
 
 const char *rgb_matrix_get_effect_name(void) {
@@ -542,8 +542,4 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
         g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
         refresh_lcd_info();
     }
-}
-
-static void write_theme_config_to_eeprom(uint8_t theme_number) {
-    eeconfig_update_kb(config->raw);
 }

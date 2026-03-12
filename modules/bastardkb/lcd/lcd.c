@@ -73,6 +73,7 @@ typedef struct {
 
 static dilemma_status_t g_dilemma_status_prev = {0};
 static dilemma_status_t g_dilemma_status      = {0};
+extern dilemma_config_t g_dilemma_config;
 
 const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER", "NUM", "SYM"};
 
@@ -545,5 +546,13 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
 
         write_dilemma_theme_config_to_eeprom(&g_dilemma_status_theme_t);
         refresh_lcd_info(false);
+        write_config_to_eeprom();
     }
+}
+
+// TODO move this sync out of the LCD module, into the main QMK code, with direct eeprom kb writes instead of eeprom user.
+// here we have to manually manage the things that are already stored in the dilemma's eeprom config
+void write_config_to_eeprom(void){
+    g_dilemma_config.pointer_default_dpi = g_dilemma_status.theme_effects.dpi;
+    write_dilemma_config_to_eeprom(&g_dilemma_config);
 }

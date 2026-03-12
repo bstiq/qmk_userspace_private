@@ -35,3 +35,4 @@ void mouse_info_sync_handler(uint8_t in_buflen, const void *in_data, uint8_t out
 void refresh_lcd_info(bool force);
 void cycle_theme(void);
 void init_display(void);
+void write_config_to_eeprom(void);

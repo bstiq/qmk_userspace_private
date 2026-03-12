@@ -226,9 +226,6 @@ void init_display(void) {
     lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(BK_PALETTE), lv_palette_main(BK_PALETTE), true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
     lv_obj_set_style_bg_color(cont, lv_color_black(), LV_PART_MAIN);
-
-    // sync mouse data across halves
-    transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
 }
 
 void keyboard_post_init_lcd(void) {
@@ -236,7 +233,10 @@ void keyboard_post_init_lcd(void) {
     g_dilemma_status.current_theme_id = g_dilemma_config_theme_t.current_theme_id;
     if (is_keyboard_left()) {
         init_display();
+        refresh_lcd_info(void);
     }
+    // sync mouse data across halves
+    transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
 }
 
 void update_styles(ui_theme theme) {
@@ -535,8 +535,8 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
         g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
         if (g_dilemma_status_prev.current_theme_id != g_dilemma_status.current_theme_id) {
             g_dilemma_config_theme_t.current_theme_id = g_dilemma_status.current_theme_id;
-            // update_styles(get_current_theme());
-            // write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
+            update_styles(get_current_theme());
+            write_dilemma_theme_config_to_eeprom(&g_dilemma_config_theme_t);
         }
 
         refresh_lcd_info();

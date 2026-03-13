@@ -4,8 +4,21 @@
 #include <ctype.h>
 #include "theme.h"
 
+// todo define bits
+typedef struct {
+    uint8_t                mods;
+    bool                   sniping;
+    bool                   scrolling;
+    uint8_t                layer;
+    uint8_t                current_theme_id;
+    uint8_t                rgb_enabled;
+    uint8_t                rgb_effect_mode;
+    uint16_t               rgb_val;
+    uint16_t               dpi;
+    uint16_t               s_dpi;
+} dilemma_status_t;
+
 void keyboard_post_init_lcd(void);
-void style_init_all(void);
 
 void              housekeeping_task_lcd(void);
 void              update_mods(bool force);
@@ -18,9 +31,7 @@ void update_dilemma_status(void);
 
 const char *rgb_matrix_get_effect_name(void);
 
-void      update_styles(ui_theme theme);
 bool      process_record_lcd(uint16_t keycode, keyrecord_t *record);
-ui_theme  get_current_theme(void);
 
 void mouse_info_sync_handler(uint8_t in_buflen, const void *in_data, uint8_t out_buflen, void *out_data);
 void refresh_lcd_info(bool force);

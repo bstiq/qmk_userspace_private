@@ -59,24 +59,29 @@ typedef struct {
     // SEPARATOR LINE -- TODO
 } ui_theme;
 
-// TODO also sync scroll and sniping states?
+// TODO remove raw?
+// TODO add brightness configuration
 typedef union {
     uint8_t raw;
     struct {
-        uint8_t  current_theme_id : 5; // up to 32 themes
-        uint8_t  rgb_enabled;
-        uint8_t  rgb_effect_mode;
-        uint16_t rgb_val;
-        uint16_t dpi;
-        uint16_t s_dpi;
+        uint8_t current_theme_id;
     } __attribute__((packed));
 } dilemma_status_theme_t;
 
+dilemma_status_theme_t dilemma_lcd_status_theme;
+
 void init_themes(void);
-void apply_theme_btn(lv_style_t *btn, ui_theme_mod_btn theme_btn);
-void apply_theme_layer_name(lv_style_t *style, ui_theme_layer_name theme);
-void apply_theme_secondary_label(lv_style_t *style, ui_theme_secondary_label theme);
-void apply_theme_bar(lv_style_t *style, ui_theme_bar theme);
-void apply_theme_bar_background(lv_style_t *style, ui_theme_bar_background theme);
+void update_styles_from_theme_btn(lv_style_t *btn, ui_theme_mod_btn theme_btn);
+void update_styles_from_theme_layer_name(lv_style_t *style, ui_theme_layer_name theme);
+void update_styles_from_theme_secondary_label(lv_style_t *style, ui_theme_secondary_label theme);
+void update_styles_from_theme_bar(lv_style_t *style, ui_theme_bar theme);
+void update_styles_from_theme_bar_background(lv_style_t *style, ui_theme_bar_background theme);
 void read_dilemma_theme_config_from_eeprom(dilemma_status_theme_t *config);
+void load_dilemma_theme_config_from_eeprom(void);
 void write_dilemma_theme_config_to_eeprom(dilemma_status_theme_t *config);
+
+void     init_styles(void);
+void     change_style_colors(HSV hsv);
+ui_theme get_current_theme(void);
+void     update_styles_from_current_theme_if_left(void);
+uint8_t  get_current_theme_id(void);

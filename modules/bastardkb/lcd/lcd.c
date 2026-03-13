@@ -68,11 +68,17 @@ typedef struct {
     bool                   sniping;
     bool                   scrolling;
     uint8_t                layer;
+    uint8_t                current_theme_id;
+    uint8_t                rgb_enabled;
+    uint8_t                rgb_effect_mode;
+    uint16_t               rgb_val;
+    uint16_t               dpi;
+    uint16_t               s_dpi;
     dilemma_status_theme_t theme_effects;
 } dilemma_status_t;
 
-static dilemma_status_t g_dilemma_status_prev = {0};
-static dilemma_status_t g_dilemma_status      = {0};
+static dilemma_status_t dilemma_lcd_status_prev = {0};
+static dilemma_status_t dilemma_lcd_status      = {0};
 extern dilemma_config_t g_dilemma_config;
 
 const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER", "NUM", "SYM"};
@@ -86,54 +92,16 @@ ui_theme       *themes[] = {&default_theme, &skeu_dark_theme, &terminal_theme};
 
 // TODO move this out to themes.c/.h ?
 // TODO add brightness configuration
-static dilemma_status_theme_t g_dilemma_status_theme_t = {0};
+static dilemma_status_theme_t dilemma_lcd_status_theme_t = {0};
 
 painter_device_t        lcd;
 static painter_device_t surface;
 // Buffer required for a 240x280 16bpp surface:
 static uint8_t surface_buffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(LCD_WIDTH, LCD_HEIGHT, 16)];
 
-lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex) {
-    lv_obj_t *lbl = lv_label_create(cont);
-    lv_label_set_text(lbl, text);
-    lv_obj_add_style(lbl, &ui_styles.secondary_labels, 0);
-    if (new_track) {
-        lv_obj_add_flag(lbl, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
-    }
-    lv_obj_set_flex_grow(lbl, flex);
-    return lbl;
-}
-
 ui_theme get_current_theme(void) {
-    uint8_t theme_id = (g_dilemma_status.theme_effects.current_theme_id) % (sizeof(themes) / sizeof(ui_theme *));
+    uint8_t theme_id = (dilemma_lcd_status.current_theme_id) % (sizeof(themes) / sizeof(ui_theme *));
     return *themes[theme_id];
-}
-
-lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {
-    lv_obj_t *bar = lv_bar_create(cont);
-    lv_obj_set_height(bar, get_current_theme().bar.height);
-    lv_obj_add_style(bar, &ui_styles.bar, LV_PART_INDICATOR);
-    lv_obj_add_style(bar, &ui_styles.bar_background, 0);
-    lv_obj_set_flex_grow(bar, flex);
-    return bar;
-}
-
-lv_obj_t *ui_create_number_label(lv_obj_t *cont, uint8_t flex) {
-    lv_obj_t *lbl = lv_label_create(cont);
-    lv_label_set_text(lbl, "1234");
-    lv_obj_add_style(lbl, &ui_styles.secondary_labels, 0);
-    lv_obj_set_flex_grow(lbl, flex);
-    return lbl;
-}
-
-lv_obj_t *ui_create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height) {
-    lv_obj_t *bar = lv_bar_create(cont);
-    lv_obj_add_flag(bar, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
-    lv_obj_set_flex_grow(bar, flex);
-    lv_obj_set_height(bar, height);
-    lv_obj_add_style(bar, &ui_styles.line, LV_PART_INDICATOR);
-    lv_obj_add_style(bar, &ui_styles.line_background, 0);
-    return bar;
 }
 
 void init_display(void) {
@@ -226,11 +194,11 @@ void init_display(void) {
 
 void keyboard_post_init_lcd(void) {
     update_dilemma_status();
-    read_dilemma_theme_config_from_eeprom(&g_dilemma_status.theme_effects);
+    read_dilemma_theme_config_from_eeprom(&dilemma_lcd_status);
 
     // important when connecting both sides with a different-than-standard config
     // otherwise master tries to send an RPC message when left is not ready yet (lcd init takes time...)
-    g_dilemma_status_prev = g_dilemma_status;
+    dilemma_lcd_status_prev = dilemma_lcd_status;
 
     // sync mouse data across halves
     transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
@@ -286,36 +254,12 @@ void style_init_all(void) {
     update_styles(get_current_theme());
 }
 
-void ui_init_layer_name(lv_obj_t *label) {
-    lv_obj_remove_style_all(label);
-    lv_obj_set_width(label, LV_SIZE_CONTENT);
-    lv_obj_set_x(label, 0);
-    lv_obj_set_y(label, 20);
-}
-
-mod_button_pair_t ui_create_mod_button(lv_obj_t *cont, const char *text, bool force_new_track, uint8_t mod_mask) {
-    mod_button_pair_t b = {0};
-
-    b.mod_mask = mod_mask;
-    b.button   = lv_btn_create(cont);
-    ui_init_button_mod_indicator(b.button);
-
-    if (force_new_track) {
-        lv_obj_add_flag(b.button, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
-    }
-    b.label = lv_label_create(b.button);
-    lv_label_set_text(b.label, text);
-    lv_obj_center(b.label);
-
-    return b;
-}
-
 // TODO get colors based on real layer colors, instead of hardcoding them
 void update_theme_color(bool force) {
     if (get_current_theme().change_colors_on_layer_change) {
-        if (g_dilemma_status.layer != g_dilemma_status_prev.layer || force) {
+        if (dilemma_lcd_status.layer != dilemma_lcd_status_prev.layer || force) {
             HSV hsv;
-            switch (g_dilemma_status.layer) {
+            switch (dilemma_lcd_status.layer) {
                 case 0:
                 default:
                     hsv.h = 218;
@@ -347,13 +291,6 @@ void update_theme_color(bool force) {
     }
 }
 
-void ui_init_button_mod_indicator(lv_obj_t *button) {
-    lv_obj_add_style(button, &ui_styles.mod_btn, 0);
-    lv_obj_add_style(button, &ui_styles.mod_btn_pressed, LV_STATE_PRESSED);
-    lv_obj_set_height(button, 33);
-    lv_obj_set_flex_grow(button, 1);
-}
-
 void refresh_lcd_info(bool force) {
     if (is_keyboard_left()) {
         update_layer_name(force);
@@ -367,25 +304,41 @@ void refresh_lcd_info(bool force) {
 void housekeeping_task_lcd(void) {
     if (is_keyboard_master()) {
         update_dilemma_status();
+        // if the keyboard is left, nothing to do - just refresh the screen
         if (is_keyboard_left()) {
             refresh_lcd_info(false);
         }
-        bool needs_sync = false;
-        // // Check if the state values are different.
-        if (memcmp(&g_dilemma_status, &g_dilemma_status_prev, sizeof(g_dilemma_status))) {
-            needs_sync = true;
+        // if the keyboard is right, we need to send the sync info over to the left side
+        else {
+            bool            needs_sync   = false;
+            static bool     needs_resync = false;
+            static uint32_t last_sync    = 0;
+            // // Check if the state values are different.
+            if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
+                needs_sync = true;
+            }
+            // check if a previous sync has failed
+            if (needs_resync) {
+                // we only want to retry syncing after a set amount of time
+                if (timer_elapsed32(last_sync) > 200) {
+                    needs_sync = true;
+                }
+            }
+            // Perform the sync if requested.
+            if (needs_sync) {
+                // try to sync, and store the results in needs_resync
+                needs_resync = !(transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status));
+                last_sync    = timer_read32();
+            }
         }
-        // Perform the sync if requested.
-        if (needs_sync) {
-            transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(g_dilemma_status), &g_dilemma_status);
-        }
-        g_dilemma_status_prev = g_dilemma_status;
+
+        dilemma_lcd_status_prev = dilemma_lcd_status;
     }
 }
 
 void update_layer_name(bool force) {
-    if (g_dilemma_status.layer != g_dilemma_status_prev.layer || force) {
-        switch (g_dilemma_status.layer) {
+    if (dilemma_lcd_status.layer != dilemma_lcd_status_prev.layer || force) {
+        switch (dilemma_lcd_status.layer) {
             case 0:
             default:
                 lv_label_set_text(ui_label_layer, "LAYER: BASE");
@@ -404,22 +357,22 @@ void update_layer_name(bool force) {
 }
 
 void update_dilemma_status(void) {
-    g_dilemma_status.mods                          = get_mods();
-    g_dilemma_status.layer                         = get_highest_layer(layer_state);
-    g_dilemma_status.sniping                       = dilemma_get_pointer_sniping_enabled();
-    g_dilemma_status.theme_effects.dpi             = dilemma_get_pointer_default_dpi();
-    g_dilemma_status.theme_effects.s_dpi           = dilemma_get_pointer_sniping_dpi();
-    g_dilemma_status.scrolling                     = dilemma_get_pointer_dragscroll_enabled();
-    g_dilemma_status.theme_effects.rgb_enabled     = rgb_matrix_is_enabled();
-    g_dilemma_status.theme_effects.rgb_effect_mode = rgb_matrix_get_mode();
-    g_dilemma_status.theme_effects.rgb_val         = rgb_matrix_get_val();
+    dilemma_lcd_status.mods            = get_mods();
+    dilemma_lcd_status.layer           = get_highest_layer(layer_state);
+    dilemma_lcd_status.sniping         = dilemma_get_pointer_sniping_enabled();
+    dilemma_lcd_status.dpi             = dilemma_get_pointer_default_dpi();
+    dilemma_lcd_status.s_dpi           = dilemma_get_pointer_sniping_dpi();
+    dilemma_lcd_status.scrolling       = dilemma_get_pointer_dragscroll_enabled();
+    dilemma_lcd_status.rgb_enabled     = rgb_matrix_is_enabled();
+    dilemma_lcd_status.rgb_effect_mode = rgb_matrix_get_mode();
+    dilemma_lcd_status.rgb_val         = rgb_matrix_get_val();
 }
 
 void update_mods(bool force) {
     int i = 0;
     for (i = 0; i < (sizeof(mod_buttons) / sizeof(mod_button_pair_t)); i++) {
-        if ((g_dilemma_status.mods & mod_buttons[i].mod_mask) != (g_dilemma_status_prev.mods & mod_buttons[i].mod_mask) || force) {
-            if ((g_dilemma_status.mods & mod_buttons[i].mod_mask)) {
+        if ((dilemma_lcd_status.mods & mod_buttons[i].mod_mask) != (dilemma_lcd_status_prev.mods & mod_buttons[i].mod_mask) || force) {
+            if ((dilemma_lcd_status.mods & mod_buttons[i].mod_mask)) {
                 lv_event_send(mod_buttons[i].button, LV_EVENT_PRESSED, NULL);
             } else {
                 lv_event_send(mod_buttons[i].button, LV_EVENT_RELEASED, NULL);
@@ -429,23 +382,23 @@ void update_mods(bool force) {
 }
 
 void update_rgb_info(bool force) {
-    const bool rgb_change = (g_dilemma_status.theme_effects.rgb_enabled != g_dilemma_status_prev.theme_effects.rgb_enabled);
+    const bool rgb_change = (dilemma_lcd_status.rgb_enabled != dilemma_lcd_status_prev.rgb_enabled);
 
-    if (!g_dilemma_status.theme_effects.rgb_enabled) {
+    if (!dilemma_lcd_status.rgb_enabled) {
         if (rgb_change || force) {
             lv_label_set_text(ui_label_rgb_number, "Off");
             lv_bar_set_value(ui_bar_rgb, 0, LV_ANIM_OFF);
             lv_label_set_text(ui_label_rgb_effect, "");
         }
     } else {
-        if ((rgb_change) || (g_dilemma_status.theme_effects.rgb_val != g_dilemma_status_prev.theme_effects.rgb_val) || force) {
+        if ((rgb_change) || (dilemma_lcd_status.rgb_val != dilemma_lcd_status_prev.rgb_val) || force) {
             char rgbval[50];
-            sprintf(rgbval, "%u", g_dilemma_status.theme_effects.rgb_val);
+            sprintf(rgbval, "%u", dilemma_lcd_status.rgb_val);
             lv_label_set_text(ui_label_rgb_number, rgbval);
-            float rel = (float)(g_dilemma_status.theme_effects.rgb_val) * 100 / 156;
+            float rel = (float)(dilemma_lcd_status.rgb_val) * 100 / 156;
             lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
         }
-        if ((rgb_change) || (g_dilemma_status.theme_effects.rgb_effect_mode != g_dilemma_status_prev.theme_effects.rgb_effect_mode) || force) {
+        if ((rgb_change) || (dilemma_lcd_status.rgb_effect_mode != dilemma_lcd_status_prev.rgb_effect_mode) || force) {
             const char *effect_name = rgb_matrix_get_effect_name();
             lv_label_set_text(ui_label_rgb_effect, effect_name);
         }
@@ -454,35 +407,35 @@ void update_rgb_info(bool force) {
 
 void update_mouse_info(bool force) {
     // TODO dynamically get max DPI, instead of using hardcoded values
-    if (g_dilemma_status.theme_effects.dpi != g_dilemma_status_prev.theme_effects.dpi || force) {
+    if (dilemma_lcd_status.dpi != dilemma_lcd_status_prev.dpi || force) {
         static const uint16_t rel_max_dpi = 200 * 16;
-        const float           rel         = (float)((g_dilemma_status.theme_effects.dpi + 200 - 400)) * 100 / rel_max_dpi;
+        const float           rel         = (float)((dilemma_lcd_status.dpi + 200 - 400)) * 100 / rel_max_dpi;
         lv_bar_set_value(ui_bar_dpi, (uint16_t)rel, LV_ANIM_OFF);
 
         char c_dpi[50];
-        sprintf(c_dpi, "%u", (uint16_t)g_dilemma_status.theme_effects.dpi);
+        sprintf(c_dpi, "%u", (uint16_t)dilemma_lcd_status.dpi);
         lv_label_set_text(ui_label_dpi_number, c_dpi);
     }
 
-    if (g_dilemma_status.theme_effects.s_dpi != g_dilemma_status_prev.theme_effects.s_dpi || force) {
+    if (dilemma_lcd_status.s_dpi != dilemma_lcd_status_prev.s_dpi || force) {
         char                  c_s_dpi[50];
         static const uint16_t rel_max_s_dpi = 100 * 4;
-        const float           rel           = (float)((g_dilemma_status.theme_effects.s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
+        const float           rel           = (float)((dilemma_lcd_status.s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
         lv_bar_set_value(ui_bar_s_dpi, (uint16_t)rel, LV_ANIM_OFF);
-        sprintf(c_s_dpi, "%u", (uint16_t)g_dilemma_status.theme_effects.s_dpi);
+        sprintf(c_s_dpi, "%u", (uint16_t)dilemma_lcd_status.s_dpi);
         lv_label_set_text(ui_label_s_dpi_number, c_s_dpi);
     }
 
-    if (g_dilemma_status.sniping != g_dilemma_status_prev.sniping || force) {
-        if (g_dilemma_status.sniping) {
+    if (dilemma_lcd_status.sniping != dilemma_lcd_status_prev.sniping || force) {
+        if (dilemma_lcd_status.sniping) {
             lv_event_send(mouse_buttons[0].button, LV_EVENT_PRESSED, NULL);
         } else {
             lv_event_send(mouse_buttons[0].button, LV_EVENT_RELEASED, NULL);
         }
     }
 
-    if (g_dilemma_status.scrolling != g_dilemma_status_prev.scrolling || force) {
-        if (g_dilemma_status.scrolling) {
+    if (dilemma_lcd_status.scrolling != dilemma_lcd_status_prev.scrolling || force) {
+        if (dilemma_lcd_status.scrolling) {
             lv_event_send(mouse_buttons[1].button, LV_EVENT_PRESSED, NULL);
         } else {
             lv_event_send(mouse_buttons[1].button, LV_EVENT_RELEASED, NULL);
@@ -495,7 +448,7 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
         case LCD_MODULE_CHANGE_THEME:
             if (record->event.pressed) {
                 if (is_keyboard_master()) {
-                    cycle_theme();
+                    cycle_theme_and_save_in_eeprom();
                 }
                 // housekeeping_task_lcd();
                 // qp_flush(lcd);
@@ -506,10 +459,10 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
 }
 
 // TODO move this to theme.h?
-void cycle_theme(void) {
-    g_dilemma_status.theme_effects.current_theme_id = (g_dilemma_status.theme_effects.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
+void cycle_theme_and_save_in_eeprom(void) {
+    dilemma_lcd_status.current_theme_id = (dilemma_lcd_status.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
     update_styles(get_current_theme());
-    write_dilemma_theme_config_to_eeprom(&g_dilemma_status_theme_t);
+    write_dilemma_theme_config_to_eeprom(&dilemma_lcd_status_theme_t);
 }
 
 const char *rgb_matrix_get_effect_name(void) {
@@ -533,26 +486,22 @@ const char *rgb_matrix_get_effect_name(void) {
     return buf;
 }
 
-// TODO move this sync out of the LCD module, into the main QMK code, with eeprom kb instead of eeprom user.
-// called by primary, executed by secondary
+/*
+called by right side, executed by left side (where the screen is)
+we do not store the updated config in eeprom, this is done by master in cycle_theme
+if later we would like to do that, first we need to sync halves in the dilemma code with kb eeprom, and then implement
+theme sync here with user eeprom
+*/
 void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
-    if (initiator2target_buffer_size == sizeof(g_dilemma_status)) {
-        g_dilemma_status_prev = g_dilemma_status;
-        g_dilemma_status      = *(const dilemma_status_t *)initiator2target_buffer;
+    if (is_keyboard_left()) {
+        if (initiator2target_buffer_size == sizeof(dilemma_lcd_status)) {
+            dilemma_lcd_status_prev = dilemma_lcd_status;
+            dilemma_lcd_status      = *(const dilemma_status_t *)initiator2target_buffer;
 
-        if (g_dilemma_status_prev.theme_effects.current_theme_id != g_dilemma_status.theme_effects.current_theme_id) {
-            update_styles(get_current_theme());
+            if (dilemma_lcd_status_prev.current_theme_id != dilemma_lcd_status.current_theme_id) {
+                update_styles(get_current_theme());
+            }
+            refresh_lcd_info(false);
         }
-
-        write_dilemma_theme_config_to_eeprom(&g_dilemma_status_theme_t);
-        refresh_lcd_info(false);
-        write_config_to_eeprom();
     }
-}
-
-// TODO move this sync out of the LCD module, into the main QMK code, with direct eeprom kb writes instead of eeprom user.
-// here we have to manually manage the things that are already stored in the dilemma's eeprom config
-void write_config_to_eeprom(void){
-    g_dilemma_config.pointer_default_dpi = g_dilemma_status.theme_effects.dpi;
-    write_dilemma_config_to_eeprom(&g_dilemma_config);
 }

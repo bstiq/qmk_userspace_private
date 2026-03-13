@@ -286,7 +286,7 @@ void write_dilemma_theme_config_to_eeprom(dilemma_status_theme_t *config) {
 }
 
 void load_dilemma_theme_config_from_eeprom(void) {
-    read_dilemma_theme_config_from_eeprom(&dilemma_lcd_status_theme);
+    read_dilemma_theme_config_from_eeprom(&dilemma_lcd_theme);
 }
 
 void init_styles(void) {
@@ -348,14 +348,15 @@ ui_theme get_current_theme(void) {
 }
 
 uint8_t get_current_theme_id(void) {
-    return dilemma_lcd_status_theme.current_theme_id;
+    return dilemma_lcd_theme.current_theme_id;
 }
 
 void set_current_theme_id(uint8_t id) {
-    dilemma_lcd_status_theme.current_theme_id = id;
+    dilemma_lcd_theme.current_theme_id = id;
 }
 
 void cycle_theme_and_save_in_eeprom(void) {
-    dilemma_lcd_status_theme.current_theme_id = (dilemma_lcd_status_theme.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
-    write_dilemma_theme_config_to_eeprom(&dilemma_lcd_status_theme);
+    uint8_t new_id = (dilemma_lcd_theme.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
+    set_current_theme_id(new_id);
+    write_dilemma_theme_config_to_eeprom(&dilemma_lcd_theme);
 }

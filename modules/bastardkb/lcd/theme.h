@@ -74,7 +74,7 @@ typedef union {
     } __attribute__((packed));
 } dilemma_status_theme_t;
 
-dilemma_status_theme_t dilemma_lcd_status_theme;
+dilemma_status_theme_t dilemma_lcd_theme;
 
 // TODO once removed ui_styles from lcd.c, move this into ui_elements.c to make it private to ui_elements 
 typedef struct {

@@ -48,8 +48,6 @@ static dilemma_status_t dilemma_lcd_status      = {0};
 // TODO keep this variable contained in theme.c
 extern ui_styles_t ui_styles;
 
-const char *ui_layer_strings[] = {"BASE", "FUNCTION", "NAV", "MED/RGB", "POINTER", "NUM", "SYM"};
-
 painter_device_t        lcd;
 static painter_device_t surface;
 // Buffer required for a 240x280 16bpp surface:
@@ -358,8 +356,12 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
             if (record->event.pressed) {
                 if (is_keyboard_master()) {
                     cycle_theme_and_save_in_eeprom();
-                    // no need to update the secondary side: it will be done in housekeeping
-                    // TODO explain this: save the config theme id into the local "no eeprom" status
+                    // if the keyboard is left, then we directly update the styles
+                    // if the keyboard is right, we need to send the sync info over to the left side
+                    // that will be done in housekeeping
+                    if(is_keyboard_left()) {
+                        update_styles_from_current_theme();
+                    }
                     dilemma_lcd_status.current_theme_id = get_current_theme_id();
                 }
                 // housekeeping_task_lcd();
@@ -404,7 +406,8 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
             dilemma_lcd_status      = *(const dilemma_status_t *)initiator2target_buffer;
 
             if (dilemma_lcd_status_prev.current_theme_id != dilemma_lcd_status.current_theme_id) {
-                update_styles_from_current_theme_if_left();
+                set_current_theme_id(dilemma_lcd_status.current_theme_id);
+                update_styles_from_current_theme();
             }
             refresh_lcd_info(false);
         }

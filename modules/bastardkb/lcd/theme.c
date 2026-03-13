@@ -2,10 +2,10 @@
 #include "theme.h"
 #include "ui_elements.h"
 
-ui_theme default_theme;
-ui_theme skeu_dark_theme;
-ui_theme terminal_theme;
-ui_theme              *themes[]    = {&default_theme, &skeu_dark_theme, &terminal_theme};
+ui_theme  default_theme;
+ui_theme  skeu_dark_theme;
+ui_theme  terminal_theme;
+ui_theme *themes[] = {&default_theme, &skeu_dark_theme, &terminal_theme};
 
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
@@ -321,19 +321,17 @@ void init_styles(void) {
     lv_style_set_border_width(&ui_styles.flex_container, 0);
     // lv_style_set_pad_all(&ui_styles.flex_container, 0);
 
-    update_styles_from_current_theme_if_left();
+    update_styles_from_current_theme();
 }
 
-void update_styles_from_current_theme_if_left(void) {
-    if (is_keyboard_left()) {
-        ui_theme theme = get_current_theme();
-        update_styles_from_theme_btn(&(ui_styles.mod_btn), theme.btn_normal);
-        update_styles_from_theme_btn(&(ui_styles.mod_btn_pressed), theme.btn_pressed);
-        update_styles_from_theme_layer_name(&(ui_styles.layer_name), theme.layer_name);
-        update_styles_from_theme_secondary_label(&(ui_styles.secondary_labels), theme.secondary_labels);
-        update_styles_from_theme_bar(&(ui_styles.bar), theme.bar);
-        update_styles_from_theme_bar_background(&(ui_styles.bar_background), theme.bar_background);
-    }
+void update_styles_from_current_theme(void) {
+    ui_theme theme = get_current_theme();
+    update_styles_from_theme_btn(&(ui_styles.mod_btn), theme.btn_normal);
+    update_styles_from_theme_btn(&(ui_styles.mod_btn_pressed), theme.btn_pressed);
+    update_styles_from_theme_layer_name(&(ui_styles.layer_name), theme.layer_name);
+    update_styles_from_theme_secondary_label(&(ui_styles.secondary_labels), theme.secondary_labels);
+    update_styles_from_theme_bar(&(ui_styles.bar), theme.bar);
+    update_styles_from_theme_bar_background(&(ui_styles.bar_background), theme.bar_background);
 }
 
 void change_style_colors(HSV hsv) {
@@ -346,15 +344,18 @@ void change_style_colors(HSV hsv) {
 ui_theme get_current_theme(void) {
     // TODO reinstate this safety check
     // uint8_t theme_id = (config.current_theme_id) % (sizeof(themes) / sizeof(ui_theme *));
-    return *themes[dilemma_lcd_status_theme.current_theme_id];
+    return *themes[get_current_theme_id()];
 }
 
 uint8_t get_current_theme_id(void) {
     return dilemma_lcd_status_theme.current_theme_id;
 }
 
+void set_current_theme_id(uint8_t id) {
+    dilemma_lcd_status_theme.current_theme_id = id;
+}
+
 void cycle_theme_and_save_in_eeprom(void) {
     dilemma_lcd_status_theme.current_theme_id = (dilemma_lcd_status_theme.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
-    update_styles_from_current_theme_if_left();
     write_dilemma_theme_config_to_eeprom(&dilemma_lcd_status_theme);
 }

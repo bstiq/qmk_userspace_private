@@ -4,8 +4,6 @@
 #include <ctype.h>
 #include "theme.h"
 
-typedef struct mod_button_pair_t mod_button_pair_t;
-
 void keyboard_post_init_lcd(void);
 void style_init_all(void);
 

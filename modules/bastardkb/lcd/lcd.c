@@ -3,6 +3,7 @@
 
 #include "lcd.h"
 #include "config.h"
+#include "ui_elements.h"
 #include "quantum.h"
 #include <stdio.h>
 
@@ -14,13 +15,6 @@
 #include "transactions.h"
 
 lv_obj_t *ui_screen_base;
-
-/* mod button pairs: GUI, ALT, CTRL, SHIFT */
-struct mod_button_pair_t {
-    lv_obj_t *button;
-    lv_obj_t *label;
-    uint8_t   mod_mask;
-};
 
 static mod_button_pair_t mod_buttons[4];
 static mod_button_pair_t mouse_buttons[2];

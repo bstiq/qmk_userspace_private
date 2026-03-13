@@ -1,5 +1,6 @@
 #include QMK_KEYBOARD_H
 #include "ui_elements.h"
+#include "lvgl.h"
 
 lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {
     lv_obj_t *bar = lv_bar_create(cont);

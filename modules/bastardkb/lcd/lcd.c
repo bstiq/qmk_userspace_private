@@ -140,30 +140,28 @@ void init_display(void) {
 }
 
 void keyboard_post_init_lcd(void) {
-    update_dilemma_status();
+    // update_dilemma_status();
+
     load_dilemma_theme_config_from_eeprom();
 
     // copy only the relevant information from eeprom into local config
     dilemma_lcd_status.current_theme_id = get_current_theme_id();
 
-    // important when connecting both sides with a different-than-standard config
-    // otherwise master tries to send an RPC message when left is not ready yet (lcd init takes time...)
-    // dilemma_lcd_status_prev = dilemma_lcd_status;
-
-    // sync mouse data across halves
-    transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
-
     // TODO: the load theme config needs to be done BEFORE the display init. How do we solve this?
     if (is_keyboard_left()) {
         init_display();
-        refresh_lcd_info(true);
+        refresh_lcd_info();
     }
+
+    // sync mouse data across halves
+    transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
 }
 
 // TODO get colors based on real layer colors, instead of hardcoding them
-void update_theme_color(bool force) {
+void update_theme_color(void) {
+    static bool first_display = true;
     if (get_current_theme().change_colors_on_layer_change) {
-        if (dilemma_lcd_status.layer != dilemma_lcd_status_prev.layer || force) {
+        if (dilemma_lcd_status.layer != dilemma_lcd_status_prev.layer || first_display) {
             HSV hsv;
             switch (dilemma_lcd_status.layer) {
                 case 0:
@@ -192,15 +190,16 @@ void update_theme_color(bool force) {
             change_style_colors(hsv);
         }
     }
+    first_display = false;
 }
 
-void refresh_lcd_info(bool force) {
+void refresh_lcd_info(void) {
     if (is_keyboard_left()) {
-        update_layer_name(force);
-        update_mods(force);
-        update_rgb_info(force);
-        update_mouse_info(force);
-        update_theme_color(force);
+        update_layer_name();
+        update_mods();
+        update_rgb_info();
+        update_mouse_info();
+        update_theme_color();
     }
 }
 
@@ -209,19 +208,19 @@ void housekeeping_task_lcd(void) {
         update_dilemma_status();
         // if the keyboard is left, nothing to do - just refresh the screen
         if (is_keyboard_left()) {
-            refresh_lcd_info(false);
+            refresh_lcd_info();
         }
         // if the keyboard is right, we need to send the sync info over to the left side
         // saving the theme id to eeprom has already been done in process_record
         else {
             bool            needs_sync   = false;
-            static bool     needs_resync = false;
+            static bool     needs_resync = true; // perform an initial first sync
             static uint32_t last_sync    = 0;
             // // Check if the state values are different.
             if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
                 needs_sync = true;
             }
-            // check if a previous sync has failed
+            // // check if a previous sync has failed
             if (needs_resync) {
                 // we only want to retry syncing after a set amount of time
                 if (timer_elapsed32(last_sync) > 200) {
@@ -231,7 +230,9 @@ void housekeeping_task_lcd(void) {
             // Perform the sync if requested.
             if (needs_sync) {
                 // try to sync, and store the results in needs_resync
-                needs_resync = !(transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status));
+                if(transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false){
+                    needs_resync = true;
+                }
                 last_sync    = timer_read32();
             }
         }
@@ -240,8 +241,9 @@ void housekeeping_task_lcd(void) {
     }
 }
 
-void update_layer_name(bool force) {
-    if (dilemma_lcd_status.layer != dilemma_lcd_status_prev.layer || force) {
+void update_layer_name(void) {
+    static bool first_display = true;
+    if (dilemma_lcd_status.layer != dilemma_lcd_status_prev.layer || first_display) {
         switch (dilemma_lcd_status.layer) {
             case 0:
             default:
@@ -258,6 +260,7 @@ void update_layer_name(bool force) {
                 break;
         }
     }
+    first_display = false;
 }
 
 void update_dilemma_status(void) {
@@ -273,10 +276,11 @@ void update_dilemma_status(void) {
 }
 
 // TODO remove force, should not be necessary anymore if we do a sync // retry on initial connection
-void update_mods(bool force) {
-    int i = 0;
+void update_mods(void) {
+    static bool first_display = true;
+    int         i             = 0;
     for (i = 0; i < (sizeof(mod_buttons) / sizeof(mod_button_pair_t)); i++) {
-        if ((dilemma_lcd_status.mods & mod_buttons[i].mod_mask) != (dilemma_lcd_status_prev.mods & mod_buttons[i].mod_mask) || force) {
+        if ((dilemma_lcd_status.mods & mod_buttons[i].mod_mask) != (dilemma_lcd_status_prev.mods & mod_buttons[i].mod_mask) || first_display) {
             if ((dilemma_lcd_status.mods & mod_buttons[i].mod_mask)) {
                 lv_event_send(mod_buttons[i].button, LV_EVENT_PRESSED, NULL);
             } else {
@@ -284,37 +288,41 @@ void update_mods(bool force) {
             }
         }
     }
+    first_display = false;
 }
 
 // TODO remove force, should not be necessary anymore if we do a sync // retry on initial connection
-void update_rgb_info(bool force) {
-    const bool rgb_change = (dilemma_lcd_status.rgb_enabled != dilemma_lcd_status_prev.rgb_enabled);
+void update_rgb_info(void) {
+    const bool  rgb_change    = (dilemma_lcd_status.rgb_enabled != dilemma_lcd_status_prev.rgb_enabled);
+    static bool first_display = true;
 
     if (!dilemma_lcd_status.rgb_enabled) {
-        if (rgb_change || force) {
+        if (rgb_change || first_display) {
             lv_label_set_text(ui_label_rgb_number, "Off");
             lv_bar_set_value(ui_bar_rgb, 0, LV_ANIM_OFF);
             lv_label_set_text(ui_label_rgb_effect, "");
         }
     } else {
-        if ((rgb_change) || (dilemma_lcd_status.rgb_val != dilemma_lcd_status_prev.rgb_val) || force) {
+        if ((rgb_change) || (dilemma_lcd_status.rgb_val != dilemma_lcd_status_prev.rgb_val) || first_display) {
             char rgbval[50];
             sprintf(rgbval, "%u", dilemma_lcd_status.rgb_val);
             lv_label_set_text(ui_label_rgb_number, rgbval);
             float rel = (float)(dilemma_lcd_status.rgb_val) * 100 / 156;
             lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
         }
-        if ((rgb_change) || (dilemma_lcd_status.rgb_effect_mode != dilemma_lcd_status_prev.rgb_effect_mode) || force) {
+        if ((rgb_change) || (dilemma_lcd_status.rgb_effect_mode != dilemma_lcd_status_prev.rgb_effect_mode) || first_display) {
             const char *effect_name = rgb_matrix_get_effect_name();
             lv_label_set_text(ui_label_rgb_effect, effect_name);
         }
     }
+    first_display = false;
 }
 
 // TODO remove force, should not be necessary anymore if we do a sync // retry on initial connection
-void update_mouse_info(bool force) {
+void update_mouse_info(void) {
+    static bool first_display = true;
     // TODO dynamically get max DPI, instead of using hardcoded values
-    if (dilemma_lcd_status.dpi != dilemma_lcd_status_prev.dpi || force) {
+    if (dilemma_lcd_status.dpi != dilemma_lcd_status_prev.dpi || first_display) {
         static const uint16_t rel_max_dpi = 200 * 16;
         const float           rel         = (float)((dilemma_lcd_status.dpi + 200 - 400)) * 100 / rel_max_dpi;
         lv_bar_set_value(ui_bar_dpi, (uint16_t)rel, LV_ANIM_OFF);
@@ -324,7 +332,7 @@ void update_mouse_info(bool force) {
         lv_label_set_text(ui_label_dpi_number, c_dpi);
     }
 
-    if (dilemma_lcd_status.s_dpi != dilemma_lcd_status_prev.s_dpi || force) {
+    if (dilemma_lcd_status.s_dpi != dilemma_lcd_status_prev.s_dpi || first_display) {
         char                  c_s_dpi[50];
         static const uint16_t rel_max_s_dpi = 100 * 4;
         const float           rel           = (float)((dilemma_lcd_status.s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
@@ -333,7 +341,7 @@ void update_mouse_info(bool force) {
         lv_label_set_text(ui_label_s_dpi_number, c_s_dpi);
     }
 
-    if (dilemma_lcd_status.sniping != dilemma_lcd_status_prev.sniping || force) {
+    if (dilemma_lcd_status.sniping != dilemma_lcd_status_prev.sniping || first_display) {
         if (dilemma_lcd_status.sniping) {
             lv_event_send(mouse_buttons[0].button, LV_EVENT_PRESSED, NULL);
         } else {
@@ -341,13 +349,14 @@ void update_mouse_info(bool force) {
         }
     }
 
-    if (dilemma_lcd_status.scrolling != dilemma_lcd_status_prev.scrolling || force) {
+    if (dilemma_lcd_status.scrolling != dilemma_lcd_status_prev.scrolling || first_display) {
         if (dilemma_lcd_status.scrolling) {
             lv_event_send(mouse_buttons[1].button, LV_EVENT_PRESSED, NULL);
         } else {
             lv_event_send(mouse_buttons[1].button, LV_EVENT_RELEASED, NULL);
         }
     }
+    first_display = false;
 }
 
 bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
@@ -359,7 +368,7 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
                     // if the keyboard is left, then we directly update the styles
                     // if the keyboard is right, we need to send the sync info over to the left side
                     // that will be done in housekeeping
-                    if(is_keyboard_left()) {
+                    if (is_keyboard_left()) {
                         update_styles_from_current_theme();
                     }
                     dilemma_lcd_status.current_theme_id = get_current_theme_id();
@@ -409,7 +418,7 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
                 set_current_theme_id(dilemma_lcd_status.current_theme_id);
                 update_styles_from_current_theme();
             }
-            refresh_lcd_info(false);
+            refresh_lcd_info();
         }
     }
 }

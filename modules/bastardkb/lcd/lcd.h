@@ -21,11 +21,11 @@ typedef struct {
 void keyboard_post_init_lcd(void);
 
 void              housekeeping_task_lcd(void);
-void              update_mods(bool force);
-void              update_mouse_info(bool force);
-void              update_rgb_info(bool force);
-void              update_layer_name(bool force);
-void              update_theme_color(bool force);
+void              update_mods(void);
+void              update_mouse_info(void);
+void              update_rgb_info(void);
+void              update_layer_name(void);
+void              update_theme_color(void);
 
 void update_dilemma_status(void);
 
@@ -34,7 +34,7 @@ const char *rgb_matrix_get_effect_name(void);
 bool      process_record_lcd(uint16_t keycode, keyrecord_t *record);
 
 void mouse_info_sync_handler(uint8_t in_buflen, const void *in_data, uint8_t out_buflen, void *out_data);
-void refresh_lcd_info(bool force);
+void refresh_lcd_info(void);
 void cycle_theme_and_save_in_eeprom(void);
 void init_display(void);
 void write_config_to_eeprom(void);

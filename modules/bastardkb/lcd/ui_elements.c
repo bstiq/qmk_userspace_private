@@ -37,7 +37,8 @@ void ui_init_layer_name(lv_obj_t *label) {
     lv_obj_set_y(label, 20);
 }
 
-mod_button_pair_t ui_create_mod_button(lv_obj_t *cont, const char *text, bool force_new_track, uint8_t mod_mask) {
+// todo get rid of mod_button_pair_t structure
+lv_obj_t *ui_create_mod_button(lv_obj_t *cont, const char *text, bool force_new_track, uint8_t mod_mask) {
     mod_button_pair_t b = {0};
 
     b.mod_mask = mod_mask;
@@ -51,7 +52,7 @@ mod_button_pair_t ui_create_mod_button(lv_obj_t *cont, const char *text, bool fo
     lv_label_set_text(b.label, text);
     lv_obj_center(b.label);
 
-    return b;
+    return b.button;
 }
 
 void ui_init_button_mod_indicator(lv_obj_t *button) {

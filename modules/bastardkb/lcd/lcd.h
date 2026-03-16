@@ -18,12 +18,22 @@ typedef struct {
     uint16_t               s_dpi;
 } dilemma_status_t;
 
+typedef struct{
+    lv_obj_t *obj;
+    void (*update_function)(lv_obj_t*);
+} obj_update_t;
+
+typedef struct{
+    obj_update_t *array;
+    size_t used;
+    size_t size;
+    int amount_elements;
+}obj_event_array_t;
+
 void keyboard_post_init_lcd(void);
 
 void              housekeeping_task_lcd(void);
-void              update_mods(void);
 void              update_mouse_info(void);
-void              update_rgb_info(void);
 void              update_layer_name(void);
 void              update_theme_color(void);
 
@@ -38,3 +48,15 @@ void refresh_lcd_info(void);
 void cycle_theme_and_save_in_eeprom(void);
 void init_display(void);
 void write_config_to_eeprom(void);
+void update_rgb_value(lv_obj_t* obj);
+void update_rgb_bar(lv_obj_t* obj);
+void update_mod_shift(lv_obj_t *obj);
+void update_mod_ctrl(lv_obj_t *obj);
+void update_mod_alt(lv_obj_t *obj);
+void update_mod_gui(lv_obj_t *obj);
+void update_mod_snipe(lv_obj_t *obj);
+void update_mod_scroll(lv_obj_t *obj);
+void update_mod_xx(lv_obj_t *obj, uint8_t mod_mask);
+void update_rgb_effect(lv_obj_t *obj);
+void init_obj_event_array(obj_event_array_t *a);
+void add_obj_event_array(obj_event_array_t *a, obj_update_t element);

@@ -16,8 +16,8 @@
 
 lv_obj_t *ui_screen_base;
 
-static mod_button_pair_t mod_buttons[4];
-static mod_button_pair_t mouse_buttons[2];
+// static mod_button_pair_t mod_buttons[4];
+// static mod_button_pair_t mouse_buttons[2];
 
 lv_obj_t *ui_label_layer;
 lv_obj_t *ui_button_layer;
@@ -28,13 +28,15 @@ lv_obj_t *ui_label_s_dpi;
 lv_obj_t *ui_bar_s_dpi;
 lv_obj_t *ui_label_s_dpi_number;
 lv_obj_t *ui_image_scroll;
-lv_obj_t *ui_label_rgb;
-lv_obj_t *ui_bar_rgb;
-lv_obj_t *ui_label_rgb_effect;
-lv_obj_t *ui_label_rgb_number;
+// lv_obj_t *ui_label_rgb;
+// lv_obj_t *ui_bar_rgb;
+// lv_obj_t *ui_label_rgb_effect;
 
 lv_obj_t *ui_line_1;
 lv_obj_t *ui_line_2;
+
+// obj_update_t test_rgb_val;
+obj_event_array_t event_with_objects_array;
 
 enum ui_user_events {
     EVENT_LAYER_CHANGE = 0,
@@ -52,6 +54,23 @@ painter_device_t        lcd;
 static painter_device_t surface;
 // Buffer required for a 240x280 16bpp surface:
 static uint8_t surface_buffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(LCD_WIDTH, LCD_HEIGHT, 16)];
+
+void init_obj_event_array(obj_event_array_t *a) {
+    a->used            = 0;
+    a->size            = 0;
+    a->amount_elements = 0;
+}
+
+void add_obj_event_array(obj_event_array_t *a, obj_update_t element) {
+    // a->used is the number of used entries, because a->array[a->used++] updates a->used only *after* the array has been accessed.
+    // Therefore a->used can go up to a->size
+    if (a->used == a->size) {
+        a->size  = (a->size * 3) / 2 + 8;
+        a->array = realloc(a->array, a->size * sizeof(obj_update_t));
+    }
+    a->array[a->used++] = element;
+    a->amount_elements++;
+}
 
 void init_display(void) {
     // Display timeout
@@ -97,10 +116,22 @@ void init_display(void) {
     lv_obj_center(ui_label_layer);
 
     // mod buttons: SHIFT, ALT, CTRL, GUI
-    mod_buttons[0] = ui_create_mod_button(cont, "SHFT", true, MOD_MASK_SHIFT);
-    mod_buttons[1] = ui_create_mod_button(cont, "ALT", false, MOD_MASK_ALT);
-    mod_buttons[2] = ui_create_mod_button(cont, "CTRL", false, MOD_MASK_CTRL);
-    mod_buttons[3] = ui_create_mod_button(cont, "GUI", false, MOD_MASK_GUI);
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       .obj             = ui_create_mod_button(cont, "SHFT", true, MOD_MASK_SHIFT),
+                                                       .update_function = &update_mod_shift,
+                                                   });
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       .obj             = ui_create_mod_button(cont, "ALT", false, MOD_MASK_ALT),
+                                                       .update_function = &update_mod_alt,
+                                                   });
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       .obj             = ui_create_mod_button(cont, "CTRL", false, MOD_MASK_CTRL),
+                                                       .update_function = &update_mod_ctrl,
+                                                   });
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       .obj             = ui_create_mod_button(cont, "GUI", false, MOD_MASK_GUI),
+                                                       .update_function = &update_mod_gui,
+                                                   });
 
     // line separator
     ui_line_1 = ui_create_line_separator(cont, 1, 3);
@@ -109,8 +140,14 @@ void init_display(void) {
     lv_disp_load_scr(ui_screen_base);
 
     // mouse special buttons
-    mouse_buttons[0] = ui_create_mod_button(cont, "SNIPE", true, 0);
-    mouse_buttons[1] = ui_create_mod_button(cont, "SCROLL", false, 0);
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       .obj             = ui_create_mod_button(cont, "SNIPE", true, 0),
+                                                       .update_function = &update_mod_snipe,
+                                                   });
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       .obj             = ui_create_mod_button(cont, "SCROLL", false, 0),
+                                                       .update_function = &update_mod_scroll,
+                                                   });
 
     // sniping DPI widgets
     ui_label_s_dpi        = ui_create_secondary_text(cont, "SNIPE DPI", true, 4);
@@ -126,11 +163,29 @@ void init_display(void) {
     ui_line_2 = ui_create_line_separator(cont, 1, 3);
 
     // rgb widgets
-    ui_label_rgb        = ui_create_secondary_text(cont, "RGB", true, 2);
-    ui_bar_rgb          = ui_create_progress_bar(cont, 6);
-    ui_label_rgb_number = ui_create_number_label(cont, 2);
+    // ui_label_rgb = ui_create_secondary_text(cont, "RGB", true, 2);
+    
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       .obj             = ui_create_secondary_text(cont, "RGB", true, 2),
+                                                       .update_function = NULL,
+                                                   });
 
-    ui_label_rgb_effect = ui_create_secondary_text(cont, "effect...", true, 1);
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       .obj             = ui_create_progress_bar(cont, 6),
+                                                       .update_function = &update_rgb_bar,
+                                                   });
+
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       .obj             = ui_create_number_label(cont, 2),
+                                                       .update_function = &update_rgb_value,
+                                                   });
+                                                   
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       .obj             = ui_create_secondary_text(cont, "effect...", true, 1),
+                                                       .update_function = &update_rgb_effect,
+                                                   });
+
+    // ui_label_rgb_effect = ui_create_secondary_text(cont, "effect...", true, 1);
 
     // theme and backgrounds
     lv_disp_t  *dispp = lv_disp_get_default();
@@ -149,12 +204,17 @@ void keyboard_post_init_lcd(void) {
 
     // TODO: the load theme config needs to be done BEFORE the display init. How do we solve this?
     if (is_keyboard_left()) {
+        init_obj_event_array(&event_with_objects_array); // TODO move this into init_display?
         init_display();
+        // TODO move this, and if secondary only refresh if have received the first init
         refresh_lcd_info();
     }
 
     // sync mouse data across halves
     transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
+
+    // if (is_keyboard_master()) {
+    // }
 }
 
 // TODO get colors based on real layer colors, instead of hardcoding them
@@ -194,12 +254,17 @@ void update_theme_color(void) {
 }
 
 void refresh_lcd_info(void) {
-    if (is_keyboard_left()) {
-        update_layer_name();
-        update_mods();
-        update_rgb_info();
-        update_mouse_info();
-        update_theme_color();
+    update_layer_name();
+    update_mouse_info();
+    update_theme_color();
+
+    // test
+    // test_rgb_val.update_function(test_rgb_val.obj);
+    int i = 0;
+    for (i = 0; i < event_with_objects_array.amount_elements; i++) {
+        lv_obj_t *obj = event_with_objects_array.array[i].obj;
+        if(obj && event_with_objects_array.array[i].update_function)
+            event_with_objects_array.array[i].update_function(obj);
     }
 }
 
@@ -230,10 +295,10 @@ void housekeeping_task_lcd(void) {
             // Perform the sync if requested.
             if (needs_sync) {
                 // try to sync, and store the results in needs_resync
-                if(transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false){
+                if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false) {
                     needs_resync = true;
                 }
-                last_sync    = timer_read32();
+                last_sync = timer_read32();
             }
         }
 
@@ -275,47 +340,94 @@ void update_dilemma_status(void) {
     dilemma_lcd_status.rgb_val         = rgb_matrix_get_val();
 }
 
-// TODO remove force, should not be necessary anymore if we do a sync // retry on initial connection
-void update_mods(void) {
-    static bool first_display = true;
-    int         i             = 0;
-    for (i = 0; i < (sizeof(mod_buttons) / sizeof(mod_button_pair_t)); i++) {
-        if ((dilemma_lcd_status.mods & mod_buttons[i].mod_mask) != (dilemma_lcd_status_prev.mods & mod_buttons[i].mod_mask) || first_display) {
-            if ((dilemma_lcd_status.mods & mod_buttons[i].mod_mask)) {
-                lv_event_send(mod_buttons[i].button, LV_EVENT_PRESSED, NULL);
-            } else {
-                lv_event_send(mod_buttons[i].button, LV_EVENT_RELEASED, NULL);
-            }
-        }
-    }
-    first_display = false;
+void update_mod_shift(lv_obj_t *obj) {
+    update_mod_xx(obj, MOD_MASK_SHIFT);
+}
+void update_mod_ctrl(lv_obj_t *obj) {
+    update_mod_xx(obj, MOD_MASK_CTRL);
+}
+void update_mod_alt(lv_obj_t *obj) {
+    update_mod_xx(obj, MOD_MASK_ALT);
+}
+void update_mod_gui(lv_obj_t *obj) {
+    update_mod_xx(obj, MOD_MASK_GUI);
 }
 
-// TODO remove force, should not be necessary anymore if we do a sync // retry on initial connection
-void update_rgb_info(void) {
-    const bool  rgb_change    = (dilemma_lcd_status.rgb_enabled != dilemma_lcd_status_prev.rgb_enabled);
-    static bool first_display = true;
-
-    if (!dilemma_lcd_status.rgb_enabled) {
-        if (rgb_change || first_display) {
-            lv_label_set_text(ui_label_rgb_number, "Off");
-            lv_bar_set_value(ui_bar_rgb, 0, LV_ANIM_OFF);
-            lv_label_set_text(ui_label_rgb_effect, "");
-        }
-    } else {
-        if ((rgb_change) || (dilemma_lcd_status.rgb_val != dilemma_lcd_status_prev.rgb_val) || first_display) {
-            char rgbval[50];
-            sprintf(rgbval, "%u", dilemma_lcd_status.rgb_val);
-            lv_label_set_text(ui_label_rgb_number, rgbval);
-            float rel = (float)(dilemma_lcd_status.rgb_val) * 100 / 156;
-            lv_bar_set_value(ui_bar_rgb, (uint16_t)rel, LV_ANIM_OFF);
-        }
-        if ((rgb_change) || (dilemma_lcd_status.rgb_effect_mode != dilemma_lcd_status_prev.rgb_effect_mode) || first_display) {
-            const char *effect_name = rgb_matrix_get_effect_name();
-            lv_label_set_text(ui_label_rgb_effect, effect_name);
+void update_mod_xx(lv_obj_t *obj, uint8_t mod_mask) {
+    if ((dilemma_lcd_status.mods & mod_mask) != (dilemma_lcd_status_prev.mods & mod_mask)) {
+        if ((dilemma_lcd_status.mods & mod_mask)) {
+            lv_event_send(obj, LV_EVENT_PRESSED, NULL);
+        } else {
+            lv_event_send(obj, LV_EVENT_RELEASED, NULL);
         }
     }
-    first_display = false;
+}
+
+void update_rgb_effect(lv_obj_t *obj) {
+    const bool  rgb_change    = (dilemma_lcd_status.rgb_enabled != dilemma_lcd_status_prev.rgb_enabled);
+
+    if (!dilemma_lcd_status.rgb_enabled) {
+        if (rgb_change) {
+            lv_label_set_text(obj, "");
+        }
+    } else {
+        if ((rgb_change) || (dilemma_lcd_status.rgb_effect_mode != dilemma_lcd_status_prev.rgb_effect_mode)) {
+            const char *effect_name = rgb_matrix_get_effect_name();
+            lv_label_set_text(obj, effect_name);
+        }
+    }
+}
+
+
+void update_rgb_value(lv_obj_t *obj) {
+    const bool rgb_change = (dilemma_lcd_status.rgb_enabled != dilemma_lcd_status_prev.rgb_enabled);
+
+    if (!dilemma_lcd_status.rgb_enabled) {
+        if (rgb_change) {
+            lv_label_set_text(obj, "Off");
+        }
+    } else {
+        if ((rgb_change) || (dilemma_lcd_status.rgb_val != dilemma_lcd_status_prev.rgb_val)) {
+            char rgbval[50];
+            sprintf(rgbval, "%u", dilemma_lcd_status.rgb_val);
+            lv_label_set_text(obj, rgbval);
+        }
+    }
+}
+
+void update_rgb_bar(lv_obj_t *obj) {
+    const bool rgb_change = (dilemma_lcd_status.rgb_enabled != dilemma_lcd_status_prev.rgb_enabled);
+    if (!dilemma_lcd_status.rgb_enabled) {
+        if (rgb_change) {
+            // lv_label_set_text(ui_label_rgb_number, "Off"); // test
+            lv_bar_set_value(obj, 0, LV_ANIM_OFF);
+        }
+    } else {
+        if ((rgb_change) || (dilemma_lcd_status.rgb_val != dilemma_lcd_status_prev.rgb_val)) {
+            float rel = (float)(dilemma_lcd_status.rgb_val) * 100 / 156;
+            lv_bar_set_value(obj, (uint16_t)rel, LV_ANIM_OFF);
+        }
+    }
+}
+
+void update_mod_scroll(lv_obj_t *obj) {
+    if (dilemma_lcd_status.scrolling != dilemma_lcd_status_prev.scrolling) {
+        if (dilemma_lcd_status.scrolling) {
+            lv_event_send(obj, LV_EVENT_PRESSED, NULL);
+        } else {
+            lv_event_send(obj, LV_EVENT_RELEASED, NULL);
+        }
+    }
+}
+
+void update_mod_snipe(lv_obj_t *obj) {
+    if (dilemma_lcd_status.sniping != dilemma_lcd_status_prev.sniping) {
+        if (dilemma_lcd_status.sniping) {
+            lv_event_send(obj, LV_EVENT_PRESSED, NULL);
+        } else {
+            lv_event_send(obj, LV_EVENT_RELEASED, NULL);
+        }
+    }
 }
 
 // TODO remove force, should not be necessary anymore if we do a sync // retry on initial connection
@@ -341,21 +453,6 @@ void update_mouse_info(void) {
         lv_label_set_text(ui_label_s_dpi_number, c_s_dpi);
     }
 
-    if (dilemma_lcd_status.sniping != dilemma_lcd_status_prev.sniping || first_display) {
-        if (dilemma_lcd_status.sniping) {
-            lv_event_send(mouse_buttons[0].button, LV_EVENT_PRESSED, NULL);
-        } else {
-            lv_event_send(mouse_buttons[0].button, LV_EVENT_RELEASED, NULL);
-        }
-    }
-
-    if (dilemma_lcd_status.scrolling != dilemma_lcd_status_prev.scrolling || first_display) {
-        if (dilemma_lcd_status.scrolling) {
-            lv_event_send(mouse_buttons[1].button, LV_EVENT_PRESSED, NULL);
-        } else {
-            lv_event_send(mouse_buttons[1].button, LV_EVENT_RELEASED, NULL);
-        }
-    }
     first_display = false;
 }
 

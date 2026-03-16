@@ -21,21 +21,8 @@ lv_obj_t *ui_screen_base;
 
 lv_obj_t *ui_label_layer;
 lv_obj_t *ui_button_layer;
-lv_obj_t *ui_label_dpi;
-lv_obj_t *ui_label_dpi_number;
-lv_obj_t *ui_bar_dpi;
-lv_obj_t *ui_label_s_dpi;
-lv_obj_t *ui_bar_s_dpi;
-lv_obj_t *ui_label_s_dpi_number;
 lv_obj_t *ui_image_scroll;
-// lv_obj_t *ui_label_rgb;
-// lv_obj_t *ui_bar_rgb;
-// lv_obj_t *ui_label_rgb_effect;
 
-lv_obj_t *ui_line_1;
-lv_obj_t *ui_line_2;
-
-// obj_update_t test_rgb_val;
 obj_event_array_t event_with_objects_array;
 
 enum ui_user_events {
@@ -62,8 +49,6 @@ void init_obj_event_array(obj_event_array_t *a) {
 }
 
 void add_obj_event_array(obj_event_array_t *a, obj_update_t element) {
-    // a->used is the number of used entries, because a->array[a->used++] updates a->used only *after* the array has been accessed.
-    // Therefore a->used can go up to a->size
     if (a->used == a->size) {
         a->size  = (a->size * 3) / 2 + 8;
         a->array = realloc(a->array, a->size * sizeof(obj_update_t));
@@ -89,6 +74,8 @@ void init_display(void) {
 
     // Power on display, fill with black
     qp_power(lcd, 1);
+    // keep lcd power off until first loop, once everything has been synced
+    // qp_power(lcd, 0);
     qp_rect(lcd, 0, 0, 300, 300, HSV_BLACK, 1);
     qp_flush(lcd);
     ui_screen_base = lv_obj_create(NULL);
@@ -103,89 +90,85 @@ void init_display(void) {
     // TODO move this to theme.c, in eg. create_container
     lv_obj_add_style(cont, &ui_styles.flex_container, 0);
 
-    ui_button_layer = lv_btn_create(cont);
-    // TODO move this to theme.c, in eg. create_laer_name
-    lv_obj_add_style(ui_button_layer, &ui_styles.layer_name, 0);
-    lv_obj_set_height(ui_button_layer, 33);
-    lv_obj_set_flex_grow(ui_button_layer, 1); // take all remaining space in line
-
-    // layer title
-    ui_label_layer = lv_label_create(ui_button_layer);
-    ui_init_layer_name(ui_label_layer);
-    lv_label_set_text(ui_label_layer, "LAYER: BASE");
-    lv_obj_center(ui_label_layer);
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       ui_create_layer_label(cont),
+                                                       &update_layer_name,
+                                                   });
 
     // mod buttons: SHIFT, ALT, CTRL, GUI
     add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       .obj             = ui_create_mod_button(cont, "SHFT", true, MOD_MASK_SHIFT),
-                                                       .update_function = &update_mod_shift,
+                                                       ui_create_mod_button(cont, "SHFT", true, MOD_MASK_SHIFT),
+                                                       &update_mod_shift,
                                                    });
     add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       .obj             = ui_create_mod_button(cont, "ALT", false, MOD_MASK_ALT),
-                                                       .update_function = &update_mod_alt,
+                                                       ui_create_mod_button(cont, "ALT", false, MOD_MASK_ALT),
+                                                       &update_mod_alt,
                                                    });
     add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       .obj             = ui_create_mod_button(cont, "CTRL", false, MOD_MASK_CTRL),
-                                                       .update_function = &update_mod_ctrl,
+                                                       ui_create_mod_button(cont, "CTRL", false, MOD_MASK_CTRL),
+                                                       &update_mod_ctrl,
                                                    });
     add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       .obj             = ui_create_mod_button(cont, "GUI", false, MOD_MASK_GUI),
-                                                       .update_function = &update_mod_gui,
+                                                       ui_create_mod_button(cont, "GUI", false, MOD_MASK_GUI),
+                                                       &update_mod_gui,
                                                    });
-
-    // line separator
-    ui_line_1 = ui_create_line_separator(cont, 1, 3);
+    ui_create_line_separator(cont, 1, 3);
 
     // display base layer screen upon init
+    // TODO is this necessary here? can we move it to a spot that makes more sense?
     lv_disp_load_scr(ui_screen_base);
 
     // mouse special buttons
     add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       .obj             = ui_create_mod_button(cont, "SNIPE", true, 0),
-                                                       .update_function = &update_mod_snipe,
+                                                       ui_create_mod_button(cont, "SNIPE", true, 0),
+                                                       &update_mod_snipe,
                                                    });
     add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       .obj             = ui_create_mod_button(cont, "SCROLL", false, 0),
-                                                       .update_function = &update_mod_scroll,
+                                                       ui_create_mod_button(cont, "SCROLL", false, 0),
+                                                       &update_mod_scroll,
                                                    });
 
     // sniping DPI widgets
-    ui_label_s_dpi        = ui_create_secondary_text(cont, "SNIPE DPI", true, 4);
-    ui_bar_s_dpi          = ui_create_progress_bar(cont, 4);
-    ui_label_s_dpi_number = ui_create_number_label(cont, 2);
+    ui_create_secondary_text(cont, "SNIPE DPI", true, 4);
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       ui_create_progress_bar(cont, 4),
+                                                       &update_mod_snipe_dpi_bar,
+                                                   });
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       ui_create_number_label(cont, 2),
+                                                       &update_mod_snipe_dpi_number,
+                                                   });
 
     // regular DPI widgets
-    ui_label_dpi        = ui_create_secondary_text(cont, "DPI", true, 2);
-    ui_bar_dpi          = ui_create_progress_bar(cont, 6);
-    ui_label_dpi_number = ui_create_number_label(cont, 2);
+    ui_create_secondary_text(cont, "DPI", true, 2);
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       ui_create_progress_bar(cont, 6),
+                                                       &update_mod_dpi_bar,
+                                                   });
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       ui_create_number_label(cont, 2),
+                                                       &update_mod_dpi_number,
+                                                   });
 
     // line separator
-    ui_line_2 = ui_create_line_separator(cont, 1, 3);
+    ui_create_line_separator(cont, 1, 3);
 
     // rgb widgets
-    // ui_label_rgb = ui_create_secondary_text(cont, "RGB", true, 2);
-    
+    ui_create_secondary_text(cont, "RGB", true, 2);
+
     add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       .obj             = ui_create_secondary_text(cont, "RGB", true, 2),
-                                                       .update_function = NULL,
+                                                       ui_create_progress_bar(cont, 6),
+                                                       &update_rgb_bar,
+                                                   });
+    add_obj_event_array(&event_with_objects_array, (obj_update_t){
+                                                       ui_create_number_label(cont, 2),
+                                                       &update_rgb_value,
                                                    });
 
     add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       .obj             = ui_create_progress_bar(cont, 6),
-                                                       .update_function = &update_rgb_bar,
+                                                       ui_create_secondary_text(cont, "effect...", true, 1),
+                                                       &update_rgb_effect,
                                                    });
-
-    add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       .obj             = ui_create_number_label(cont, 2),
-                                                       .update_function = &update_rgb_value,
-                                                   });
-                                                   
-    add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       .obj             = ui_create_secondary_text(cont, "effect...", true, 1),
-                                                       .update_function = &update_rgb_effect,
-                                                   });
-
-    // ui_label_rgb_effect = ui_create_secondary_text(cont, "effect...", true, 1);
 
     // theme and backgrounds
     lv_disp_t  *dispp = lv_disp_get_default();
@@ -195,26 +178,26 @@ void init_display(void) {
 }
 
 void keyboard_post_init_lcd(void) {
-    // update_dilemma_status();
-
     load_dilemma_theme_config_from_eeprom();
 
     // copy only the relevant information from eeprom into local config
+    // todo move this to update_dilemma_status?
     dilemma_lcd_status.current_theme_id = get_current_theme_id();
 
     // TODO: the load theme config needs to be done BEFORE the display init. How do we solve this?
     if (is_keyboard_left()) {
         init_obj_event_array(&event_with_objects_array); // TODO move this into init_display?
         init_display();
-        // TODO move this, and if secondary only refresh if have received the first init
-        refresh_lcd_info();
     }
 
-    // sync mouse data across halves
+    // register rpc mouse data syncing
     transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
 
-    // if (is_keyboard_master()) {
-    // }
+    // if left side is connected, turn the power on
+    // otherwise, it will be turned on by the right side when the first sync happens in the housekeeping task
+    if (is_keyboard_left() && is_keyboard_master()) {
+        // qp_power(lcd, 1);
+    }
 }
 
 // TODO get colors based on real layer colors, instead of hardcoding them
@@ -254,17 +237,12 @@ void update_theme_color(void) {
 }
 
 void refresh_lcd_info(void) {
-    update_layer_name();
-    update_mouse_info();
     update_theme_color();
 
-    // test
-    // test_rgb_val.update_function(test_rgb_val.obj);
     int i = 0;
     for (i = 0; i < event_with_objects_array.amount_elements; i++) {
         lv_obj_t *obj = event_with_objects_array.array[i].obj;
-        if(obj && event_with_objects_array.array[i].update_function)
-            event_with_objects_array.array[i].update_function(obj);
+        if (obj && event_with_objects_array.array[i].update_function) event_with_objects_array.array[i].update_function(obj);
     }
 }
 
@@ -285,16 +263,16 @@ void housekeeping_task_lcd(void) {
             if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
                 needs_sync = true;
             }
-            // // check if a previous sync has failed
+            // check if a previous sync has failed
             if (needs_resync) {
                 // we only want to retry syncing after a set amount of time
                 if (timer_elapsed32(last_sync) > 200) {
                     needs_sync = true;
                 }
             }
-            // Perform the sync if requested.
+            // perform the sync if requested
             if (needs_sync) {
-                // try to sync, and store the results in needs_resync
+                // try to sync, if it fails we will retry in the next housekeeping loop
                 if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false) {
                     needs_resync = true;
                 }
@@ -306,26 +284,25 @@ void housekeeping_task_lcd(void) {
     }
 }
 
-void update_layer_name(void) {
-    static bool first_display = true;
-    if (dilemma_lcd_status.layer != dilemma_lcd_status_prev.layer || first_display) {
+// TODO add dilemma layers, not only MAX
+void update_layer_name(lv_obj_t *obj) {
+    if (dilemma_lcd_status.layer != dilemma_lcd_status_prev.layer) {
         switch (dilemma_lcd_status.layer) {
             case 0:
             default:
-                lv_label_set_text(ui_label_layer, "LAYER: BASE");
+                lv_label_set_text(obj, "LAYER: BASE");
                 break;
             case 1:
-                lv_label_set_text(ui_label_layer, "LAYER: LOWER");
+                lv_label_set_text(obj, "LAYER: LOWER");
                 break;
             case 2:
-                lv_label_set_text(ui_label_layer, "LAYER: RAISE");
+                lv_label_set_text(obj, "LAYER: RAISE");
                 break;
             case 3:
-                lv_label_set_text(ui_label_layer, "LAYER: MOUSE");
+                lv_label_set_text(obj, "LAYER: MOUSE");
                 break;
         }
     }
-    first_display = false;
 }
 
 void update_dilemma_status(void) {
@@ -364,7 +341,7 @@ void update_mod_xx(lv_obj_t *obj, uint8_t mod_mask) {
 }
 
 void update_rgb_effect(lv_obj_t *obj) {
-    const bool  rgb_change    = (dilemma_lcd_status.rgb_enabled != dilemma_lcd_status_prev.rgb_enabled);
+    const bool rgb_change = (dilemma_lcd_status.rgb_enabled != dilemma_lcd_status_prev.rgb_enabled);
 
     if (!dilemma_lcd_status.rgb_enabled) {
         if (rgb_change) {
@@ -377,7 +354,6 @@ void update_rgb_effect(lv_obj_t *obj) {
         }
     }
 }
-
 
 void update_rgb_value(lv_obj_t *obj) {
     const bool rgb_change = (dilemma_lcd_status.rgb_enabled != dilemma_lcd_status_prev.rgb_enabled);
@@ -430,30 +406,40 @@ void update_mod_snipe(lv_obj_t *obj) {
     }
 }
 
-// TODO remove force, should not be necessary anymore if we do a sync // retry on initial connection
-void update_mouse_info(void) {
-    static bool first_display = true;
-    // TODO dynamically get max DPI, instead of using hardcoded values
-    if (dilemma_lcd_status.dpi != dilemma_lcd_status_prev.dpi || first_display) {
-        static const uint16_t rel_max_dpi = 200 * 16;
-        const float           rel         = (float)((dilemma_lcd_status.dpi + 200 - 400)) * 100 / rel_max_dpi;
-        lv_bar_set_value(ui_bar_dpi, (uint16_t)rel, LV_ANIM_OFF);
-
-        char c_dpi[50];
-        sprintf(c_dpi, "%u", (uint16_t)dilemma_lcd_status.dpi);
-        lv_label_set_text(ui_label_dpi_number, c_dpi);
+// TODO dynamically get max DPI, instead of using hardcoded values
+void update_mod_snipe_dpi_number(lv_obj_t *obj) {
+    if (dilemma_lcd_status.s_dpi != dilemma_lcd_status_prev.s_dpi) {
+        char c_s_dpi[50];
+        sprintf(c_s_dpi, "%u", (uint16_t)dilemma_lcd_status.s_dpi);
+        lv_label_set_text(obj, c_s_dpi);
     }
+}
 
-    if (dilemma_lcd_status.s_dpi != dilemma_lcd_status_prev.s_dpi || first_display) {
-        char                  c_s_dpi[50];
+// TODO dynamically get max DPI, instead of using hardcoded values
+void update_mod_snipe_dpi_bar(lv_obj_t *obj) {
+    if (dilemma_lcd_status.s_dpi != dilemma_lcd_status_prev.s_dpi) {
         static const uint16_t rel_max_s_dpi = 100 * 4;
         const float           rel           = (float)((dilemma_lcd_status.s_dpi + 100 - 200)) * 100 / rel_max_s_dpi;
-        lv_bar_set_value(ui_bar_s_dpi, (uint16_t)rel, LV_ANIM_OFF);
-        sprintf(c_s_dpi, "%u", (uint16_t)dilemma_lcd_status.s_dpi);
-        lv_label_set_text(ui_label_s_dpi_number, c_s_dpi);
+        lv_bar_set_value(obj, (uint16_t)rel, LV_ANIM_OFF);
     }
+}
 
-    first_display = false;
+// TODO dynamically get max DPI, instead of using hardcoded values
+void update_mod_dpi_number(lv_obj_t *obj) {
+    if (dilemma_lcd_status.dpi != dilemma_lcd_status_prev.dpi) {
+        char c_dpi[50];
+        sprintf(c_dpi, "%u", (uint16_t)dilemma_lcd_status.dpi);
+        lv_label_set_text(obj, c_dpi);
+    }
+}
+
+// TODO dynamically get max DPI, instead of using hardcoded values
+void update_mod_dpi_bar(lv_obj_t *obj) {
+    if (dilemma_lcd_status.dpi != dilemma_lcd_status_prev.dpi) {
+        static const uint16_t rel_max_dpi = 200 * 16;
+        const float           rel         = (float)((dilemma_lcd_status.dpi + 200 - 400)) * 100 / rel_max_dpi;
+        lv_bar_set_value(obj, (uint16_t)rel, LV_ANIM_OFF);
+    }
 }
 
 bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
@@ -470,8 +456,6 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
                     }
                     dilemma_lcd_status.current_theme_id = get_current_theme_id();
                 }
-                // housekeeping_task_lcd();
-                // qp_flush(lcd);
             }
             break;
     }

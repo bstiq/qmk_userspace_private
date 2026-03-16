@@ -33,8 +33,7 @@ typedef struct{
 void keyboard_post_init_lcd(void);
 
 void              housekeeping_task_lcd(void);
-void              update_mouse_info(void);
-void              update_layer_name(void);
+void update_layer_name(lv_obj_t *obj);
 void              update_theme_color(void);
 
 void update_dilemma_status(void);
@@ -56,6 +55,10 @@ void update_mod_alt(lv_obj_t *obj);
 void update_mod_gui(lv_obj_t *obj);
 void update_mod_snipe(lv_obj_t *obj);
 void update_mod_scroll(lv_obj_t *obj);
+void update_mod_snipe_dpi_bar(lv_obj_t *obj);
+void update_mod_snipe_dpi_number(lv_obj_t *obj);
+void update_mod_dpi_bar(lv_obj_t *obj);
+void update_mod_dpi_number(lv_obj_t *obj);
 void update_mod_xx(lv_obj_t *obj, uint8_t mod_mask);
 void update_rgb_effect(lv_obj_t *obj);
 void init_obj_event_array(obj_event_array_t *a);

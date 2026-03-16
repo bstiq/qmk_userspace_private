@@ -5,7 +5,10 @@
 ui_theme  default_theme;
 ui_theme  skeu_dark_theme;
 ui_theme  terminal_theme;
-ui_theme *themes[] = {&default_theme, &skeu_dark_theme, &terminal_theme};
+ui_theme  ivory_theme;
+ui_theme  steel_theme;
+ui_theme  oxide_theme;
+ui_theme *themes[] = {&default_theme, &skeu_dark_theme, &terminal_theme, &ivory_theme, &steel_theme, &oxide_theme};
 
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
@@ -17,6 +20,11 @@ LV_FONT_DECLARE(jetbrainsmono14bold);
 
 void init_themes(void) {
     default_theme = (ui_theme){
+
+        .container =
+            {
+                .bg_color = lv_color_make(0, 0, 0),
+            },
         .change_colors_on_layer_change = false,
         .btn_normal =
             {
@@ -68,6 +76,11 @@ void init_themes(void) {
             },
     };
     skeu_dark_theme = (ui_theme){
+
+        .container =
+            {
+                .bg_color = lv_color_make(0, 0, 0),
+            },
         .btn_normal =
             {
                 .font          = &dmsans14bold,
@@ -141,14 +154,19 @@ void init_themes(void) {
     };
     terminal_theme = (ui_theme){
         // Green phosphor CRT — inactive: near-black bg, dim green border/text
+
+        .container =
+            {
+                .bg_color = lv_color_make(0, 0, 0),
+            },
         .btn_normal =
             {
                 .font          = &jetbrainsmono14bold,
                 .border_radius = 0,
                 .bg_opacity    = LV_OPA_COVER,
                 .bg_color      = lv_color_make(5, 14, 5),
-                .border_color  = lv_color_make(26, 58, 26),
-                .text_color    = lv_color_make(42, 106, 42),
+                .border_color  = lv_color_make(26, 118, 26),
+                .text_color    = lv_color_make(42, 166, 42),
                 .border_width  = 1,
                 .bg_grad_color = lv_color_make(5, 14, 5),
                 .bg_grad_dir   = LV_GRAD_DIR_NONE,
@@ -192,7 +210,7 @@ void init_themes(void) {
                 .font          = &jetbrainsmono14bold,
                 .border_radius = 0,
                 .bg_color      = lv_color_make(5, 14, 5),
-                .border_color  = lv_color_make(26, 58, 26),
+                .border_color  = lv_color_make(26, 118, 26),
                 .text_color    = lv_color_make(0, 255, 65),
                 .border_width  = 1,
             },
@@ -200,7 +218,7 @@ void init_themes(void) {
         .secondary_labels =
             {
                 .font       = &jetbrainsmono13,
-                .text_color = lv_color_make(42, 106, 42),
+                .text_color = lv_color_make(42, 166, 42),
             },
         // Bar fill: bright phosphor green, sharp corners
         .bar =
@@ -215,6 +233,176 @@ void init_themes(void) {
             {
                 .border_radius = 0,
                 .border_width  = 1,
+            },
+    };
+    ivory_theme = (ui_theme){
+        .change_colors_on_layer_change = false,
+        .container =
+            {
+                .bg_color = lv_color_make(255, 255, 240),
+            },
+        .btn_normal =
+            {
+                .font          = &montserratbold14,
+                .border_radius = 8,
+                .bg_opacity    = LV_OPA_COVER,
+                .bg_color      = lv_color_make(248, 245, 240),
+                .border_color  = lv_color_make(192, 188, 181),
+                .text_color    = lv_color_make(80, 75, 68),
+                .border_width  = 1,
+                .text_opa      = LV_OPA_COVER,
+            },
+        .btn_pressed =
+            {
+                .font          = &montserratbold14,
+                .border_radius = 8,
+                .bg_opacity    = LV_OPA_COVER,
+                .bg_color      = lv_color_make(204, 228, 206),
+                .border_color  = lv_color_make(158, 203, 164),
+                .text_color    = lv_color_make(31, 92, 41),
+                .border_width  = 1,
+                .text_opa      = LV_OPA_COVER,
+            },
+        .layer_name =
+            {
+                .font          = &montserratbold14,
+                .border_radius = 8,
+                .bg_color      = lv_color_make(238, 234, 228),
+                .border_color  = lv_color_make(192, 188, 181),
+                .text_color    = lv_color_make(60, 56, 50),
+                .border_width  = 1,
+            },
+        .secondary_labels =
+            {
+                .font       = &montserratbold13,
+                .text_color = lv_color_make(140, 136, 128),
+            },
+        .bar =
+            {
+                .border_radius = 5,
+                .bg_color      = lv_color_make(41, 122, 55),
+                .height        = 9,
+                .bg_opacity    = LV_OPA_COVER,
+            },
+        .bar_background =
+            {
+                .border_radius = 5,
+                // .bg_color      = lv_color_make(216, 212, 206),
+                .border_width = 0,
+            },
+    };
+    steel_theme = (ui_theme){
+
+        .container =
+            {
+                .bg_color = lv_color_make(0, 0, 0),
+            },
+        .change_colors_on_layer_change = false,
+        .btn_normal =
+            {
+                .font          = &montserratbold14,
+                .border_radius = 8,
+                .bg_opacity    = LV_OPA_COVER,
+                .bg_color      = lv_color_make(32, 40, 54),
+                .border_color  = lv_color_make(12, 16, 24),
+                .text_color    = lv_color_make(255, 255, 255),
+                .border_width  = 2,
+                .text_opa      = LV_OPA_COVER,
+            },
+        .btn_pressed =
+            {
+                .font          = &montserratbold14,
+                .border_radius = 8,
+                .bg_opacity    = LV_OPA_COVER,
+                .bg_color      = lv_color_make(12, 24, 48),
+                .border_color  = lv_color_make(26, 46, 80),
+                .text_color    = lv_color_make(91, 156, 246),
+                .border_width  = 2,
+                .text_opa      = LV_OPA_COVER,
+            },
+        .layer_name =
+            {
+                .font          = &montserratbold14,
+                .border_radius = 8,
+                .bg_color      = lv_color_make(20, 26, 34),
+                .border_color  = lv_color_make(10, 12, 22),
+                .text_color    = lv_color_make(255, 255, 255),
+                .border_width  = 2,
+            },
+        .secondary_labels =
+            {
+                .font       = &montserratbold13,
+                .text_color = lv_color_make(80, 96, 128),
+            },
+        .bar =
+            {
+                .border_radius = 5,
+                .bg_color      = lv_color_make(91, 156, 246),
+                .height        = 9,
+                .bg_opacity    = LV_OPA_COVER,
+            },
+        .bar_background =
+            {
+                .border_radius = 5,
+                // .bg_color      = lv_color_make(10,  14,  24),
+                .border_width = 0,
+            },
+    };
+    oxide_theme = (ui_theme){
+
+        .container =
+            {
+                .bg_color = lv_color_make(0, 0, 0),
+            },
+        .change_colors_on_layer_change = false,
+        .btn_normal =
+            {
+                .font          = &montserratbold14,
+                .border_radius = 8,
+                .bg_opacity    = LV_OPA_COVER,
+                .bg_color      = lv_color_make(46, 32, 30),
+                .border_color  = lv_color_make(16, 12, 10),
+                .text_color    = lv_color_make(255, 255, 255),
+                .border_width  = 2,
+                .text_opa      = LV_OPA_COVER,
+            },
+        .btn_pressed =
+            {
+                .font          = &montserratbold14,
+                .border_radius = 8,
+                .bg_opacity    = LV_OPA_COVER,
+                .bg_color      = lv_color_make(32, 12, 8),
+                .border_color  = lv_color_make(58, 24, 16),
+                .text_color    = lv_color_make(224, 90, 58),
+                .border_width  = 2,
+                .text_opa      = LV_OPA_COVER,
+            },
+        .layer_name =
+            {
+                .font          = &montserratbold14,
+                .border_radius = 8,
+                .bg_color      = lv_color_make(30, 20, 18),
+                .border_color  = lv_color_make(12, 10, 8),
+                .text_color    = lv_color_make(255, 255, 255),
+                .border_width  = 2,
+            },
+        .secondary_labels =
+            {
+                .font       = &montserratbold13,
+                .text_color = lv_color_make(110, 80, 72),
+            },
+        .bar =
+            {
+                .border_radius = 5,
+                .bg_color      = lv_color_make(224, 90, 58),
+                .height        = 9,
+                .bg_opacity    = LV_OPA_COVER,
+            },
+        .bar_background =
+            {
+                .border_radius = 5,
+                // .bg_color      = lv_color_make(14,  10,  8),
+                .border_width = 0,
             },
     };
 }
@@ -277,6 +465,10 @@ void update_styles_from_theme_bar_background(lv_style_t *style, ui_theme_bar_bac
     lv_obj_report_style_change(style);
 }
 
+void update_styles_from_theme_container(lv_style_t *style, ui_theme_container theme) {
+    lv_style_set_bg_color(style, theme.bg_color);
+}
+
 void read_dilemma_theme_config_from_eeprom(dilemma_status_theme_t *config) {
     config->raw = eeconfig_read_user() & 0xff;
 }
@@ -332,6 +524,7 @@ void update_styles_from_current_theme(void) {
     update_styles_from_theme_secondary_label(&(ui_styles.secondary_labels), theme.secondary_labels);
     update_styles_from_theme_bar(&(ui_styles.bar), theme.bar);
     update_styles_from_theme_bar_background(&(ui_styles.bar_background), theme.bar_background);
+    update_styles_from_theme_container(&(ui_styles.flex_container), theme.container);
 }
 
 void change_style_colors(HSV hsv) {

@@ -49,6 +49,11 @@ typedef struct {
 } ui_theme_bar_background;
 
 typedef struct {
+    lv_color_t bg_color;
+} ui_theme_container;
+
+typedef struct {
+    ui_theme_container           container;
     ui_theme_mod_btn         btn_normal;
     ui_theme_mod_btn         btn_pressed;
     ui_theme_layer_name      layer_name;
@@ -97,6 +102,7 @@ void update_styles_from_theme_layer_name(lv_style_t *style, ui_theme_layer_name 
 void update_styles_from_theme_secondary_label(lv_style_t *style, ui_theme_secondary_label theme);
 void update_styles_from_theme_bar(lv_style_t *style, ui_theme_bar theme);
 void update_styles_from_theme_bar_background(lv_style_t *style, ui_theme_bar_background theme);
+void update_styles_from_theme_container(lv_style_t *style, ui_theme_container theme);
 void read_dilemma_theme_config_from_eeprom(dilemma_status_theme_t *config);
 void load_dilemma_theme_config_from_eeprom(void);
 void write_dilemma_theme_config_to_eeprom(dilemma_status_theme_t *config);

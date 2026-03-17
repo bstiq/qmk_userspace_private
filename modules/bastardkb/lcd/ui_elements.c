@@ -15,7 +15,7 @@ lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {
 lv_obj_t *ui_create_number_label(lv_obj_t *cont, uint8_t flex) {
     lv_obj_t *lbl = lv_label_create(cont);
     lv_label_set_text(lbl, "1234");
-    lv_obj_add_style(lbl, &ui_styles.secondary_labels, 0);
+    lv_obj_add_style(lbl, &ui_styles.value_labels, 0);
     lv_obj_set_flex_grow(lbl, flex);
     return lbl;
 }

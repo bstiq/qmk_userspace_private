@@ -27,10 +27,12 @@ lv_obj_t *ui_create_layer_label(lv_obj_t *cont){
     lv_obj_set_flex_grow(ui_button_layer, 1); // take all remaining space in line
 
     lv_obj_t *ui_label_layer = lv_label_create(ui_button_layer);
-    ui_init_layer_name(ui_label_layer);
     // TODO, this should not be here
     lv_label_set_text(ui_label_layer, "LAYER: BASE");
     lv_obj_center(ui_label_layer);
+    lv_obj_set_width(ui_label_layer, LV_SIZE_CONTENT);
+    // lv_obj_set_x(ui_label_layer, 0);
+    // lv_obj_set_y(ui_label_layer, 20);
 
     return ui_label_layer;
 }
@@ -43,13 +45,6 @@ lv_obj_t *ui_create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height)
     lv_obj_add_style(bar, &ui_styles.line, LV_PART_INDICATOR);
     lv_obj_add_style(bar, &ui_styles.line_background, 0);
     return bar;
-}
-
-void ui_init_layer_name(lv_obj_t *label) {
-    lv_obj_remove_style_all(label);
-    lv_obj_set_width(label, LV_SIZE_CONTENT);
-    lv_obj_set_x(label, 0);
-    lv_obj_set_y(label, 20);
 }
 
 // todo get rid of mod_button_pair_t structure

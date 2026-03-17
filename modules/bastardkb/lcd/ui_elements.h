@@ -8,7 +8,6 @@ typedef struct {
     uint8_t   mod_mask;
 } mod_button_pair_t;
 
-void              ui_init_layer_name(lv_obj_t *label);
 void              ui_init_button_mod_indicator(lv_obj_t *label);
 lv_obj_t* ui_create_mod_button(lv_obj_t *cont, const char *text, bool force_new_track, uint8_t mod_mask);
 lv_obj_t         *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex);

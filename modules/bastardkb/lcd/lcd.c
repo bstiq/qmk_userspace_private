@@ -120,12 +120,12 @@ void init_display(void) {
 
     // mouse special buttons
     add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       ui_create_mod_button(cont, "SNIPE", true, 0),
-                                                       &update_mod_snipe,
+                                                       ui_create_mod_button(cont, "SCROLL", true, 0),
+                                                       &update_mod_scroll,
                                                    });
     add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       ui_create_mod_button(cont, "SCROLL", false, 0),
-                                                       &update_mod_scroll,
+                                                       ui_create_mod_button(cont, "SNIPE", false, 0),
+                                                       &update_mod_snipe,
                                                    });
 
     // sniping DPI widgets

@@ -171,10 +171,10 @@ void init_display(void) {
                                                    });
 
     // theme and backgrounds
-    lv_disp_t  *dispp = lv_disp_get_default();
-    lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(BK_PALETTE), lv_palette_main(BK_PALETTE), true, LV_FONT_DEFAULT);
-    lv_disp_set_theme(dispp, theme);
-    lv_obj_set_style_bg_color(cont, lv_color_black(), LV_PART_MAIN);
+    // lv_disp_t  *dispp = lv_disp_get_default();
+    // lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(BK_PALETTE), lv_palette_main(BK_PALETTE), true, LV_FONT_DEFAULT);
+    // lv_disp_set_theme(dispp, theme);
+    // lv_obj_set_style_bg_color(cont, lv_color_black(), LV_PART_MAIN);
 }
 
 void keyboard_post_init_lcd(void) {
@@ -202,38 +202,38 @@ void keyboard_post_init_lcd(void) {
 
 // TODO get colors based on real layer colors, instead of hardcoding them
 void update_theme_color(void) {
-    static bool first_display = true;
-    if (get_current_theme().change_colors_on_layer_change) {
-        if (dilemma_lcd_status.layer != dilemma_lcd_status_prev.layer || first_display) {
-            HSV hsv;
-            switch (dilemma_lcd_status.layer) {
-                case 0:
-                default:
-                    hsv.h = 218;
-                    hsv.s = 70;
-                    hsv.v = 93;
-                    break;
-                case 1:
-                    hsv.h = 250;
-                    hsv.s = 100;
-                    hsv.v = 80;
-                    break;
-                case 2:
-                    hsv.h = 35;
-                    hsv.s = 100;
-                    hsv.v = 80;
-                    break;
-                case 3:
-                    hsv.h = 195;
-                    hsv.s = 30;
-                    hsv.v = 80;
-                    break;
-            }
+    // static bool first_display = true;
+    // if (get_current_theme().change_colors_on_layer_change) {
+    //     if (dilemma_lcd_status.layer != dilemma_lcd_status_prev.layer || first_display) {
+    //         HSV hsv;
+    //         switch (dilemma_lcd_status.layer) {
+    //             case 0:
+    //             default:
+    //                 hsv.h = 218;
+    //                 hsv.s = 70;
+    //                 hsv.v = 93;
+    //                 break;
+    //             case 1:
+    //                 hsv.h = 250;
+    //                 hsv.s = 100;
+    //                 hsv.v = 80;
+    //                 break;
+    //             case 2:
+    //                 hsv.h = 35;
+    //                 hsv.s = 100;
+    //                 hsv.v = 80;
+    //                 break;
+    //             case 3:
+    //                 hsv.h = 195;
+    //                 hsv.s = 30;
+    //                 hsv.v = 80;
+    //                 break;
+    //         }
 
-            change_style_colors(hsv);
-        }
-    }
-    first_display = false;
+    //         change_style_colors(hsv);
+    //     }
+    // }
+    // first_display = false;
 }
 
 void refresh_lcd_info(void) {

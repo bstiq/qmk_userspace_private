@@ -5,7 +5,7 @@
 
 lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {
     lv_obj_t *bar = lv_bar_create(cont);
-    lv_obj_set_height(bar, get_current_theme().bar.height);
+    // lv_obj_set_height(bar, get_current_theme().bar.height);
     lv_obj_add_style(bar, &ui_styles.bar, LV_PART_INDICATOR);
     lv_obj_add_style(bar, &ui_styles.bar_background, 0);
     lv_obj_set_flex_grow(bar, flex);

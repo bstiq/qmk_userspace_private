@@ -35,7 +35,7 @@ static dilemma_status_t dilemma_lcd_status_prev = {0};
 static dilemma_status_t dilemma_lcd_status      = {0};
 
 // TODO keep this variable contained in theme.c
-extern ui_styles_t ui_styles;
+extern ui_styles_t current_style;
 
 painter_device_t        lcd;
 static painter_device_t surface;
@@ -88,7 +88,7 @@ void init_display(void) {
     lv_obj_center(cont);
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
     // TODO move this to theme.c, in eg. create_container
-    lv_obj_add_style(cont, &ui_styles.flex_container, 0);
+    lv_obj_add_style(cont, &current_style.flex_container, 0);
 
     add_obj_event_array(&event_with_objects_array, (obj_update_t){
                                                        ui_create_layer_label(cont),
@@ -454,6 +454,7 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
                     if (is_keyboard_left()) {
                         update_styles_from_current_theme();
                     }
+                    // TODO this is done in cycle_theme_and_save_in_eeprom, we can remove it
                     dilemma_lcd_status.current_theme_id = get_current_theme_id();
                 }
             }

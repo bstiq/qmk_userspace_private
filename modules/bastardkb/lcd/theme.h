@@ -15,9 +15,9 @@ typedef union {
     } __attribute__((packed));
 } dilemma_config_lcd_t;
 
-dilemma_config_lcd_t dilemma_lcd_theme;
+dilemma_config_lcd_t dilemma_config_lcd;
 
-// TODO once removed ui_styles from lcd.c, move this into ui_elements.c to make it private to ui_elements 
+// TODO once removed current_style from lcd.c, move this into ui_elements.c to make it private to ui_elements 
 typedef struct {
     lv_style_t mod_btn;
     lv_style_t bar;
@@ -31,7 +31,7 @@ typedef struct {
     lv_style_t value_labels;
 } ui_styles_t;
 
-ui_styles_t ui_styles;
+ui_styles_t current_style;
 
 void init_themes(void);
 void read_dilemma_theme_config_from_eeprom(dilemma_config_lcd_t *config);

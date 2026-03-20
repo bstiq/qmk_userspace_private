@@ -283,47 +283,39 @@ void write_dilemma_theme_config_to_eeprom(dilemma_config_lcd_t *config) {
 }
 
 void load_dilemma_theme_config_from_eeprom(void) {
-    read_dilemma_theme_config_from_eeprom(&dilemma_lcd_theme);
+    read_dilemma_theme_config_from_eeprom(&dilemma_config_lcd);
 }
 
 void init_styles(void) {
-    ui_styles = *themes[0];
+    read_dilemma_theme_config_from_eeprom(&dilemma_config_lcd);
+    set_current_theme_id(dilemma_config_lcd.current_theme_id);
+    current_style = *themes[get_current_theme_id()];
     update_styles_from_current_theme();
 }
 
 void update_styles_from_current_theme(void) {
-    // TEST
-    // static bool initialized = false;
-    // if (!initialized) {
-    //     ui_styles   = white_green;
-    //     initialized = true;
-    // } else {
-    //     ui_styles = oxide_style;
-    //     initialized = false;
-    // }
-    // ui_styles = theme_style2;
-    lv_obj_report_style_change(&ui_styles.mod_btn);
-    lv_obj_report_style_change(&ui_styles.mod_btn_pressed);
-    lv_obj_report_style_change(&ui_styles.layer_name);
-    lv_obj_report_style_change(&ui_styles.secondary_labels);
-    lv_obj_report_style_change(&ui_styles.bar);
-    lv_obj_report_style_change(&ui_styles.bar_background);
-    lv_obj_report_style_change(&ui_styles.flex_container);
+    lv_obj_report_style_change(&current_style.mod_btn);
+    lv_obj_report_style_change(&current_style.mod_btn_pressed);
+    lv_obj_report_style_change(&current_style.layer_name);
+    lv_obj_report_style_change(&current_style.secondary_labels);
+    lv_obj_report_style_change(&current_style.bar);
+    lv_obj_report_style_change(&current_style.bar_background);
+    lv_obj_report_style_change(&current_style.flex_container);
 }
 
 uint8_t get_current_theme_id(void) {
-    return dilemma_lcd_theme.current_theme_id;
+    return dilemma_config_lcd.current_theme_id;
 }
 
 void set_current_theme_id(uint8_t id) {
-    dilemma_lcd_theme.current_theme_id = id;
+    dilemma_config_lcd.current_theme_id = id;
 }
 
 void cycle_theme_and_save_in_eeprom(void) {
-    ui_styles = *themes[1];
+    uint8_t new_id = (get_current_theme_id() + 1) % (sizeof(themes) / sizeof(ui_styles_t *));
+    set_current_theme_id(new_id);
+    current_style = *themes[get_current_theme_id()];
+    write_dilemma_theme_config_to_eeprom(&dilemma_config_lcd);
+    // TODO this is already done in housekeeping, we can remove it here.
     update_styles_from_current_theme();
-    // TODO
-    // uint8_t new_id = (dilemma_lcd_theme.current_theme_id + 1) % (sizeof(themes) / sizeof(ui_theme *));
-    // set_current_theme_id(new_id);
-    // write_dilemma_theme_config_to_eeprom(&dilemma_lcd_theme);
 }

@@ -15,7 +15,7 @@ typedef union {
     } __attribute__((packed));
 } dilemma_status_theme_t;
 
-dilemma_status_theme_t dilemma_theme_config;
+dilemma_status_theme_t dilemma_lcd_theme;
 
 // TODO once removed ui_styles from lcd.c, move this into ui_elements.c to make it private to ui_elements 
 typedef struct {
@@ -31,17 +31,7 @@ typedef struct {
     lv_style_t value_labels;
 } ui_styles_t;
 
-typedef struct{
-    ui_styles_t **array;
-    size_t used;
-    size_t size;
-    int amount_elements;
-} obj_theme_array_t;
-
-obj_theme_array_t obj_theme_array;
-
-void add_obj_theme_array(obj_theme_array_t *a, ui_styles_t *element);
-void init_obj_theme_array(obj_theme_array_t *a);
+ui_styles_t ui_styles;
 
 void init_themes(void);
 void read_dilemma_theme_config_from_eeprom(dilemma_status_theme_t *config);
@@ -52,4 +42,3 @@ void     init_styles(void);
 void     update_styles_from_current_theme(void);
 uint8_t  get_current_theme_id(void);
 void set_current_theme_id(uint8_t id);
-ui_styles_t *get_current_theme(void);

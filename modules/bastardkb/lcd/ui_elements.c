@@ -23,7 +23,6 @@ lv_obj_t *ui_create_number_label(lv_obj_t *cont, uint8_t flex) {
 lv_obj_t *ui_create_layer_label(lv_obj_t *cont){
     lv_obj_t *ui_button_layer = lv_btn_create(cont);
     lv_obj_add_style(ui_button_layer, &ui_styles.layer_name, 0);
-    lv_obj_set_height(ui_button_layer, 33);
     lv_obj_set_flex_grow(ui_button_layer, 1); // take all remaining space in line
 
     lv_obj_t *ui_label_layer = lv_label_create(ui_button_layer);

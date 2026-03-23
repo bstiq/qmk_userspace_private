@@ -5,24 +5,27 @@
 
 lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {
     lv_obj_t *bar = lv_bar_create(cont);
+    ui_styles_t *styles = get_current_ui_styles();
     // lv_obj_set_height(bar, get_current_theme().bar.height);
-    lv_obj_add_style(bar, &current_style.bar, LV_PART_INDICATOR);
-    lv_obj_add_style(bar, &current_style.bar_background, 0);
+    lv_obj_add_style(bar, &styles->bar, LV_PART_INDICATOR);
+    lv_obj_add_style(bar, &styles->bar_background, 0);
     lv_obj_set_flex_grow(bar, flex);
     return bar;
 }
 
 lv_obj_t *ui_create_number_label(lv_obj_t *cont, uint8_t flex) {
     lv_obj_t *lbl = lv_label_create(cont);
+    ui_styles_t *styles = get_current_ui_styles();
     lv_label_set_text(lbl, "1234");
-    lv_obj_add_style(lbl, &current_style.value_labels, 0);
+    lv_obj_add_style(lbl, &styles->value_labels, 0);
     lv_obj_set_flex_grow(lbl, flex);
     return lbl;
 }
 
 lv_obj_t *ui_create_layer_label(lv_obj_t *cont){
     lv_obj_t *ui_button_layer = lv_btn_create(cont);
-    lv_obj_add_style(ui_button_layer, &current_style.layer_name, 0);
+    ui_styles_t *styles = get_current_ui_styles();
+    lv_obj_add_style(ui_button_layer, &styles->layer_name, 0);
     lv_obj_set_flex_grow(ui_button_layer, 1); // take all remaining space in line
 
     lv_obj_t *ui_label_layer = lv_label_create(ui_button_layer);
@@ -38,11 +41,12 @@ lv_obj_t *ui_create_layer_label(lv_obj_t *cont){
 
 lv_obj_t *ui_create_line_separator(lv_obj_t *cont, uint8_t flex, uint8_t height) {
     lv_obj_t *bar = lv_bar_create(cont);
+    ui_styles_t *styles = get_current_ui_styles();
     lv_obj_add_flag(bar, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
     lv_obj_set_flex_grow(bar, flex);
     lv_obj_set_height(bar, height);
-    lv_obj_add_style(bar, &current_style.line, LV_PART_INDICATOR);
-    lv_obj_add_style(bar, &current_style.line_background, 0);
+    lv_obj_add_style(bar, &styles->line, LV_PART_INDICATOR);
+    lv_obj_add_style(bar, &styles->line_background, 0);
     return bar;
 }
 
@@ -65,8 +69,9 @@ lv_obj_t *ui_create_mod_button(lv_obj_t *cont, const char *text, bool force_new_
 }
 
 void ui_init_button_mod_indicator(lv_obj_t *button) {
-    lv_obj_add_style(button, &current_style.mod_btn, 0);
-    lv_obj_add_style(button, &current_style.mod_btn_pressed, LV_STATE_PRESSED);
+    ui_styles_t *styles = get_current_ui_styles();
+    lv_obj_add_style(button, &styles->mod_btn, 0);
+    lv_obj_add_style(button, &styles->mod_btn_pressed, LV_STATE_PRESSED);
     lv_obj_set_height(button, 33);
     lv_obj_set_flex_grow(button, 1);
 }
@@ -74,7 +79,8 @@ void ui_init_button_mod_indicator(lv_obj_t *button) {
 lv_obj_t *ui_create_secondary_text(lv_obj_t *cont, const char *text, bool new_track, uint8_t flex) {
     lv_obj_t *lbl = lv_label_create(cont);
     lv_label_set_text(lbl, text);
-    lv_obj_add_style(lbl, &current_style.secondary_labels, 0);
+    ui_styles_t *styles = get_current_ui_styles();
+    lv_obj_add_style(lbl, &styles->secondary_labels, 0);
     if (new_track) {
         lv_obj_add_flag(lbl, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
     }

@@ -17,7 +17,6 @@ typedef union {
 
 dilemma_config_lcd_t dilemma_config_lcd;
 
-// TODO once removed current_style from lcd.c, move this into ui_elements.c to make it private to ui_elements 
 typedef struct {
     lv_style_t mod_btn;
     lv_style_t bar;
@@ -42,3 +41,4 @@ void     init_styles(void);
 void     update_styles_from_current_theme(void);
 uint8_t  get_current_theme_id(void);
 void set_current_theme_id(uint8_t id);
+ui_styles_t *get_current_ui_styles(void);

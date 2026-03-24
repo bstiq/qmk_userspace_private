@@ -11,6 +11,7 @@ ui_styles_t *themes[] = {&theme_style2, &theme_style, &theme_style3, &theme_styl
 LV_FONT_DECLARE(montserratbold14);
 LV_FONT_DECLARE(montserratbold13);
 LV_FONT_DECLARE(dmsans13);
+LV_FONT_DECLARE(dmsans20medium);
 LV_FONT_DECLARE(dmsans14);
 LV_FONT_DECLARE(dmsans14bold);
 LV_FONT_DECLARE(jetbrainsmono13);
@@ -578,6 +579,5 @@ void cycle_theme_and_save_in_eeprom(void) {
     set_current_theme_id(new_id);
     current_style = *themes[get_current_theme_id()];
     write_dilemma_theme_config_to_eeprom(&dilemma_config_lcd);
-    // TODO this is already done in housekeeping, we can remove it here.
-    // update_styles_from_current_theme();
+    // we will then update the theme in housekeeping.
 }

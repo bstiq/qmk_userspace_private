@@ -156,7 +156,6 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
     // TODO call process_records of current screen
     // for now we call the pomodoro one
     process_record_screen_pomodoro(keycode, record);
-    
     switch (keycode) {
         case LCD_MODULE_CHANGE_THEME:
             if (record->event.pressed) {

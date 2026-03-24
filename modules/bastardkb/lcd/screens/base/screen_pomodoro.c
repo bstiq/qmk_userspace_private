@@ -234,19 +234,21 @@ lv_obj_t *ui_create_pomodoro_arc(lv_obj_t *cont) {
         lv_obj_remove_style(arc, NULL, LV_PART_KNOB);
     }
 
-    lv_obj_set_size(arc, 150, 150);
+    lv_obj_set_size(arc, 130, 130);
     lv_arc_set_rotation(arc, 135);
     lv_arc_set_bg_angles(arc, 0, 270);
-    lv_arc_set_value(arc, 40);
+    lv_arc_set_value(arc, 100);
     lv_obj_center(arc);
 
     return arc;
 }
 
 void update_pomodoro_arc(lv_obj_t *obj) {
-    uint32_t elapsed         = timer_max - timer_elapsed32(timer_start);
-    uint16_t elapsed_percent = (elapsed * 100) / timer_max;
-    lv_arc_set_value(obj, elapsed_percent);
+    if(timer_is_running == true) {
+        uint32_t elapsed         = timer_max - timer_elapsed32(timer_start);
+        uint16_t elapsed_percent = (elapsed * 100) / timer_max;
+        lv_arc_set_value(obj, elapsed_percent);
+    }
 }
 
 // TODO does this work well when the keyboard is not master?....

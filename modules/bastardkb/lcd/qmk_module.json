@@ -6,6 +6,10 @@
         {
             "key": "LCD_MODULE_CHANGE_THEME",
             "aliases": ["LCDTH"]
+        },
+        {
+            "key": "LCD_MODULE_MENU",
+            "aliases": ["LCDME"]
         }
     ]
 }

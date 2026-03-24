@@ -8,8 +8,10 @@
 #include "lcd.h"
 #include "ui_elements.h"
 
-obj_event_array_t event_with_objects_array;
+obj_event_array_t objects_and_events;
+obj_event_array_t menus;
 lv_obj_t         *ui_screen_pomodoro;
+lv_obj_t         *ui_screen_pomodoro_menu;
 
 // TODO move this into a getter, isolate into lcd.c
 extern dilemma_status_t dilemma_lcd_status;
@@ -24,63 +26,109 @@ bool timer_is_running = true;
 
 // TODO isolate the ui_screen_base into this folder, and instead return a pointer to it with this function?
 lv_obj_t *init_screen_pomodoro(void) {
-    ui_screen_pomodoro = lv_obj_create(NULL);
-    init_obj_event_array(&event_with_objects_array);
+    ui_screen_pomodoro      = lv_obj_create(NULL);
+    ui_screen_pomodoro_menu = lv_obj_create(NULL);
+    init_obj_event_array(&objects_and_events);
+    init_obj_event_array(&menus);
 
     // TODO this is duplicate code
     lv_obj_t *cont = lv_obj_create(ui_screen_pomodoro);
+
+    // TODO a lot of code duplication...
     lv_obj_set_size(cont, LCD_WIDTH, LCD_HEIGHT);
     lv_obj_center(cont);
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
     // TODO move this to theme.c, in eg. create_container
     ui_styles_t *styles = get_current_ui_styles();
     lv_obj_add_style(cont, &styles->flex_container, 0);
+    
+    lv_obj_t *cont_menu = lv_obj_create(ui_screen_pomodoro_menu);
+    
+    lv_obj_set_size(cont_menu, LCD_WIDTH, LCD_HEIGHT);
+    lv_obj_center(cont_menu);
+    lv_obj_set_flex_flow(cont_menu, LV_FLEX_FLOW_ROW_WRAP);
+    // TODO move this to theme.c, in eg. create_container
+    ui_styles_t *styles = get_current_ui_styles();
+    lv_obj_add_style(cont_menu, &styles->flex_container, 0);
 
-    add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       ui_create_pomodoro_title(cont),
-                                                       NULL,
-                                                   });
+    /* ----- Widgets ----- */
 
-    add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       ui_create_pomodoro_arc(cont),
-                                                       &update_pomodoro_arc,
-                                                   });
+    add_obj_event_array(&objects_and_events, (obj_update_t){
+                                                 ui_create_pomodoro_title(cont),
+                                                 NULL,
+                                             });
 
-    add_obj_event_array(&event_with_objects_array, (obj_update_t){
-                                                       ui_create_pomodoro_time(cont),
-                                                       &update_pomodoro_time,
-                                                   });
+    add_obj_event_array(&objects_and_events, (obj_update_t){
+                                                 ui_create_pomodoro_arc(cont),
+                                                 &update_pomodoro_arc,
+                                             });
+
+    add_obj_event_array(&objects_and_events, (obj_update_t){
+                                                 ui_create_pomodoro_time(cont),
+                                                 &update_pomodoro_time,
+                                             });
+
+    /* ----- Menus ----- */
+
+    add_obj_event_array(&menus, (obj_update_t){
+                                    ui_create_mod_button(cont_menu, "Back to pomodoro", true, 0),
+                                    &menu_pomodoro_back_to_main,
+                                });
+    add_obj_event_array(&menus, (obj_update_t){
+                                    ui_create_mod_button(cont_menu, "Start 25/5 minutes", true, 0),
+                                    &menu_pomodoro_back_to_main,
+                                });
+    add_obj_event_array(&menus, (obj_update_t){
+                                    ui_create_mod_button(cont_menu, "Play / Pause", true, 0),
+                                    &menu_pomodoro_back_to_main,
+                                });
+    add_obj_event_array(&menus, (obj_update_t){
+                                    ui_create_mod_button(cont_menu, "Start 10/3 minutes", true, 0),
+                                    &menu_pomodoro_back_to_main,
+                                });
+    add_obj_event_array(&menus, (obj_update_t){
+                                    ui_create_mod_button(cont_menu, "Reset", true, 0),
+                                    &menu_pomodoro_back_to_main,
+                                });
+    add_obj_event_array(&menus, (obj_update_t){
+                                    ui_create_mod_button(cont_menu, "< Back to Main", true, 0),
+                                    &menu_pomodoro_back_to_main,
+                                });
 
     return ui_screen_pomodoro;
 }
 
+void menu_pomodoro_back_to_main(lv_obj_t *obj) {
+    // TODO
+}
+
 // TODO run a loop of this, rather than using hard-set array numbers
 void refresh_screen_pomodoro(void) {
+    static int last_layer;
+    int        current_layer = get_highest_layer(layer_state);
+
+    if (current_layer != last_layer) {
+        switch (current_layer) {
+            case 0:
+            default:
+                lv_disp_load_scr(ui_screen_pomodoro);
+                break;
+                // TODO replace with LAYER_LCD instead of hardcoding
+            case 4:
+                lv_disp_load_scr(ui_screen_pomodoro_menu);
+                break;
+        }
+    }
+
+    last_layer = current_layer;
+
     // if timer is running, then update the time
     if (timer_is_running) {
-        // TODO update the timer text
-        // uint32_t elapsed = timer_max - timer_elapsed32(timer_start);
-        // uint16_t minutes_elapsed = elapsed / 60000;
-        // uint16_t seconds_elapsed = (elapsed % 60000) / 1000;
-
-        // char buffer[50];
-        // char *at = buffer;
-        // at += sprintf(at, "%02u", minutes_elapsed);
-        // at += sprintf(at, ":");
-        // at += sprintf(at, "%02u", seconds_elapsed);
-
-        // lv_label_set_text(event_with_objects_array.array[1].obj, buffer);
-
-        // // if(elapsed >= timer_max){
-        // //     // TODO...
-        // // }
-        // if (obj && event_with_objects_array.array[i].update_function) event_with_objects_array.array[i].update_function(obj);
-
         // TODO this is duplicate code
         int i = 0;
-        for (i = 0; i < event_with_objects_array.amount_elements; i++) {
-            lv_obj_t *obj = event_with_objects_array.array[i].obj;
-            if (obj && event_with_objects_array.array[i].update_function) event_with_objects_array.array[i].update_function(obj);
+        for (i = 0; i < objects_and_events.amount_elements; i++) {
+            lv_obj_t *obj = objects_and_events.array[i].obj;
+            if (obj && objects_and_events.array[i].update_function) objects_and_events.array[i].update_function(obj);
         }
     }
 }
@@ -138,11 +186,23 @@ lv_obj_t *ui_create_pomodoro_time(lv_obj_t *cont) {
 }
 
 lv_obj_t *ui_create_pomodoro_arc(lv_obj_t *cont) {
-    lv_obj_t *arc = lv_arc_create(cont);    
+    lv_obj_t    *arc    = lv_arc_create(cont);
     ui_styles_t *styles = get_current_ui_styles();
 
     lv_obj_add_style(arc, &styles->bar, LV_PART_INDICATOR);
     lv_obj_add_flag(arc, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // new line
+
+    // TODO move this into a style init?
+    // each screen should have their own load_themes function, right now everything lives in theme.c
+    // ideally we should derive a new pomodoro_styles->arc from styles->bar, and then set the arc specific styles in the init function
+    // copy the bar color into the arc color
+    lv_style_value_t v;
+    lv_res_t         res = lv_style_get_prop(&styles->bar, LV_STYLE_BG_COLOR, &v);
+    if (res == LV_RES_OK) { /*Found*/
+        lv_style_set_arc_color(&styles->bar, v.color);
+        // hide the knob
+        lv_obj_remove_style(arc, NULL, LV_PART_KNOB);
+    }
 
     lv_obj_set_size(arc, 150, 150);
     lv_arc_set_rotation(arc, 135);
@@ -157,4 +217,32 @@ void update_pomodoro_arc(lv_obj_t *obj) {
     uint32_t elapsed         = timer_max - timer_elapsed32(timer_start);
     uint16_t elapsed_percent = (elapsed * 100) / timer_max;
     lv_arc_set_value(obj, elapsed_percent);
+}
+
+bool process_record_screen_pomodoro(uint16_t keycode, keyrecord_t *record) {
+    // switch (keycode) {
+    //     case LCD_MODULE_MENU:
+    //         if (record->event.pressed) {
+    //             if (is_keyboard_master()) {
+    //                 lv_disp_load_scr(ui_screen_pomodoro_menu);
+    //             }
+    //             // if (is_keyboard_master()) {
+    //             //     cycle_theme_and_save_in_eeprom();
+    //             //     // if the keyboard is left, then we directly update the styles
+    //             //     // if the keyboard is right, we need to send the sync info over to the left side
+    //             //     // that will be done in housekeeping
+    //             //     if (is_keyboard_left()) {
+    //             //         update_styles_from_current_theme();
+    //             //     }
+    //             //     // TODO this is done in cycle_theme_and_save_in_eeprom, we can remove it
+    //             //     dilemma_lcd_status.current_theme_id = get_current_theme_id();
+    //             // }
+    //         } else {
+    //             if (is_keyboard_master()) {
+    //                 lv_disp_load_scr(ui_screen_pomodoro);
+    //             }
+    //         }
+    //         break;
+    // }
+    return true;
 }

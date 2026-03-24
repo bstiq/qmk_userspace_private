@@ -16,5 +16,8 @@ SRC += dmsans14bold.c
 SRC += jetbrainsmono13.c
 SRC += jetbrainsmono14bold.c
 
+# Screens
+SRC += screens/base/screen_base.c
+
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm

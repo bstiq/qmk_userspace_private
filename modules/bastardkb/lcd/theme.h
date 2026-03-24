@@ -32,7 +32,7 @@ typedef struct {
 
 ui_styles_t current_style;
 
-void init_themes(void);
+void load_themes(void);
 void read_dilemma_theme_config_from_eeprom(dilemma_config_lcd_t *config);
 void load_dilemma_theme_config_from_eeprom(void);
 void write_dilemma_theme_config_to_eeprom(dilemma_config_lcd_t *config);

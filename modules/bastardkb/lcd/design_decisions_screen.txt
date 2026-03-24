@@ -22,7 +22,7 @@ STYLE SYSTEM (C / LVGL side)
 Style struct: ui_styles_t
   Use direct lv_style_t fields (not the older ui_theme struct approach).
   The ui_theme struct still exists in theme.h but the migration is toward
-  direct lv_style_t initialization via init_themes() in theme.c.
+  direct lv_style_t initialization via load_themes() in theme.c.
   Reason: more flexible, avoids translation layer between theme struct and lv_style_t.
 
 Style names and their roles:

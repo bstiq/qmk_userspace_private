@@ -111,6 +111,7 @@ void refresh_lcd_info(void) {
     // later, we should call the active screen. Not sure yet what the architecture will be
     // maybe a pointer to an array of struct{lv_obj_t screen, function update()} ?
     // refresh_screen_base();
+    refresh_screen_pomodoro();
 }
 
 void housekeeping_task_lcd(void) {
@@ -152,6 +153,7 @@ void housekeeping_task_lcd(void) {
 }
 
 bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
+    // TODO call process_records of current screen
     switch (keycode) {
         case LCD_MODULE_CHANGE_THEME:
             if (record->event.pressed) {

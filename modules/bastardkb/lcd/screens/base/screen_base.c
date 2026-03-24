@@ -8,6 +8,7 @@
 #include "ui_elements.h"
 
 obj_event_array_t event_with_objects_array;
+lv_obj_t *ui_screen_base;
 
 // TODO move this into a getter, isolate into lcd.c
 extern dilemma_status_t dilemma_lcd_status;
@@ -29,10 +30,11 @@ void add_obj_event_array(obj_event_array_t *a, obj_update_t element) {
 }
 
 // TODO isolate the ui_screen_base into this folder, and instead return a pointer to it with this function?
-void init_screen_base(void) {
+lv_obj_t *init_screen_base(void) {
     ui_screen_base = lv_obj_create(NULL);
     init_obj_event_array(&event_with_objects_array);
 
+    // TODO this is duplicate code
     lv_obj_t *cont = lv_obj_create(ui_screen_base);
     lv_obj_set_size(cont, LCD_WIDTH, LCD_HEIGHT);
     lv_obj_center(cont);
@@ -116,6 +118,8 @@ void init_screen_base(void) {
                                                        ui_create_secondary_text(cont, "effect...", true, 1),
                                                        &update_rgb_effect,
                                                    });
+
+    return ui_screen_base;
 }
 
 

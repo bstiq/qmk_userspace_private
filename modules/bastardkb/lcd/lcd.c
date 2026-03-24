@@ -10,32 +10,16 @@
 #include "qp.h"
 #include "qp_comms.h"
 #include "qp_st77xx_opcodes.h"
-#include "qp_surface.h"
 #include "color.h"
 #include "transactions.h"
 
 // TODO manage this better
 #include "screens/base/screen_base.h"
-
-// lv_obj_t *ui_screen_base;
-
-// TODO manage this better
-extern lv_obj_t *ui_screen_base;
-
-// static mod_button_pair_t mod_buttons[4];
-// static mod_button_pair_t mouse_buttons[2];
-
-lv_obj_t *ui_label_layer;
-lv_obj_t *ui_button_layer;
-lv_obj_t *ui_image_scroll;
+#include "screens/base/screen_pomodoro.h"
 
 dilemma_status_t dilemma_lcd_status_prev = {0};
 dilemma_status_t dilemma_lcd_status      = {0};
-
-painter_device_t        lcd;
-static painter_device_t surface;
-// Buffer required for a 240x280 16bpp surface:
-static uint8_t surface_buffer[SURFACE_REQUIRED_BUFFER_BYTE_SIZE(LCD_WIDTH, LCD_HEIGHT, 16)];
+painter_device_t lcd;
 
 void init_display(void) {
     // Display timeout
@@ -43,9 +27,6 @@ void init_display(void) {
 
     lcd = qp_st7789_make_spi_device(LCD_WIDTH, LCD_HEIGHT, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_SPI_DIVISOR, SPI_MODE);
     qp_init(lcd, LCD_ROTATION);
-
-    surface = qp_make_rgb565_surface(LCD_WIDTH, LCD_HEIGHT, surface_buffer);
-    qp_init(surface, LCD_ROTATION);
 
     // Display offset
     qp_set_viewport_offsets(lcd, LCD_OFFSET_X, LCD_OFFSET_Y);
@@ -62,11 +43,12 @@ void init_display(void) {
 
     // TODO when we have more screens, move this into a specific function
     //and iterate through all screens
-    init_screen_base();
+    lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
+    // lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
 
     // display base layer screen upon init
     // TODO is this necessary here? can we move it to a spot that makes more sense?
-    lv_disp_load_scr(ui_screen_base);
+    lv_disp_load_scr(ui_screen_pomodoro);
 
 }
 
@@ -128,7 +110,7 @@ void refresh_lcd_info(void) {
     // TODO for now we only call the base screen, as there's only one screen
     // later, we should call the active screen. Not sure yet what the architecture will be
     // maybe a pointer to an array of struct{lv_obj_t screen, function update()} ?
-    refresh_screen_base();
+    // refresh_screen_base();
 }
 
 void housekeeping_task_lcd(void) {

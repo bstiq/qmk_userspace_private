@@ -29,8 +29,12 @@ void add_obj_event_array(obj_event_array_t *a, obj_update_t element) {
     a->amount_elements++;
 }
 
+void load_module_screen_base(void){
+    lv_disp_load_scr(ui_screen_base);
+}
+
 // TODO isolate the ui_screen_base into this folder, and instead return a pointer to it with this function?
-lv_obj_t *init_screen_base(void) {
+void init_screen_base(void) {
     ui_screen_base = lv_obj_create(NULL);
     init_obj_event_array(&event_with_objects_array);
 
@@ -113,7 +117,6 @@ lv_obj_t *init_screen_base(void) {
                                                        &update_rgb_effect,
                                                    });
 
-    return ui_screen_base;
 }
 
 

@@ -26,7 +26,7 @@ uint8_t menu_index = 0;
 bool timer_is_running = false;
 
 // TODO isolate the ui_screen_base into this folder, and instead return a pointer to it with this function?
-lv_obj_t *init_screen_pomodoro(void) {
+void init_screen_pomodoro(void) {
     ui_screen_pomodoro      = lv_obj_create(NULL);
     ui_screen_pomodoro_menu = lv_obj_create(NULL);
 
@@ -80,7 +80,6 @@ lv_obj_t *init_screen_pomodoro(void) {
                                     &menu_pomodoro_back_to_main,
                                 });
 
-    return ui_screen_pomodoro;
 }
 
 void menu_pomodoro_back_to_main(lv_obj_t *obj) {

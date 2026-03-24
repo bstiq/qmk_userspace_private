@@ -13,8 +13,9 @@ typedef struct{
     int amount_elements;
 }obj_event_array_t;
 
-lv_obj_t *init_screen_base(void) ;
+void init_screen_base(void) ;
 void refresh_screen_base(void);
+void load_module_screen_base(void);
 
 void init_obj_event_array(obj_event_array_t *a);
 void add_obj_event_array(obj_event_array_t *a, obj_update_t element);

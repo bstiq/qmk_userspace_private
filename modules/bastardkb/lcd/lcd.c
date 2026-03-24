@@ -21,6 +21,25 @@ dilemma_status_t dilemma_lcd_status_prev = {0};
 dilemma_status_t dilemma_lcd_status      = {0};
 painter_device_t lcd;
 
+lcd_module_t lcd_module_base = {
+    .init_module                                      = &init_screen_base,
+    .load_custom_theme_elements                       = &load_themes,
+    .load_module                                      = &load_module_screen_base,
+    .update_custom_elements_styles_from_current_theme = &update_styles_from_current_theme,
+    .refresh_module                                   = &refresh_screen_base,
+};
+
+lcd_module_t lcd_module_pomodoro = {
+    .init_module                                      = &init_screen_pomodoro,
+    .load_custom_theme_elements                       = NULL,
+    .update_custom_elements_styles_from_current_theme = NULL,
+    .refresh_module                                   = &refresh_screen_pomodoro,
+};
+
+uint8_t selected_module = 0;
+
+lcd_module_t *lcd_modules[] = {&lcd_module_base, &lcd_module_pomodoro};
+
 void init_display(void) {
     // Display timeout
     wait_ms(LCD_WAIT_TIME);
@@ -38,18 +57,23 @@ void init_display(void) {
     qp_rect(lcd, 0, 0, 300, 300, HSV_BLACK, 1);
     qp_flush(lcd);
 
+    // TODO move the load themes and init styles into the custom structure
     load_themes();
     init_styles();
 
-    // TODO when we have more screens, move this into a specific function
-    //and iterate through all screens
-    lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
+    for (int i = 0; i < sizeof(lcd_modules) / sizeof(lcd_module_t *); i++) {
+        if (lcd_modules[i]->init_module != NULL) {
+            lcd_modules[i]->init_module();
+        }
+    }
+    lcd_modules[selected_module]->load_module();
+
+    // lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
     // lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
 
     // display base layer screen upon init
     // TODO is this necessary here? can we move it to a spot that makes more sense?
-    lv_disp_load_scr(ui_screen_pomodoro);
-
+    // lv_disp_load_scr(ui_screen_pomodoro);
 }
 
 void keyboard_post_init_lcd(void) {
@@ -65,7 +89,6 @@ void keyboard_post_init_lcd(void) {
 
     // register rpc mouse data syncing
     transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
-
 }
 
 // TODO get colors based on real layer colors, instead of hardcoding them
@@ -106,12 +129,9 @@ void update_theme_color(void) {
 
 void refresh_lcd_info(void) {
     update_theme_color();
-
-    // TODO for now we only call the base screen, as there's only one screen
-    // later, we should call the active screen. Not sure yet what the architecture will be
-    // maybe a pointer to an array of struct{lv_obj_t screen, function update()} ?
-    // refresh_screen_base();
-    refresh_screen_pomodoro();
+    if (lcd_modules[selected_module]->refresh_module != NULL) {
+        lcd_modules[selected_module]->refresh_module();
+    }
 }
 
 void housekeeping_task_lcd(void) {

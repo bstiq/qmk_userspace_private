@@ -18,6 +18,14 @@ typedef struct {
     uint16_t               s_dpi;
 } dilemma_status_t;
 
+typedef struct{
+    void (*load_module)(void);
+    void (*init_module)(void);
+    void (*load_custom_theme_elements)(void);
+    void (*update_custom_elements_styles_from_current_theme)(void);
+    void (*refresh_module)(void);
+} lcd_module_t;
+
 void keyboard_post_init_lcd(void);
 
 void              housekeeping_task_lcd(void);

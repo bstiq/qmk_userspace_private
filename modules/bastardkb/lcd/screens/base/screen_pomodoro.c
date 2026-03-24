@@ -23,8 +23,7 @@ uint32_t timer_max = 3 * 60 * 1000; // default 3 minutes for now
 
 uint8_t menu_index = 0;
 
-// TODO change to false by default
-bool timer_is_running = true;
+bool timer_is_running = false;
 
 // TODO isolate the ui_screen_base into this folder, and instead return a pointer to it with this function?
 lv_obj_t *init_screen_pomodoro(void) {
@@ -89,6 +88,9 @@ void menu_pomodoro_back_to_main(lv_obj_t *obj) {
 }
 
 // TODO run a loop of this, rather than using hard-set array numbers
+// TODO does this work if the keyboard is secondary instead of master?
+// we probably need to send the info over through rpc, just like in screen_base.
+// would it be worth it to make a pattern? since we will need to do this for other screens as well
 void refresh_screen_pomodoro(void) {
     static int last_layer;
     int        current_layer = get_highest_layer(layer_state);
@@ -98,9 +100,46 @@ void refresh_screen_pomodoro(void) {
             case 0:
             default:
                 lv_disp_load_scr(ui_screen_pomodoro);
+                // make sure all the buttons are released, sometimes they don't unpress correctly
+                for (int i = 0; i < menus.amount_elements; i++) {
+                    lv_event_send(menus.array[i].obj, LV_EVENT_RELEASED, NULL);
+                }
+                // todo move this to a function?
+                // we went back to base layer. Let's check if there was a menu selected
+                switch (menu_index) {
+                    case 0:
+                    default:
+                        break;
+                    case 1:
+                        // start 25 minutes
+                        timer_start      = timer_read32();
+                        timer_max        = 25 * 60 * 1000;
+                        timer_is_running = true;
+                        break;
+                    case 2:
+                        // play / pause
+                        timer_is_running = !timer_is_running;
+                        break;
+                    case 3:
+                        // start 10 minutes
+                        timer_start      = timer_read32();
+                        timer_max        = 10 * 60 * 1000;
+                        timer_is_running = true;
+                        break;
+                    case 4:
+                        // reset
+                        // TODO is this really useful?
+                        timer_is_running = false;
+                        break;
+                }
+
                 break;
-                // TODO replace with LAYER_LCD instead of hardcoding
+            // TODO replace with LAYER_LCD instead of hardcoding
+            // display the menu
             case 4:
+                // by default, the top button is pushed
+                menu_index = 0;
+                lv_event_send(menus.array[0].obj, LV_EVENT_PRESSED, NULL);
                 lv_disp_load_scr(ui_screen_pomodoro_menu);
                 break;
         }
@@ -109,29 +148,33 @@ void refresh_screen_pomodoro(void) {
     last_layer = current_layer;
 
     // if timer is running, then update the time
-    if (timer_is_running) {
+    // if (timer_is_running) {
         // TODO this is duplicate code
         int i = 0;
         for (i = 0; i < objects_and_events.amount_elements; i++) {
             lv_obj_t *obj = objects_and_events.array[i].obj;
             if (obj && objects_and_events.array[i].update_function) objects_and_events.array[i].update_function(obj);
         }
-    }
+    // }
 }
 
 void update_pomodoro_time(lv_obj_t *obj) {
-    // TODO update the timer text
-    uint32_t elapsed         = timer_max - timer_elapsed32(timer_start);
-    uint16_t minutes_elapsed = elapsed / 60000;
-    uint16_t seconds_elapsed = (elapsed % 60000) / 1000;
+    if (timer_is_running == true) {
+        // TODO update the timer text
+        uint32_t elapsed         = timer_max - timer_elapsed32(timer_start);
+        uint16_t minutes_elapsed = elapsed / 60000;
+        uint16_t seconds_elapsed = (elapsed % 60000) / 1000;
 
-    char  buffer[50];
-    char *at = buffer;
-    at += sprintf(at, "%02u", minutes_elapsed);
-    at += sprintf(at, ":");
-    at += sprintf(at, "%02u", seconds_elapsed);
+        char  buffer[50];
+        char *at = buffer;
+        at += sprintf(at, "%02u", minutes_elapsed);
+        at += sprintf(at, ":");
+        at += sprintf(at, "%02u", seconds_elapsed);
 
-    lv_label_set_text(obj, buffer);
+        lv_label_set_text(obj, buffer);
+    } else {
+        lv_label_set_text(obj, "PAUSED");
+    }
 }
 
 lv_obj_t *ui_create_pomodoro_title(lv_obj_t *cont) {
@@ -162,8 +205,8 @@ lv_obj_t *ui_create_pomodoro_time(lv_obj_t *cont) {
     lv_obj_add_flag(button, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // new line
 
     lv_obj_t *label = lv_label_create(button);
-    // TODO, this should not be here
-    lv_label_set_text(label, "25:00");
+    // TODO, should this really be here?
+    lv_label_set_text(label, "PAUSED");
     lv_obj_center(label);
     lv_obj_set_width(label, LV_SIZE_CONTENT);
     lv_obj_set_height(label, 30);
@@ -207,6 +250,7 @@ void update_pomodoro_arc(lv_obj_t *obj) {
 }
 
 // TODO does this work well when the keyboard is not master?....
+// TODO this is something that will be reused in other menus, so we should move it maybe to screens/menu_nav.c ?
 bool process_record_screen_pomodoro(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case LCD_MENU_NEXT:
@@ -219,7 +263,7 @@ bool process_record_screen_pomodoro(uint16_t keycode, keyrecord_t *record) {
         case LCD_MENU_PREV:
             if (record->event.pressed) {
                 lv_event_send(menus.array[menu_index].obj, LV_EVENT_RELEASED, NULL);
-                menu_index = (menu_index - 1) % menus.amount_elements;
+                menu_index = (menu_index - 1 + menus.amount_elements) % menus.amount_elements;
                 lv_event_send(menus.array[menu_index].obj, LV_EVENT_PRESSED, NULL);
             }
             break;

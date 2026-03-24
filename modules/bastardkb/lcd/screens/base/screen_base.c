@@ -35,13 +35,7 @@ lv_obj_t *init_screen_base(void) {
     init_obj_event_array(&event_with_objects_array);
 
     // TODO this is duplicate code
-    lv_obj_t *cont = lv_obj_create(ui_screen_base);
-    lv_obj_set_size(cont, LCD_WIDTH, LCD_HEIGHT);
-    lv_obj_center(cont);
-    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
-    // TODO move this to theme.c, in eg. create_container
-    ui_styles_t *styles = get_current_ui_styles();
-    lv_obj_add_style(cont, &styles->flex_container, 0);
+    lv_obj_t *cont = ui_create_container(ui_screen_base);
 
     add_obj_event_array(&event_with_objects_array, (obj_update_t){
                                                        ui_create_layer_label(cont),

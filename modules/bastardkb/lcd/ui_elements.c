@@ -3,6 +3,16 @@
 #include "lvgl.h"
 #include "lcd.h"
 
+lv_obj_t *ui_create_container(lv_obj_t *parent) {
+    lv_obj_t *cont = lv_obj_create(parent);
+    lv_obj_set_size(cont, LCD_WIDTH, LCD_HEIGHT);
+    lv_obj_center(cont);
+    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
+    ui_styles_t *styles = get_current_ui_styles();
+    lv_obj_add_style(cont, &styles->flex_container, 0);
+    return cont;
+}
+
 lv_obj_t *ui_create_progress_bar(lv_obj_t *cont, uint8_t flex) {
     lv_obj_t *bar = lv_bar_create(cont);
     ui_styles_t *styles = get_current_ui_styles();

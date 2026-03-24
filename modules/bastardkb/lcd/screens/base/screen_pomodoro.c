@@ -21,6 +21,8 @@ uint32_t timer_start = 0;
 // TODO add config options for this
 uint32_t timer_max = 3 * 60 * 1000; // default 3 minutes for now
 
+uint8_t menu_index = 0;
+
 // TODO change to false by default
 bool timer_is_running = true;
 
@@ -28,28 +30,12 @@ bool timer_is_running = true;
 lv_obj_t *init_screen_pomodoro(void) {
     ui_screen_pomodoro      = lv_obj_create(NULL);
     ui_screen_pomodoro_menu = lv_obj_create(NULL);
+
+    lv_obj_t *cont      = ui_create_container(ui_screen_pomodoro);
+    lv_obj_t *cont_menu = ui_create_container(ui_screen_pomodoro_menu);
+
     init_obj_event_array(&objects_and_events);
     init_obj_event_array(&menus);
-
-    // TODO this is duplicate code
-    lv_obj_t *cont = lv_obj_create(ui_screen_pomodoro);
-
-    // TODO a lot of code duplication...
-    lv_obj_set_size(cont, LCD_WIDTH, LCD_HEIGHT);
-    lv_obj_center(cont);
-    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
-    // TODO move this to theme.c, in eg. create_container
-    ui_styles_t *styles = get_current_ui_styles();
-    lv_obj_add_style(cont, &styles->flex_container, 0);
-    
-    lv_obj_t *cont_menu = lv_obj_create(ui_screen_pomodoro_menu);
-    
-    lv_obj_set_size(cont_menu, LCD_WIDTH, LCD_HEIGHT);
-    lv_obj_center(cont_menu);
-    lv_obj_set_flex_flow(cont_menu, LV_FLEX_FLOW_ROW_WRAP);
-    // TODO move this to theme.c, in eg. create_container
-    ui_styles_t *styles = get_current_ui_styles();
-    lv_obj_add_style(cont_menu, &styles->flex_container, 0);
 
     /* ----- Widgets ----- */
 
@@ -75,7 +61,7 @@ lv_obj_t *init_screen_pomodoro(void) {
                                     &menu_pomodoro_back_to_main,
                                 });
     add_obj_event_array(&menus, (obj_update_t){
-                                    ui_create_mod_button(cont_menu, "Start 25/5 minutes", true, 0),
+                                    ui_create_mod_button(cont_menu, "Start 25 minutes", true, 0),
                                     &menu_pomodoro_back_to_main,
                                 });
     add_obj_event_array(&menus, (obj_update_t){
@@ -83,7 +69,7 @@ lv_obj_t *init_screen_pomodoro(void) {
                                     &menu_pomodoro_back_to_main,
                                 });
     add_obj_event_array(&menus, (obj_update_t){
-                                    ui_create_mod_button(cont_menu, "Start 10/3 minutes", true, 0),
+                                    ui_create_mod_button(cont_menu, "Start 10 minutes", true, 0),
                                     &menu_pomodoro_back_to_main,
                                 });
     add_obj_event_array(&menus, (obj_update_t){
@@ -192,7 +178,8 @@ lv_obj_t *ui_create_pomodoro_arc(lv_obj_t *cont) {
     lv_obj_add_style(arc, &styles->bar, LV_PART_INDICATOR);
     lv_obj_add_flag(arc, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // new line
 
-    // TODO move this into a style init?
+    // TODO move this into a style init
+    // we could do a post-processing in style init where we copy over the values... right now this breaks on theme change
     // each screen should have their own load_themes function, right now everything lives in theme.c
     // ideally we should derive a new pomodoro_styles->arc from styles->bar, and then set the arc specific styles in the init function
     // copy the bar color into the arc color
@@ -219,30 +206,23 @@ void update_pomodoro_arc(lv_obj_t *obj) {
     lv_arc_set_value(obj, elapsed_percent);
 }
 
+// TODO does this work well when the keyboard is not master?....
 bool process_record_screen_pomodoro(uint16_t keycode, keyrecord_t *record) {
-    // switch (keycode) {
-    //     case LCD_MODULE_MENU:
-    //         if (record->event.pressed) {
-    //             if (is_keyboard_master()) {
-    //                 lv_disp_load_scr(ui_screen_pomodoro_menu);
-    //             }
-    //             // if (is_keyboard_master()) {
-    //             //     cycle_theme_and_save_in_eeprom();
-    //             //     // if the keyboard is left, then we directly update the styles
-    //             //     // if the keyboard is right, we need to send the sync info over to the left side
-    //             //     // that will be done in housekeeping
-    //             //     if (is_keyboard_left()) {
-    //             //         update_styles_from_current_theme();
-    //             //     }
-    //             //     // TODO this is done in cycle_theme_and_save_in_eeprom, we can remove it
-    //             //     dilemma_lcd_status.current_theme_id = get_current_theme_id();
-    //             // }
-    //         } else {
-    //             if (is_keyboard_master()) {
-    //                 lv_disp_load_scr(ui_screen_pomodoro);
-    //             }
-    //         }
-    //         break;
-    // }
+    switch (keycode) {
+        case LCD_MENU_NEXT:
+            if (record->event.pressed) {
+                lv_event_send(menus.array[menu_index].obj, LV_EVENT_RELEASED, NULL);
+                menu_index = (menu_index + 1) % menus.amount_elements;
+                lv_event_send(menus.array[menu_index].obj, LV_EVENT_PRESSED, NULL);
+            }
+            break;
+        case LCD_MENU_PREV:
+            if (record->event.pressed) {
+                lv_event_send(menus.array[menu_index].obj, LV_EVENT_RELEASED, NULL);
+                menu_index = (menu_index - 1) % menus.amount_elements;
+                lv_event_send(menus.array[menu_index].obj, LV_EVENT_PRESSED, NULL);
+            }
+            break;
+    }
     return true;
 }

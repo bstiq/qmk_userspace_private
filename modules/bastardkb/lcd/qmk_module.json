@@ -10,6 +10,14 @@
         {
             "key": "LCD_MODULE_MENU",
             "aliases": ["LCDME"]
+        },
+        {
+            "key": "LCD_MENU_NEXT",
+            "aliases": ["LCDNE"]
+        },
+        {
+            "key": "LCD_MENU_PREV",
+            "aliases": ["LCDPR"]
         }
     ]
 }

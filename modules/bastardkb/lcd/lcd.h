@@ -24,6 +24,7 @@ typedef struct{
     void (*load_custom_theme_elements)(void);
     void (*update_custom_elements_styles_from_current_theme)(void);
     void (*refresh_module)(void);
+    void (*process_record)(uint16_t keycode, keyrecord_t *record);
 } lcd_module_t;
 
 void keyboard_post_init_lcd(void);

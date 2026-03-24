@@ -1,17 +1,7 @@
 #ifndef SCREEN_BASE_H
 #define SCREEN_BASE_H
 
-typedef struct{
-    lv_obj_t *obj;
-    void (*update_function)(lv_obj_t*);
-} obj_update_t;
-
-typedef struct{
-    obj_update_t *array;
-    size_t used;
-    size_t size;
-    int amount_elements;
-}obj_event_array_t;
+#include "utilities.h"
 
 void init_screen_base(void) ;
 void refresh_screen_base(void);

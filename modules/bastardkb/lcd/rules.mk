@@ -18,8 +18,10 @@ SRC += jetbrainsmono13.c
 SRC += jetbrainsmono14bold.c
 
 # Screens
-SRC += screens/base/screen_base.c
-SRC += screens/base/screen_pomodoro.c
+SRC += screens/screen_base.c
+SRC += screens/screen_pomodoro.c
+SRC += screens/menu.c
+SRC += screens/utilities.c
 
 BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = pwm

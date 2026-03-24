@@ -7,6 +7,8 @@
 #include "screen_base.h"
 #include "lcd.h"
 #include "ui_elements.h"
+#include "menu.h"
+#include "utilities.h"
 
 obj_event_array_t objects_and_events;
 obj_event_array_t menus;
@@ -24,6 +26,10 @@ uint32_t timer_max = 3 * 60 * 1000; // default 3 minutes for now
 uint8_t menu_index = 0;
 
 bool timer_is_running = false;
+
+void load_module_screen_pomodoro(void){
+    lv_disp_load_scr(ui_screen_pomodoro);
+}
 
 // TODO isolate the ui_screen_base into this folder, and instead return a pointer to it with this function?
 void init_screen_pomodoro(void) {
@@ -253,21 +259,6 @@ void update_pomodoro_arc(lv_obj_t *obj) {
 // TODO does this work well when the keyboard is not master?....
 // TODO this is something that will be reused in other menus, so we should move it maybe to screens/menu_nav.c ?
 bool process_record_screen_pomodoro(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case LCD_MENU_NEXT:
-            if (record->event.pressed) {
-                lv_event_send(menus.array[menu_index].obj, LV_EVENT_RELEASED, NULL);
-                menu_index = (menu_index + 1) % menus.amount_elements;
-                lv_event_send(menus.array[menu_index].obj, LV_EVENT_PRESSED, NULL);
-            }
-            break;
-        case LCD_MENU_PREV:
-            if (record->event.pressed) {
-                lv_event_send(menus.array[menu_index].obj, LV_EVENT_RELEASED, NULL);
-                menu_index = (menu_index - 1 + menus.amount_elements) % menus.amount_elements;
-                lv_event_send(menus.array[menu_index].obj, LV_EVENT_PRESSED, NULL);
-            }
-            break;
-    }
+    process_record_menu(keycode, record, menus, &menu_index);
     return true;
 }

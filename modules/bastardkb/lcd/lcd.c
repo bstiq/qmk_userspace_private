@@ -14,8 +14,8 @@
 #include "transactions.h"
 
 // TODO manage this better
-#include "screens/base/screen_base.h"
-#include "screens/base/screen_pomodoro.h"
+#include "screens/screen_base.h"
+#include "screens/screen_pomodoro.h"
 
 dilemma_status_t dilemma_lcd_status_prev = {0};
 dilemma_status_t dilemma_lcd_status      = {0};
@@ -32,11 +32,12 @@ lcd_module_t lcd_module_base = {
 lcd_module_t lcd_module_pomodoro = {
     .init_module                                      = &init_screen_pomodoro,
     .load_custom_theme_elements                       = NULL,
+    .load_module                                      = &load_module_screen_pomodoro,
     .update_custom_elements_styles_from_current_theme = NULL,
     .refresh_module                                   = &refresh_screen_pomodoro,
 };
 
-uint8_t selected_module = 0;
+uint8_t selected_module = 1;
 
 lcd_module_t *lcd_modules[] = {&lcd_module_base, &lcd_module_pomodoro};
 

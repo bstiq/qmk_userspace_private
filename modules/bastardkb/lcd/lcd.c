@@ -22,12 +22,22 @@ dilemma_status_t dilemma_lcd_status_prev = {0};
 dilemma_status_t dilemma_lcd_status      = {0};
 painter_device_t lcd;
 
+typedef struct{
+    void (*load_module)(void);
+    void (*init_module)(void);
+    void (*load_custom_theme_elements)(void);
+    void (*update_custom_elements_styles_from_current_theme)(void);
+    void (*refresh_module)(void);
+    bool (*process_record)(uint16_t keycode, keyrecord_t *record);
+} lcd_module_t;
+
 lcd_module_t lcd_module_base = {
     .init_module                                      = &init_screen_base,
     .load_custom_theme_elements                       = &load_themes,
     .load_module                                      = &load_module_base,
     .update_custom_elements_styles_from_current_theme = &update_styles_from_current_theme,
     .refresh_module                                   = &refresh_screen_base,
+    .process_record                                   = &process_record_screen_base,
 };
 
 lcd_module_t lcd_module_pomodoro = {
@@ -36,16 +46,19 @@ lcd_module_t lcd_module_pomodoro = {
     .load_module                                      = &load_module_pomodoro,
     .update_custom_elements_styles_from_current_theme = NULL,
     .refresh_module                                   = &refresh_screen_pomodoro,
+    .process_record                                   = &process_record_screen_pomodoro,
 };
-
-uint8_t selected_module = 1;
 
 lcd_module_t *lcd_modules[] = {&lcd_module_base, &lcd_module_pomodoro};
 
+static uint8_t selected_module = MODULE_POMODORO;
+
+// TODO move those into base screen
 const dilemma_status_t get_dilemma_lcd_status(void) {
     return (const dilemma_status_t)dilemma_lcd_status;
 }
 
+// TODO move those into base screen
 const dilemma_status_t get_dilemma_lcd_status_prev(void) {
     return (const dilemma_status_t)dilemma_lcd_status_prev;
 }
@@ -84,6 +97,15 @@ void init_display(void) {
     // display base layer screen upon init
     // TODO is this necessary here? can we move it to a spot that makes more sense?
     // lv_disp_load_scr(ui_screen_pomodoro);
+}
+
+void set_current_module(uint8_t module){
+    if(module < sizeof(lcd_modules) / sizeof(lcd_module_t *)){
+        selected_module = module;
+        if(lcd_modules[selected_module]->load_module){
+            lcd_modules[selected_module]->load_module();
+        }
+    }
 }
 
 void keyboard_post_init_lcd(void) {
@@ -185,7 +207,8 @@ void housekeeping_task_lcd(void) {
 bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
     // TODO call process_records of current screen
     // for now we call the pomodoro one
-    process_record_screen_pomodoro(keycode, record);
+    lcd_modules[selected_module]->process_record(keycode, record);
+    // process_record_screen_pomodoro(keycode, record);
     switch (keycode) {
         case LCD_MODULE_CHANGE_THEME:
             if (record->event.pressed) {

@@ -1,15 +1,15 @@
 #include "menu.h"
 #include "theme.h"
 
-void press_menu_button(const obj_update_dilemma_menu_t menu){
-    if(menu.obj != NULL){
-        lv_event_send(menu.obj, LV_EVENT_PRESSED, NULL);
+void press_menu_button(const obj_update_dilemma_menu_t button){
+    if(button.obj != NULL){
+        lv_event_send(button.obj, LV_EVENT_PRESSED, NULL);
     }
 }
 
-void release_menu_button(const obj_update_dilemma_menu_t menu){
-    if(menu.obj != NULL){
-        lv_event_send(menu.obj, LV_EVENT_RELEASED, NULL);
+void release_menu_button(const obj_update_dilemma_menu_t button){
+    if(button.obj != NULL){
+        lv_event_send(button.obj, LV_EVENT_RELEASED, NULL);
     }
 }
 
@@ -54,4 +54,10 @@ lv_obj_t *ui_create_menu_line(lv_obj_t *cont, const char *text) {
     lv_obj_center(label);
 
     return button;
+}
+
+void trigger_menu_element(const obj_update_dilemma_menu_t menus[], uint8_t menu_index){
+    if(menus[menu_index].update_function != NULL){
+        menus[menu_index].update_function();
+    }
 }

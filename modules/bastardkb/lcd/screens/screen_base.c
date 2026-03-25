@@ -4,8 +4,15 @@
 #include <ctype.h>
 
 #include "screen_base.h"
+#include "screen_pomodoro.h"
 #include "lcd.h"
+#include "menu.h"
 #include "ui_elements.h"
+
+typedef struct{
+    lv_obj_t *obj;
+    void (*update_function)(lv_obj_t*, dilemma_status_t current_status, dilemma_status_t prev_status);
+} obj_update_dilemma_lcd_status_t;
 
 static void update_layer_name(lv_obj_t *obj, const dilemma_status_t current_status, const dilemma_status_t prev_status);
 static void update_rgb_value(lv_obj_t* obj, const dilemma_status_t current_status, const dilemma_status_t prev_status);
@@ -22,21 +29,33 @@ static void update_mod_dpi_bar(lv_obj_t *obj, const dilemma_status_t current_sta
 static void update_mod_dpi_number(lv_obj_t *obj, const dilemma_status_t current_status, const dilemma_status_t prev_status);
 static void update_mod_xx(lv_obj_t *obj, uint8_t mod_mask, const dilemma_status_t current_status, const dilemma_status_t prev_status);
 static void update_rgb_effect(lv_obj_t *obj, const dilemma_status_t current_status, const dilemma_status_t prev_status);
+static const char *rgb_matrix_get_effect_name(void);
+static void menu_base_go_pomodoro(void);
+static void load_screen_base_menu(void);
+static void load_screen_base_base(void);
 
 static lv_obj_t *ui_screen_base;
+static lv_obj_t *ui_screen_base_menu;
 
 static obj_update_dilemma_lcd_status_t widgets[14];
+static obj_update_dilemma_menu_t menus[3];
+static uint8_t menu_index = 0;
 
 void load_module_base(void){
-    lv_disp_load_scr(ui_screen_base);
+    load_screen_base_base();
 }
+
+// TODO update things here only if this module is loaded.
 
 // TODO isolate the ui_screen_base into this folder, and instead return a pointer to it with this function?
 void init_screen_base(void) {
     ui_screen_base = lv_obj_create(NULL);
-
     lv_obj_t *cont = ui_create_container(ui_screen_base);
 
+    ui_screen_base_menu = lv_obj_create(NULL);
+    lv_obj_t *cont_menu = ui_create_container(ui_screen_base_menu);
+
+     /* ----- Widgets ----- */
     widgets[0] = (obj_update_dilemma_lcd_status_t){ ui_create_layer_label(cont), &update_layer_name,};
     widgets[1] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "SHFT", true, MOD_MASK_SHIFT), &update_mod_shift,};
     widgets[2] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "ALT", false, MOD_MASK_ALT), &update_mod_alt,};
@@ -64,9 +83,29 @@ void init_screen_base(void) {
     widgets[11] = (obj_update_dilemma_lcd_status_t){ ui_create_progress_bar(cont, 6), &update_rgb_bar,};
     widgets[12] = (obj_update_dilemma_lcd_status_t){ ui_create_number_label(cont, 2), &update_rgb_value,};
     widgets[13] = (obj_update_dilemma_lcd_status_t){ ui_create_secondary_text(cont, "effect...", true, 1), &update_rgb_effect};
+
+    /* ----- menus ----- */
+    menus[0] = (obj_update_dilemma_menu_t){
+        ui_create_menu_line(cont_menu, "Back to main"),
+        NULL,
+    };
+    menus[1] = (obj_update_dilemma_menu_t){
+        ui_create_menu_line(cont_menu, "Pomodoro"),
+        &menu_base_go_pomodoro,
+    };
+    // TODO later, create a "theme options" module? but then at each bootmagic flash it will be erased :(
+    menus[2] = (obj_update_dilemma_menu_t){
+        ui_create_menu_line(cont_menu, "Change theme"),
+        NULL,
+    };
+
 }
 
-const char *rgb_matrix_get_effect_name(void) {
+static void menu_base_go_pomodoro(void){
+    set_current_module(MODULE_POMODORO);
+}
+
+static const char *rgb_matrix_get_effect_name(void) {
     // thank you drashna!
     static char    buf[32]     = {0};
     static uint8_t last_effect = 0;
@@ -233,11 +272,48 @@ static void update_mod_dpi_bar(lv_obj_t *obj, const dilemma_status_t current_sta
     }
 }
 
+static void load_screen_base_base(void){
+    release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
+    lv_disp_load_scr(ui_screen_base);
+}
+
+static void load_screen_base_menu(void){
+     // by default, the top button is pushed
+    menu_index = 0;
+    press_menu_button(menus[0]);
+    lv_disp_load_scr(ui_screen_base_menu);
+}
+
 void refresh_screen_base(void) {
     const dilemma_status_t current_status = get_dilemma_lcd_status();
     const dilemma_status_t prev_status    = get_dilemma_lcd_status_prev();
+    static int last_layer;
+    int        current_layer = get_highest_layer(layer_state);
+
+    if (current_layer != last_layer) {
+        switch (current_layer) {
+            case 0:
+            default:
+                load_screen_base_base();
+                trigger_menu_element(menus, menu_index);
+                break;
+            case 4:
+                // TODO replace with LAYER_LCD instead of hardcoding
+               load_screen_base_menu();
+               break;
+        }
+    }
+
     for(int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++){
         lv_obj_t *obj = widgets[i].obj;
         if (obj && widgets[i].update_function)  widgets[i].update_function(obj, current_status, prev_status);
     }
+    
+    last_layer = current_layer;
+}
+
+// TODO does this work well when the keyboard is not master?....
+bool process_record_screen_base(uint16_t keycode, keyrecord_t *record) {
+    process_record_menu(keycode, record, menus, &menu_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
+    return true;
 }

@@ -7,7 +7,13 @@
 #include <ctype.h>
 #include "theme.h"
 
+enum modules{
+    MODULE_BASE = 0,
+    MODULE_POMODORO,
+};
+
 // todo define bits
+// TODO move this to base screen
 typedef struct {
     uint8_t                mods;
     bool                   sniping;
@@ -20,15 +26,6 @@ typedef struct {
     uint16_t               dpi;
     uint16_t               s_dpi;
 } dilemma_status_t;
-
-typedef struct{
-    void (*load_module)(void);
-    void (*init_module)(void);
-    void (*load_custom_theme_elements)(void);
-    void (*update_custom_elements_styles_from_current_theme)(void);
-    void (*refresh_module)(void);
-    void (*process_record)(uint16_t keycode, keyrecord_t *record);
-} lcd_module_t;
 
 void keyboard_post_init_lcd(void);
 
@@ -48,5 +45,6 @@ void write_config_to_eeprom(void);
 
 const dilemma_status_t get_dilemma_lcd_status(void) ;
 const dilemma_status_t get_dilemma_lcd_status_prev(void) ;
+void set_current_module(uint8_t module);
 
 #endif

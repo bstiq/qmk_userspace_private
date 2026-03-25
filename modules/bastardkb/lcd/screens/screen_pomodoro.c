@@ -10,25 +10,29 @@
 #include "menu.h"
 #include "utilities.h"
 
-obj_event_array_t objects_and_events;
-obj_event_array_t menus;
-lv_obj_t         *ui_screen_pomodoro;
-lv_obj_t         *ui_screen_pomodoro_menu;
+static void load_screen_pomodoro_base(void);
+static void load_screen_pomodoro_menu(void);
+static void menu_pomodoro_back_to_main(void);
+static void menu_pomodoro_start_25(void);
+static void menu_pomodoro_play_pause(void);
+static void menu_pomodoro_start_10(void);
 
-// TODO move this into a getter, isolate into lcd.c
-extern dilemma_status_t dilemma_lcd_status;
-extern dilemma_status_t dilemma_lcd_status_prev;
+static lv_obj_t         *ui_screen_pomodoro;
+static lv_obj_t         *ui_screen_pomodoro_menu;
 
-uint32_t timer_start = 0;
+static obj_update_dilemma_pomodoro_status_t widgets[3];
+static obj_update_dilemma_menu_t menus[6];
+
+static uint32_t timer_start = 0;
 // TODO add config options for this
-uint32_t timer_max = 3 * 60 * 1000; // default 3 minutes for now
+static uint32_t timer_max = 3 * 60 * 1000; // default 3 minutes for now
 
-uint8_t menu_index = 0;
+static uint8_t menu_index = 0;
 
-bool timer_is_running = false;
+static bool timer_is_running = false;
 
-void load_module_screen_pomodoro(void){
-    lv_disp_load_scr(ui_screen_pomodoro);
+void load_module_pomodoro(void){
+    load_screen_pomodoro_base();
 }
 
 // TODO isolate the ui_screen_base into this folder, and instead return a pointer to it with this function?
@@ -39,63 +43,77 @@ void init_screen_pomodoro(void) {
     lv_obj_t *cont      = ui_create_container(ui_screen_pomodoro);
     lv_obj_t *cont_menu = ui_create_container(ui_screen_pomodoro_menu);
 
-    init_obj_event_array(&objects_and_events);
-    init_obj_event_array(&menus);
-
     /* ----- Widgets ----- */
+    widgets[0] = (obj_update_dilemma_pomodoro_status_t){ ui_create_pomodoro_title(cont), NULL,};
+    widgets[2] = (obj_update_dilemma_pomodoro_status_t){ ui_create_pomodoro_arc(cont), &update_pomodoro_arc,};
+    widgets[1] = (obj_update_dilemma_pomodoro_status_t){ ui_create_pomodoro_time(cont), &update_pomodoro_time,};
 
-    add_obj_event_array(&objects_and_events, (obj_update_t){
-                                                 ui_create_pomodoro_title(cont),
-                                                 NULL,
-                                             });
-
-    add_obj_event_array(&objects_and_events, (obj_update_t){
-                                                 ui_create_pomodoro_arc(cont),
-                                                 &update_pomodoro_arc,
-                                             });
-
-    add_obj_event_array(&objects_and_events, (obj_update_t){
-                                                 ui_create_pomodoro_time(cont),
-                                                 &update_pomodoro_time,
-                                             });
-
-    /* ----- Menus ----- */
-
-    add_obj_event_array(&menus, (obj_update_t){
-                                    ui_create_mod_button(cont_menu, "Back to pomodoro", true, 0),
-                                    &menu_pomodoro_back_to_main,
-                                });
-    add_obj_event_array(&menus, (obj_update_t){
-                                    ui_create_mod_button(cont_menu, "Start 25 minutes", true, 0),
-                                    &menu_pomodoro_back_to_main,
-                                });
-    add_obj_event_array(&menus, (obj_update_t){
-                                    ui_create_mod_button(cont_menu, "Play / Pause", true, 0),
-                                    &menu_pomodoro_back_to_main,
-                                });
-    add_obj_event_array(&menus, (obj_update_t){
-                                    ui_create_mod_button(cont_menu, "Start 10 minutes", true, 0),
-                                    &menu_pomodoro_back_to_main,
-                                });
-    add_obj_event_array(&menus, (obj_update_t){
-                                    ui_create_mod_button(cont_menu, "Reset", true, 0),
-                                    &menu_pomodoro_back_to_main,
-                                });
-    add_obj_event_array(&menus, (obj_update_t){
-                                    ui_create_mod_button(cont_menu, "< Back to Main", true, 0),
-                                    &menu_pomodoro_back_to_main,
-                                });
+    /* ----- menus ----- */
+    menus[0] = (obj_update_dilemma_menu_t){
+        ui_create_menu_line(cont_menu, "Back to pomodoro"),
+        NULL,
+    };
+    menus[1] = (obj_update_dilemma_menu_t){
+        ui_create_menu_line(cont_menu, "Start 25 minutes"),
+        &menu_pomodoro_start_25,
+    };
+    menus[2] = (obj_update_dilemma_menu_t){
+        ui_create_menu_line(cont_menu, "Play / Pause"),
+        &menu_pomodoro_play_pause,
+    };
+    menus[3] = (obj_update_dilemma_menu_t){
+        ui_create_menu_line(cont_menu, "Start 10 minutes"),
+        &menu_pomodoro_start_10,
+    };
+    menus[4] = (obj_update_dilemma_menu_t){
+        ui_create_menu_line(cont_menu, "Reset"),
+        &menu_pomodoro_back_to_main,
+    };
+    menus[5] = (obj_update_dilemma_menu_t){
+        ui_create_menu_line(cont_menu, "< Back to Main"),
+        &menu_pomodoro_back_to_main,
+    };
 
 }
 
-void menu_pomodoro_back_to_main(lv_obj_t *obj) {
-    // TODO
+// TODO this is useless, delete this
+static void menu_pomodoro_back_to_main(void) {
+    load_screen_pomodoro_base();
 }
 
-// TODO run a loop of this, rather than using hard-set array numbers
+static void menu_pomodoro_start_25(void){
+    timer_start      = timer_read32();
+    timer_max        = 25 * 60 * 1000;
+    timer_is_running = true;
+}
+
+static void menu_pomodoro_play_pause(void){
+    timer_is_running = !timer_is_running;
+}
+
+static void menu_pomodoro_start_10(void){
+    timer_start      = timer_read32();
+    timer_max        = 10 * 60 * 1000;
+    timer_is_running = true;
+}
+
+static void load_screen_pomodoro_base(){
+    lv_disp_load_scr(ui_screen_pomodoro);
+}
+
+static void load_screen_pomodoro_menu(){
+     // by default, the top button is pushed
+    menu_index = 0;
+    release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
+    press_menu_button(menus[0]);
+    lv_disp_load_scr(ui_screen_pomodoro_menu);
+}
+
 // TODO does this work if the keyboard is secondary instead of master?
 // we probably need to send the info over through rpc, just like in screen_base.
 // would it be worth it to make a pattern? since we will need to do this for other screens as well
+// we also have the issue of saving the selected widget. This needs a global memory storage, not per-module
+// we could also store a dynamic array of int: selected_module, selected_theme, etc.
 void refresh_screen_pomodoro(void) {
     static int last_layer;
     int        current_layer = get_highest_layer(layer_state);
@@ -104,63 +122,23 @@ void refresh_screen_pomodoro(void) {
         switch (current_layer) {
             case 0:
             default:
-                lv_disp_load_scr(ui_screen_pomodoro);
-                // make sure all the buttons are released, sometimes they don't unpress correctly
-                for (int i = 0; i < menus.amount_elements; i++) {
-                    lv_event_send(menus.array[i].obj, LV_EVENT_RELEASED, NULL);
-                }
-                // todo move this to a function?
-                // we went back to base layer. Let's check if there was a menu selected
-                switch (menu_index) {
-                    case 0:
-                    default:
-                        break;
-                    case 1:
-                        // start 25 minutes
-                        timer_start      = timer_read32();
-                        timer_max        = 25 * 60 * 1000;
-                        timer_is_running = true;
-                        break;
-                    case 2:
-                        // play / pause
-                        timer_is_running = !timer_is_running;
-                        break;
-                    case 3:
-                        // start 10 minutes
-                        timer_start      = timer_read32();
-                        timer_max        = 10 * 60 * 1000;
-                        timer_is_running = true;
-                        break;
-                    case 4:
-                        // reset
-                        // TODO is this really useful?
-                        timer_is_running = false;
-                        break;
-                }
-
+                // trigger selected menu function
+                menus[menu_index].update_function();
+                load_screen_pomodoro_base();
                 break;
-            // TODO replace with LAYER_LCD instead of hardcoding
-            // display the menu
             case 4:
-                // by default, the top button is pushed
-                menu_index = 0;
-                lv_event_send(menus.array[0].obj, LV_EVENT_PRESSED, NULL);
-                lv_disp_load_scr(ui_screen_pomodoro_menu);
-                break;
+                // TODO replace with LAYER_LCD instead of hardcoding
+               load_screen_pomodoro_menu();
+               break;
         }
     }
 
+    for(int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t); i++){
+        lv_obj_t *obj = widgets[i].obj;
+        if (obj && widgets[i].update_function)  widgets[i].update_function(obj);
+    }
+    
     last_layer = current_layer;
-
-    // if timer is running, then update the time
-    // if (timer_is_running) {
-        // TODO this is duplicate code
-        int i = 0;
-        for (i = 0; i < objects_and_events.amount_elements; i++) {
-            lv_obj_t *obj = objects_and_events.array[i].obj;
-            if (obj && objects_and_events.array[i].update_function) objects_and_events.array[i].update_function(obj);
-        }
-    // }
 }
 
 void update_pomodoro_time(lv_obj_t *obj) {
@@ -182,6 +160,7 @@ void update_pomodoro_time(lv_obj_t *obj) {
     }
 }
 
+//TODO static
 lv_obj_t *ui_create_pomodoro_title(lv_obj_t *cont) {
     lv_obj_t    *button = lv_btn_create(cont);
     ui_styles_t *styles = get_current_ui_styles();
@@ -202,6 +181,7 @@ lv_obj_t *ui_create_pomodoro_title(lv_obj_t *cont) {
 
 // for now only a text timer with dummy content
 // TODO change text
+//TODO static
 lv_obj_t *ui_create_pomodoro_time(lv_obj_t *cont) {
     lv_obj_t    *button = lv_btn_create(cont);
     ui_styles_t *styles = get_current_ui_styles();
@@ -219,6 +199,7 @@ lv_obj_t *ui_create_pomodoro_time(lv_obj_t *cont) {
     return label;
 }
 
+//TODO static
 lv_obj_t *ui_create_pomodoro_arc(lv_obj_t *cont) {
     lv_obj_t    *arc    = lv_arc_create(cont);
     ui_styles_t *styles = get_current_ui_styles();
@@ -248,6 +229,7 @@ lv_obj_t *ui_create_pomodoro_arc(lv_obj_t *cont) {
     return arc;
 }
 
+//TODO static
 void update_pomodoro_arc(lv_obj_t *obj) {
     if(timer_is_running == true) {
         uint32_t elapsed         = timer_max - timer_elapsed32(timer_start);
@@ -259,6 +241,6 @@ void update_pomodoro_arc(lv_obj_t *obj) {
 // TODO does this work well when the keyboard is not master?....
 // TODO this is something that will be reused in other menus, so we should move it maybe to screens/menu_nav.c ?
 bool process_record_screen_pomodoro(uint16_t keycode, keyrecord_t *record) {
-    process_record_menu(keycode, record, menus, &menu_index);
+    process_record_menu(keycode, record, menus, &menu_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
     return true;
 }

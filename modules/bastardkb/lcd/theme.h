@@ -1,3 +1,6 @@
+#ifndef THEME_H
+#define THEME_H
+
 #include "lvgl.h"
 
 /*
@@ -42,3 +45,5 @@ void     update_styles_from_current_theme(void);
 uint8_t  get_current_theme_id(void);
 void set_current_theme_id(uint8_t id);
 ui_styles_t *get_current_ui_styles(void);
+
+#endif

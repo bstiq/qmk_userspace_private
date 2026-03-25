@@ -17,6 +17,7 @@
 #include "screens/screen_base.h"
 #include "screens/screen_pomodoro.h"
 
+// TODO this be in screen_base instead, and the theme part in theme.c
 dilemma_status_t dilemma_lcd_status_prev = {0};
 dilemma_status_t dilemma_lcd_status      = {0};
 painter_device_t lcd;
@@ -24,7 +25,7 @@ painter_device_t lcd;
 lcd_module_t lcd_module_base = {
     .init_module                                      = &init_screen_base,
     .load_custom_theme_elements                       = &load_themes,
-    .load_module                                      = &load_module_screen_base,
+    .load_module                                      = &load_module_base,
     .update_custom_elements_styles_from_current_theme = &update_styles_from_current_theme,
     .refresh_module                                   = &refresh_screen_base,
 };
@@ -32,7 +33,7 @@ lcd_module_t lcd_module_base = {
 lcd_module_t lcd_module_pomodoro = {
     .init_module                                      = &init_screen_pomodoro,
     .load_custom_theme_elements                       = NULL,
-    .load_module                                      = &load_module_screen_pomodoro,
+    .load_module                                      = &load_module_pomodoro,
     .update_custom_elements_styles_from_current_theme = NULL,
     .refresh_module                                   = &refresh_screen_pomodoro,
 };
@@ -40,6 +41,14 @@ lcd_module_t lcd_module_pomodoro = {
 uint8_t selected_module = 1;
 
 lcd_module_t *lcd_modules[] = {&lcd_module_base, &lcd_module_pomodoro};
+
+const dilemma_status_t get_dilemma_lcd_status(void) {
+    return (const dilemma_status_t)dilemma_lcd_status;
+}
+
+const dilemma_status_t get_dilemma_lcd_status_prev(void) {
+    return (const dilemma_status_t)dilemma_lcd_status_prev;
+}
 
 void init_display(void) {
     // Display timeout
@@ -203,6 +212,8 @@ we do not store the updated config in eeprom, this is done by master in cycle_th
 if later we would like to do that, first we need to sync halves in the dilemma code with kb eeprom, and then implement
 theme sync here with user eeprom
 */
+// TODO this be in screen_base instead, as it's only used there.
+// the theme part should be separated and managed independentely in theme.c
 void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
     if (is_keyboard_left()) {
         if (initiator2target_buffer_size == sizeof(dilemma_lcd_status)) {
@@ -218,6 +229,7 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
     }
 }
 
+// TODO this be in screen_base instead, as it's only used there.
 void update_dilemma_status(void) {
     dilemma_lcd_status.mods            = get_mods();
     dilemma_lcd_status.layer           = get_highest_layer(layer_state);

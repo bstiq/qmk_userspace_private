@@ -1,3 +1,6 @@
+#ifndef LCD_H
+#define LCD_H
+
 #include QMK_KEYBOARD_H
 #include "introspection.h"
 #include "lvgl.h"
@@ -42,3 +45,8 @@ void refresh_lcd_info(void);
 void cycle_theme_and_save_in_eeprom(void);
 void init_display(void);
 void write_config_to_eeprom(void);
+
+const dilemma_status_t get_dilemma_lcd_status(void) ;
+const dilemma_status_t get_dilemma_lcd_status_prev(void) ;
+
+#endif

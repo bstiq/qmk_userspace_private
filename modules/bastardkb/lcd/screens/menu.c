@@ -17,14 +17,14 @@ bool process_record_menu(uint16_t keycode, keyrecord_t *record, const obj_update
     switch (keycode) {
         case LCD_MENU_NEXT:
             if (record->event.pressed) {
-                release_menu_button(menus[*menu_index]);
+                release_all_buttons(menus, menu_size);
                 *menu_index = (*menu_index + 1) % menu_size;
                 press_menu_button(menus[*menu_index]);
             }
             break;
         case LCD_MENU_PREV:
             if (record->event.pressed) {
-                release_menu_button(menus[*menu_index]);
+                release_all_buttons(menus, menu_size);
                 *menu_index = (*menu_index - 1 + menu_size) % menu_size;
                 press_menu_button(menus[*menu_index]);
             }

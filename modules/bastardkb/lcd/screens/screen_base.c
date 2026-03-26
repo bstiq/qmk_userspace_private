@@ -39,6 +39,7 @@ static lv_obj_t *ui_screen_base_menu;
 
 static obj_update_dilemma_lcd_status_t widgets[14];
 static obj_update_dilemma_menu_t menus[3];
+static uint8_t screen_index = 0;
 static uint8_t menu_index = 0;
 
 void load_module_base(void){
@@ -275,13 +276,17 @@ static void update_mod_dpi_bar(lv_obj_t *obj, const dilemma_status_t current_sta
 static void load_screen_base_base(void){
     release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
     lv_disp_load_scr(ui_screen_base);
+    menu_index = 0;
+    screen_index = 0;
 }
 
 static void load_screen_base_menu(void){
+    lv_disp_load_scr(ui_screen_base_menu);
      // by default, the top button is pushed
     menu_index = 0;
+    release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
     press_menu_button(menus[0]);
-    lv_disp_load_scr(ui_screen_base_menu);
+    screen_index = 1;
 }
 
 void refresh_screen_base(void) {
@@ -314,6 +319,9 @@ void refresh_screen_base(void) {
 
 // TODO does this work well when the keyboard is not master?....
 bool process_record_screen_base(uint16_t keycode, keyrecord_t *record) {
-    process_record_menu(keycode, record, menus, &menu_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
+    // TODO index is hardcoded...
+    if(screen_index == 1){
+        process_record_menu(keycode, record, menus, &menu_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
+    }
     return true;
 }

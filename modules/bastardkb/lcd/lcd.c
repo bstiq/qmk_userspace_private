@@ -18,40 +18,40 @@
 #include "screens/screen_pomodoro.h"
 
 // TODO this be in screen_base instead, and the theme part in theme.c
-dilemma_status_t dilemma_lcd_status_prev = {0};
-dilemma_status_t dilemma_lcd_status      = {0};
+dilemma_status_t dilemma_lcd_status_prev = { 0 };
+dilemma_status_t dilemma_lcd_status = { 0 };
 painter_device_t lcd;
 
-typedef struct{
+typedef struct {
     void (*load_module)(void);
     void (*init_module)(void);
     void (*load_custom_theme_elements)(void);
     void (*update_custom_elements_styles_from_current_theme)(void);
     void (*refresh_module)(void);
-    bool (*process_record)(uint16_t keycode, keyrecord_t *record);
+    bool (*process_record)(uint16_t keycode, keyrecord_t* record);
 } lcd_module_t;
 
 lcd_module_t lcd_module_base = {
-    .init_module                                      = &init_screen_base,
-    .load_custom_theme_elements                       = &load_themes,
-    .load_module                                      = &load_module_base,
+    .init_module = &init_screen_base,
+    .load_custom_theme_elements = &load_themes,
+    .load_module = &load_module_base,
     .update_custom_elements_styles_from_current_theme = &update_styles_from_current_theme,
-    .refresh_module                                   = &refresh_screen_base,
-    .process_record                                   = &process_record_screen_base,
+    .refresh_module = &refresh_screen_base,
+    .process_record = &process_record_screen_base,
 };
 
 lcd_module_t lcd_module_pomodoro = {
-    .init_module                                      = &init_screen_pomodoro,
-    .load_custom_theme_elements                       = NULL,
-    .load_module                                      = &load_module_pomodoro,
+    .init_module = &init_screen_pomodoro,
+    .load_custom_theme_elements = NULL,
+    .load_module = &load_module_pomodoro,
     .update_custom_elements_styles_from_current_theme = NULL,
-    .refresh_module                                   = &refresh_screen_pomodoro,
-    .process_record                                   = &process_record_screen_pomodoro,
+    .refresh_module = &refresh_screen_pomodoro,
+    .process_record = &process_record_screen_pomodoro,
 };
 
-lcd_module_t *lcd_modules[] = {&lcd_module_base, &lcd_module_pomodoro};
+lcd_module_t* lcd_modules[] = { &lcd_module_base, &lcd_module_pomodoro };
 
-static uint8_t selected_module = MODULE_POMODORO;
+static uint8_t selected_module = MODULE_BASE;
 
 // TODO move those into base screen
 const dilemma_status_t get_dilemma_lcd_status(void) {
@@ -84,7 +84,7 @@ void init_display(void) {
     load_themes();
     init_styles();
 
-    for (int i = 0; i < sizeof(lcd_modules) / sizeof(lcd_module_t *); i++) {
+    for (int i = 0; i < sizeof(lcd_modules) / sizeof(lcd_module_t*); i++) {
         if (lcd_modules[i]->init_module != NULL) {
             lcd_modules[i]->init_module();
         }
@@ -99,10 +99,10 @@ void init_display(void) {
     // lv_disp_load_scr(ui_screen_pomodoro);
 }
 
-void set_current_module(uint8_t module){
-    if(module < sizeof(lcd_modules) / sizeof(lcd_module_t *)){
+void set_current_module(uint8_t module) {
+    if (module < sizeof(lcd_modules) / sizeof(lcd_module_t*)) {
         selected_module = module;
-        if(lcd_modules[selected_module]->load_module){
+        if (lcd_modules[selected_module]->load_module) {
             lcd_modules[selected_module]->load_module();
         }
     }
@@ -176,9 +176,9 @@ void housekeeping_task_lcd(void) {
         // if the keyboard is right, we need to send the sync info over to the left side
         // saving the theme id to eeprom has already been done in process_record
         else {
-            bool            needs_sync   = false;
+            bool            needs_sync = false;
             static bool     needs_resync = true; // perform an initial first sync
-            static uint32_t last_sync    = 0;
+            static uint32_t last_sync = 0;
             // // Check if the state values are different.
             if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
                 needs_sync = true;
@@ -204,11 +204,10 @@ void housekeeping_task_lcd(void) {
     }
 }
 
-bool process_record_lcd(uint16_t keycode, keyrecord_t *record) {
-    // TODO call process_records of current screen
-    // for now we call the pomodoro one
-    lcd_modules[selected_module]->process_record(keycode, record);
-    // process_record_screen_pomodoro(keycode, record);
+bool process_record_lcd(uint16_t keycode, keyrecord_t* record) {
+    if (lcd_modules[selected_module]->process_record != NULL) {
+        lcd_modules[selected_module]->process_record(keycode, record);
+    }
     switch (keycode) {
         case LCD_MODULE_CHANGE_THEME:
             if (record->event.pressed) {
@@ -237,11 +236,11 @@ theme sync here with user eeprom
 */
 // TODO this be in screen_base instead, as it's only used there.
 // the theme part should be separated and managed independentely in theme.c
-void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *initiator2target_buffer, uint8_t target2initiator_buffer_size, void *target2initiator_buffer) {
+void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
     if (is_keyboard_left()) {
         if (initiator2target_buffer_size == sizeof(dilemma_lcd_status)) {
             dilemma_lcd_status_prev = dilemma_lcd_status;
-            dilemma_lcd_status      = *(const dilemma_status_t *)initiator2target_buffer;
+            dilemma_lcd_status = *(const dilemma_status_t*)initiator2target_buffer;
 
             if (dilemma_lcd_status_prev.current_theme_id != dilemma_lcd_status.current_theme_id) {
                 set_current_theme_id(dilemma_lcd_status.current_theme_id);
@@ -254,13 +253,13 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void *i
 
 // TODO this be in screen_base instead, as it's only used there.
 void update_dilemma_status(void) {
-    dilemma_lcd_status.mods            = get_mods();
-    dilemma_lcd_status.layer           = get_highest_layer(layer_state);
-    dilemma_lcd_status.sniping         = dilemma_get_pointer_sniping_enabled();
-    dilemma_lcd_status.dpi             = dilemma_get_pointer_default_dpi();
-    dilemma_lcd_status.s_dpi           = dilemma_get_pointer_sniping_dpi();
-    dilemma_lcd_status.scrolling       = dilemma_get_pointer_dragscroll_enabled();
-    dilemma_lcd_status.rgb_enabled     = rgb_matrix_is_enabled();
+    dilemma_lcd_status.mods = get_mods();
+    dilemma_lcd_status.layer = get_highest_layer(layer_state);
+    dilemma_lcd_status.sniping = dilemma_get_pointer_sniping_enabled();
+    dilemma_lcd_status.dpi = dilemma_get_pointer_default_dpi();
+    dilemma_lcd_status.s_dpi = dilemma_get_pointer_sniping_dpi();
+    dilemma_lcd_status.scrolling = dilemma_get_pointer_dragscroll_enabled();
+    dilemma_lcd_status.rgb_enabled = rgb_matrix_is_enabled();
     dilemma_lcd_status.rgb_effect_mode = rgb_matrix_get_mode();
-    dilemma_lcd_status.rgb_val         = rgb_matrix_get_val();
+    dilemma_lcd_status.rgb_val = rgb_matrix_get_val();
 }

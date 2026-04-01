@@ -208,23 +208,22 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t* record) {
     if (lcd_modules[selected_module]->process_record != NULL) {
         lcd_modules[selected_module]->process_record(keycode, record);
     }
-    switch (keycode) {
-        case LCD_MODULE_CHANGE_THEME:
-            if (record->event.pressed) {
-                if (is_keyboard_master()) {
-                    cycle_theme_and_save_in_eeprom();
-                    // if the keyboard is left, then we directly update the styles
-                    // if the keyboard is right, we need to send the sync info over to the left side
-                    // that will be done in housekeeping
-                    if (is_keyboard_left()) {
-                        update_styles_from_current_theme();
-                    }
-                    // TODO this is done in cycle_theme_and_save_in_eeprom, we can remove it
-                    dilemma_lcd_status.current_theme_id = get_current_theme_id();
-                }
-            }
-            break;
-    }
+    // switch (keycode) {
+    //     case LCD_MODULE_CHANGE_THEME:
+    //         if (record->event.pressed) {
+    //             if (is_keyboard_master()) {
+    //                 cycle_theme_and_save_in_eeprom();
+    //                 // if the keyboard is left, then we directly update the styles
+    //                 // if the keyboard is right, we need to send the sync info over to the left side
+    //                 // that will be done in housekeeping
+    //                 if (is_keyboard_left()) {
+    //                     update_styles_from_current_theme();
+    //                 }
+    //                 // TODO this is done in cycle_theme_and_save_in_eeprom, we can remove it
+    //             }
+    //         }
+    //         break;
+    // }
     return true;
 }
 
@@ -262,4 +261,5 @@ void update_dilemma_status(void) {
     dilemma_lcd_status.rgb_enabled = rgb_matrix_is_enabled();
     dilemma_lcd_status.rgb_effect_mode = rgb_matrix_get_mode();
     dilemma_lcd_status.rgb_val = rgb_matrix_get_val();
+    dilemma_lcd_status.current_theme_id = get_current_theme_id();
 }

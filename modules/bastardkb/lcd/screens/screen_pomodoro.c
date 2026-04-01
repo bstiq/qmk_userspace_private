@@ -93,8 +93,8 @@ void init_screen_pomodoro(void) {
 }
 
 // TODO this is useless, delete this
-static void menu_pomodoro_go_base(void) { 
-    set_current_module(MODULE_BASE); 
+static void menu_pomodoro_go_base(void) {
+    set_current_module(MODULE_BASE);
 }
 
 static void menu_pomodoro_start_25(void) {
@@ -114,17 +114,19 @@ static void menu_pomodoro_start_10(void) {
 }
 
 static void load_screen_pomodoro_base(void) {
-    release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
-    lv_disp_load_scr(ui_screen_pomodoro);
-    screen_index = 0;
+    load_screen_xx_base(menus, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro);
+    // release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
+    // lv_disp_load_scr(ui_screen_pomodoro);
+    // screen_index = 0;
 }
 
 static void load_screen_pomodoro_menu(void) {
-    release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
-    press_menu_button(menus[0]);
-    lv_disp_load_scr(ui_screen_pomodoro_menu);
-    menu_index = 0;
-    screen_index = 1;
+    // release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
+    // press_menu_button(menus[0]);
+    // lv_disp_load_scr(ui_screen_pomodoro_menu);
+    // menu_index = 0;
+    // screen_index = 1;
+    load_screen_xx_menu(menus, &menu_index, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro_menu);
 }
 
 // TODO does this work if the keyboard is secondary instead of master?
@@ -154,9 +156,7 @@ void refresh_screen_pomodoro(void) {
         }
     }
 
-    for (int i = 0;
-        i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t);
-        i++)
+    for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t); i++)
     {
         lv_obj_t* obj = widgets[i].obj;
         if (obj && widgets[i].update_function)
@@ -224,11 +224,15 @@ static lv_obj_t* ui_create_pomodoro_time(lv_obj_t* cont) {
 }
 
 static lv_obj_t* ui_create_pomodoro_arc(lv_obj_t* cont) {
-    lv_obj_t* arc = lv_arc_create(cont);
+    lv_obj_t* button = lv_btn_create(cont);
+    lv_obj_t* arc = lv_arc_create(button);
     ui_styles_t* styles = get_current_ui_styles();
 
+    lv_obj_add_flag(button, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // new line
+    lv_obj_set_flex_grow(button, 1);                        // take all remaining space in line
+    lv_obj_add_style(button, &styles->layer_name, 0);
+
     lv_obj_add_style(arc, &styles->bar, LV_PART_INDICATOR);
-    lv_obj_add_flag(arc, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK); // new line
 
     // TODO move this into a style init
     // we could do a post-processing in style init where we copy over the
@@ -256,7 +260,7 @@ static lv_obj_t* ui_create_pomodoro_arc(lv_obj_t* cont) {
 }
 
 static void update_pomodoro_arc(lv_obj_t* obj) {
-    if (timer_is_running == true){
+    if (timer_is_running == true) {
         uint32_t elapsed = timer_max - timer_elapsed32(timer_start);
         uint16_t elapsed_percent = (elapsed * 100) / timer_max;
         lv_arc_set_value(obj, elapsed_percent);
@@ -269,7 +273,7 @@ static void update_pomodoro_arc(lv_obj_t* obj) {
 // TODO the layer is hardcoded.... and it will be different on Dilemma and Dilemma
 bool process_record_screen_pomodoro(uint16_t keycode, keyrecord_t* record)
 {
-    if(screen_index == 1){
+    if (screen_index == 1) {
         process_record_menu(keycode, record, menus, &menu_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
     }
 

@@ -2,7 +2,6 @@
 #define MENU_H
 
 #include "lvgl.h"
-#include "utilities.h"
 #include QMK_KEYBOARD_H
 
 typedef struct{

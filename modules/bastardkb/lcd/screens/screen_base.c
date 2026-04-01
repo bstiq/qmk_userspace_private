@@ -31,6 +31,7 @@ static void update_mod_xx(lv_obj_t *obj, uint8_t mod_mask, const dilemma_status_
 static void update_rgb_effect(lv_obj_t *obj, const dilemma_status_t current_status, const dilemma_status_t prev_status);
 static const char *rgb_matrix_get_effect_name(void);
 static void menu_base_go_pomodoro(void);
+static void menu_base_change_theme(void);
 static void load_screen_base_menu(void);
 static void load_screen_base_base(void);
 
@@ -97,13 +98,25 @@ void init_screen_base(void) {
     // TODO later, create a "theme options" module? but then at each bootmagic flash it will be erased :(
     menus[2] = (obj_update_dilemma_menu_t){
         ui_create_menu_line(cont_menu, "Change theme"),
-        NULL,
+        &menu_base_change_theme,
     };
 
 }
 
 static void menu_base_go_pomodoro(void){
     set_current_module(MODULE_POMODORO);
+}
+
+static void menu_base_change_theme(void){
+    cycle_theme_and_save_in_eeprom();
+    // if the keyboard is left, then we directly update the styles
+    // if the keyboard is right, we need to send the sync info over to the left side
+    // that will be done in housekeeping
+    if (is_keyboard_left()) {
+        update_styles_from_current_theme();
+    }
+    // TODO this is done in cycle_theme_and_save_in_eeprom, we can remove it
+    // dilemma_lcd_status.current_theme_id = get_current_theme_id();
 }
 
 static const char *rgb_matrix_get_effect_name(void) {
@@ -274,19 +287,23 @@ static void update_mod_dpi_bar(lv_obj_t *obj, const dilemma_status_t current_sta
 }
 
 static void load_screen_base_base(void){
-    release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
-    lv_disp_load_scr(ui_screen_base);
-    menu_index = 0;
-    screen_index = 0;
+    // release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
+    // lv_disp_load_scr(ui_screen_base);
+    // // menu_index = 0;
+    // screen_index = 0;
+
+    load_screen_xx_base(menus, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t),ui_screen_base);
 }
 
 static void load_screen_base_menu(void){
-    lv_disp_load_scr(ui_screen_base_menu);
-     // by default, the top button is pushed
-    menu_index = 0;
-    release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
-    press_menu_button(menus[0]);
-    screen_index = 1;
+    // lv_disp_load_scr(ui_screen_base_menu);
+    //  // by default, the top button is pushed
+    // menu_index = 0;
+    // release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
+    // press_menu_button(menus[0]);
+    // screen_index = 1;
+
+    load_screen_xx_menu(menus, &menu_index, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_base_menu);
 }
 
 void refresh_screen_base(void) {
@@ -311,7 +328,8 @@ void refresh_screen_base(void) {
 
     for(int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++){
         lv_obj_t *obj = widgets[i].obj;
-        if (obj && widgets[i].update_function)  widgets[i].update_function(obj, current_status, prev_status);
+        if (obj && widgets[i].update_function)  
+            widgets[i].update_function(obj, current_status, prev_status);
     }
     
     last_layer = current_layer;

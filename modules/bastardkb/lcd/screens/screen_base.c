@@ -335,7 +335,6 @@ void refresh_screen_base(void) {
     last_layer = current_layer;
 }
 
-// TODO does this work well when the keyboard is not master?....
 bool process_record_screen_base(uint16_t keycode, keyrecord_t *record) {
     // TODO index is hardcoded...
     if(screen_index == 1){

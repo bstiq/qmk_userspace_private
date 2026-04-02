@@ -22,15 +22,6 @@ dilemma_status_t dilemma_lcd_status_prev = { 0 };
 dilemma_status_t dilemma_lcd_status = { 0 };
 painter_device_t lcd;
 
-typedef struct {
-    void (*load_module)(void);
-    void (*init_module)(void);
-    void (*load_custom_theme_elements)(void);
-    void (*update_custom_elements_styles_from_current_theme)(void);
-    void (*refresh_module)(void);
-    bool (*process_record)(uint16_t keycode, keyrecord_t* record);
-} lcd_module_t;
-
 lcd_module_t lcd_module_base = {
     .init_module = &init_screen_base,
     .load_custom_theme_elements = &load_themes,
@@ -121,6 +112,7 @@ void keyboard_post_init_lcd(void) {
 
     // register rpc mouse data syncing
     transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
+    transaction_register_rpc(RPC_ID_MENU_SYNC, menu_info_sync_handler);
 }
 
 // TODO get colors based on real layer colors, instead of hardcoding them
@@ -204,27 +196,45 @@ void housekeeping_task_lcd(void) {
     }
 }
 
+// the processing is done only on primary.
+// when screen is on secondary, we want to RPC it instead
+// TODO the second part shoud probably be handled in menu.c... but we need access to lcd_modules and selected_module, which would require a getter
 bool process_record_lcd(uint16_t keycode, keyrecord_t* record) {
-    if (lcd_modules[selected_module]->process_record != NULL) {
-        lcd_modules[selected_module]->process_record(keycode, record);
+    if (is_keyboard_master()) {
+        if (is_keyboard_left()) {
+            // we have the screen installed. process things directly
+            if (lcd_modules[selected_module]->process_record != NULL) {
+                lcd_modules[selected_module]->process_record(keycode, record);
+            }
+        }
+        else {
+            // we need to RPC the keycode to the secondary side for processing
+            // TODO only send it if it's one of the custom screen keycodes
+            dilemma_keycode_event_t dilemma_keycode_event = {
+                .keycode = keycode,
+                .record = *record,
+            };
+            transaction_rpc_send(RPC_ID_MENU_SYNC, sizeof(dilemma_keycode_event), &dilemma_keycode_event);
+        }
     }
-    // switch (keycode) {
-    //     case LCD_MODULE_CHANGE_THEME:
-    //         if (record->event.pressed) {
-    //             if (is_keyboard_master()) {
-    //                 cycle_theme_and_save_in_eeprom();
-    //                 // if the keyboard is left, then we directly update the styles
-    //                 // if the keyboard is right, we need to send the sync info over to the left side
-    //                 // that will be done in housekeeping
-    //                 if (is_keyboard_left()) {
-    //                     update_styles_from_current_theme();
-    //                 }
-    //                 // TODO this is done in cycle_theme_and_save_in_eeprom, we can remove it
-    //             }
-    //         }
-    //         break;
-    // }
     return true;
+}
+
+/*
+called by right side, executed by left side (where the screen is)
+we do not store the updated config in eeprom, this is done by master in cycle_theme
+if later we would like to do that, first we need to sync halves in the dilemma code with kb eeprom, and then implement
+theme sync here with user eeprom
+*/
+void menu_info_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
+    if (is_keyboard_left()) {
+        if (initiator2target_buffer_size == sizeof(dilemma_keycode_event_t)) {
+            dilemma_keycode_event_t dilemma_keycode_event = *(const dilemma_keycode_event_t*)initiator2target_buffer;
+            if (lcd_modules[selected_module]->process_record != NULL) {
+                lcd_modules[selected_module]->process_record(dilemma_keycode_event.keycode, &dilemma_keycode_event.record);
+            }
+        }
+    }
 }
 
 /*

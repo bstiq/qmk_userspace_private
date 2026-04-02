@@ -3,16 +3,34 @@
 #include "lvgl.h"
 #include <ctype.h>
 
+#include "config.h"
 #include "screen_base.h"
 #include "screen_pomodoro.h"
 #include "lcd.h"
 #include "menu.h"
 #include "ui_elements.h"
+#include "transactions.h"
+
+typedef struct {
+    uint8_t                mods;
+    bool                   sniping;
+    bool                   scrolling;
+    uint8_t                layer;
+    uint8_t                current_theme_id;
+    uint8_t                rgb_enabled;
+    uint8_t                rgb_effect_mode;
+    uint16_t               rgb_val;
+    uint16_t               dpi;
+    uint16_t               s_dpi;
+} dilemma_status_t;
 
 typedef struct{
     lv_obj_t *obj;
     void (*update_function)(lv_obj_t*, dilemma_status_t current_status, dilemma_status_t prev_status);
 } obj_update_dilemma_lcd_status_t;
+
+dilemma_status_t dilemma_lcd_status_prev = { 0 };
+dilemma_status_t dilemma_lcd_status = { 0 };
 
 static void update_layer_name(lv_obj_t *obj, const dilemma_status_t current_status, const dilemma_status_t prev_status);
 static void update_rgb_value(lv_obj_t* obj, const dilemma_status_t current_status, const dilemma_status_t prev_status);
@@ -102,6 +120,57 @@ void init_screen_base(void) {
     };
 
 }
+
+void update_dilemma_status(void) {
+    dilemma_lcd_status.mods = get_mods();
+    dilemma_lcd_status.layer = get_highest_layer(layer_state);
+    dilemma_lcd_status.sniping = dilemma_get_pointer_sniping_enabled();
+    dilemma_lcd_status.dpi = dilemma_get_pointer_default_dpi();
+    dilemma_lcd_status.s_dpi = dilemma_get_pointer_sniping_dpi();
+    dilemma_lcd_status.scrolling = dilemma_get_pointer_dragscroll_enabled();
+    dilemma_lcd_status.rgb_enabled = rgb_matrix_is_enabled();
+    dilemma_lcd_status.rgb_effect_mode = rgb_matrix_get_mode();
+    dilemma_lcd_status.rgb_val = rgb_matrix_get_val();
+    dilemma_lcd_status.current_theme_id = get_current_theme_id();
+}
+
+void housekeeping_task_screen_base(void){
+    if (is_keyboard_master()) {
+        update_dilemma_status();
+        // if the keyboard is left, nothing to do - the screen will be refreshed by the main LCD housekeeping task
+        if (is_keyboard_left()) {
+        }
+        // if the keyboard is right, we need to send the sync info over to the left side
+        // saving the theme id to eeprom has already been done in process_record
+        else {
+            bool            needs_sync = false;
+            static bool     needs_resync = true; // perform an initial first sync
+            static uint32_t last_sync = 0;
+            // // Check if the state values are different.
+            if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
+                needs_sync = true;
+            }
+            // check if a previous sync has failed
+            if (needs_resync) {
+                // we only want to retry syncing after a set amount of time
+                if (timer_elapsed32(last_sync) > 200) {
+                    needs_sync = true;
+                }
+            }
+            // perform the sync if requested
+            if (needs_sync) {
+                // try to sync, if it fails we will retry in the next housekeeping loop
+                if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false) {
+                    needs_resync = true;
+                }
+                last_sync = timer_read32();
+            }
+        }
+
+        dilemma_lcd_status_prev = dilemma_lcd_status;
+    }
+}
+
 
 static void menu_base_go_pomodoro(void){
     set_current_module(MODULE_POMODORO);
@@ -307,8 +376,8 @@ static void load_screen_base_menu(void){
 }
 
 void refresh_screen_base(void) {
-    const dilemma_status_t current_status = get_dilemma_lcd_status();
-    const dilemma_status_t prev_status    = get_dilemma_lcd_status_prev();
+    const dilemma_status_t current_status = (const dilemma_status_t)dilemma_lcd_status;
+    const dilemma_status_t prev_status    = (const dilemma_status_t)dilemma_lcd_status_prev;
     static int last_layer;
     int        current_layer = get_highest_layer(layer_state);
 
@@ -341,4 +410,26 @@ bool process_record_screen_base(uint16_t keycode, keyrecord_t *record) {
         process_record_menu(keycode, record, menus, &menu_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
     }
     return true;
+}
+
+/*
+called by right side, executed by left side (where the screen is)
+we do not store the updated config in eeprom, this is done by master in cycle_theme
+if later we would like to do that, first we need to sync halves in the dilemma code with kb eeprom, and then implement
+theme sync here with user eeprom
+*/
+// TODO the theme part should be separated and managed independentely in theme.c
+void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
+    if (is_keyboard_left()) {
+        if (initiator2target_buffer_size == sizeof(dilemma_lcd_status)) {
+            dilemma_lcd_status_prev = dilemma_lcd_status;
+            dilemma_lcd_status = *(const dilemma_status_t*)initiator2target_buffer;
+
+            if (dilemma_lcd_status_prev.current_theme_id != dilemma_lcd_status.current_theme_id) {
+                set_current_theme_id(dilemma_lcd_status.current_theme_id);
+                update_styles_from_current_theme();
+            }
+            refresh_lcd_info();
+        }
+    }
 }

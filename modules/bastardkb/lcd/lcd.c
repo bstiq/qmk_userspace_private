@@ -17,9 +17,6 @@
 #include "screens/screen_base.h"
 #include "screens/screen_pomodoro.h"
 
-// TODO this be in screen_base instead, and the theme part in theme.c
-dilemma_status_t dilemma_lcd_status_prev = { 0 };
-dilemma_status_t dilemma_lcd_status = { 0 };
 painter_device_t lcd;
 
 lcd_module_t lcd_module_base = {
@@ -29,6 +26,7 @@ lcd_module_t lcd_module_base = {
     .update_custom_elements_styles_from_current_theme = &update_styles_from_current_theme,
     .refresh_module = &refresh_screen_base,
     .process_record = &process_record_screen_base,
+    .housekeeping_task = &housekeeping_task_screen_base,
 };
 
 lcd_module_t lcd_module_pomodoro = {
@@ -43,16 +41,6 @@ lcd_module_t lcd_module_pomodoro = {
 lcd_module_t* lcd_modules[] = { &lcd_module_base, &lcd_module_pomodoro };
 
 static uint8_t selected_module = MODULE_BASE;
-
-// TODO move those into base screen
-const dilemma_status_t get_dilemma_lcd_status(void) {
-    return (const dilemma_status_t)dilemma_lcd_status;
-}
-
-// TODO move those into base screen
-const dilemma_status_t get_dilemma_lcd_status_prev(void) {
-    return (const dilemma_status_t)dilemma_lcd_status_prev;
-}
 
 void init_display(void) {
     // Display timeout
@@ -103,8 +91,9 @@ void keyboard_post_init_lcd(void) {
     load_dilemma_theme_config_from_eeprom();
 
     // copy only the relevant information from eeprom into local config
-    // todo move this to update_dilemma_status?
-    dilemma_lcd_status.current_theme_id = get_current_theme_id();
+    // todo move this to theme.c, we want to manage the storage there.
+    // we also need to decouple the theme from the satus
+    // dilemma_lcd_status.current_theme_id = get_current_theme_id();
 
     if (is_keyboard_left()) {
         init_display();
@@ -159,6 +148,11 @@ void refresh_lcd_info(void) {
 }
 
 void housekeeping_task_lcd(void) {
+
+    if (lcd_modules[selected_module]->housekeeping_task != NULL) {
+        lcd_modules[selected_module]->housekeeping_task();
+    }
+
     if (is_keyboard_master()) {
         update_dilemma_status();
         // if the keyboard is left, nothing to do - just refresh the screen
@@ -167,32 +161,32 @@ void housekeeping_task_lcd(void) {
         }
         // if the keyboard is right, we need to send the sync info over to the left side
         // saving the theme id to eeprom has already been done in process_record
-        else {
-            bool            needs_sync = false;
-            static bool     needs_resync = true; // perform an initial first sync
-            static uint32_t last_sync = 0;
-            // // Check if the state values are different.
-            if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
-                needs_sync = true;
-            }
-            // check if a previous sync has failed
-            if (needs_resync) {
-                // we only want to retry syncing after a set amount of time
-                if (timer_elapsed32(last_sync) > 200) {
-                    needs_sync = true;
-                }
-            }
-            // perform the sync if requested
-            if (needs_sync) {
-                // try to sync, if it fails we will retry in the next housekeeping loop
-                if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false) {
-                    needs_resync = true;
-                }
-                last_sync = timer_read32();
-            }
-        }
+        // else {
+        //     bool            needs_sync = false;
+        //     static bool     needs_resync = true; // perform an initial first sync
+        //     static uint32_t last_sync = 0;
+        //     // // Check if the state values are different.
+        //     if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
+        //         needs_sync = true;
+        //     }
+        //     // check if a previous sync has failed
+        //     if (needs_resync) {
+        //         // we only want to retry syncing after a set amount of time
+        //         if (timer_elapsed32(last_sync) > 200) {
+        //             needs_sync = true;
+        //         }
+        //     }
+        //     // perform the sync if requested
+        //     if (needs_sync) {
+        //         // try to sync, if it fails we will retry in the next housekeeping loop
+        //         if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false) {
+        //             needs_resync = true;
+        //         }
+        //         last_sync = timer_read32();
+        //     }
+        // }
 
-        dilemma_lcd_status_prev = dilemma_lcd_status;
+        // dilemma_lcd_status_prev = dilemma_lcd_status;
     }
 }
 
@@ -235,41 +229,4 @@ void menu_info_sync_handler(uint8_t initiator2target_buffer_size, const void* in
             }
         }
     }
-}
-
-/*
-called by right side, executed by left side (where the screen is)
-we do not store the updated config in eeprom, this is done by master in cycle_theme
-if later we would like to do that, first we need to sync halves in the dilemma code with kb eeprom, and then implement
-theme sync here with user eeprom
-*/
-// TODO this be in screen_base instead, as it's only used there.
-// the theme part should be separated and managed independentely in theme.c
-void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-    if (is_keyboard_left()) {
-        if (initiator2target_buffer_size == sizeof(dilemma_lcd_status)) {
-            dilemma_lcd_status_prev = dilemma_lcd_status;
-            dilemma_lcd_status = *(const dilemma_status_t*)initiator2target_buffer;
-
-            if (dilemma_lcd_status_prev.current_theme_id != dilemma_lcd_status.current_theme_id) {
-                set_current_theme_id(dilemma_lcd_status.current_theme_id);
-                update_styles_from_current_theme();
-            }
-            refresh_lcd_info();
-        }
-    }
-}
-
-// TODO this be in screen_base instead, as it's only used there.
-void update_dilemma_status(void) {
-    dilemma_lcd_status.mods = get_mods();
-    dilemma_lcd_status.layer = get_highest_layer(layer_state);
-    dilemma_lcd_status.sniping = dilemma_get_pointer_sniping_enabled();
-    dilemma_lcd_status.dpi = dilemma_get_pointer_default_dpi();
-    dilemma_lcd_status.s_dpi = dilemma_get_pointer_sniping_dpi();
-    dilemma_lcd_status.scrolling = dilemma_get_pointer_dragscroll_enabled();
-    dilemma_lcd_status.rgb_enabled = rgb_matrix_is_enabled();
-    dilemma_lcd_status.rgb_effect_mode = rgb_matrix_get_mode();
-    dilemma_lcd_status.rgb_val = rgb_matrix_get_val();
-    dilemma_lcd_status.current_theme_id = get_current_theme_id();
 }

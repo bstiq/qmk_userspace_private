@@ -21,6 +21,5 @@ void press_menu_button(const obj_update_dilemma_menu_t button);
 void release_menu_button(const obj_update_dilemma_menu_t button);
 lv_obj_t *ui_create_menu_line(lv_obj_t *cont, const char *text);
 void trigger_menu_element(const obj_update_dilemma_menu_t menus[], uint8_t menu_index);
-void menu_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer);
 
 #endif

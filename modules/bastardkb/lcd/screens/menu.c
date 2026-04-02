@@ -1,28 +1,6 @@
 #include "menu.h"
 #include "theme.h"
 
-// typedef struct {
-//     keyrecord_t* record;
-// } dilemma_keycode_event_t;
-
-void menu_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-    // if (is_keyboard_left()) {
-    //     if (initiator2target_buffer_size == sizeof(dilemma_keycode_event_t)) {
-    //         dilemma_keycode_event_t dilemma_keycode_event = *(const dilemma_keycode_event_t*)initiator2target_buffer;
-           
-    //     }
-        //     dilemma_lcd_status_prev = dilemma_lcd_status;
-        //     dilemma_lcd_status = *(const dilemma_status_t*)initiator2target_buffer;
-
-        //     if (dilemma_lcd_status_prev.current_theme_id != dilemma_lcd_status.current_theme_id) {
-        //         set_current_theme_id(dilemma_lcd_status.current_theme_id);
-        //         update_styles_from_current_theme();
-        //     }
-        //     refresh_lcd_info();
-        // }
-    // }
-}
-
 void press_menu_button(const obj_update_dilemma_menu_t button){
     if(button.obj != NULL){
         lv_event_send(button.obj, LV_EVENT_PRESSED, NULL);

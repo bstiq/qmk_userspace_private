@@ -39,6 +39,7 @@ lcd_module_t lcd_module_pomodoro = {
     .load_module = &load_module_pomodoro,
     .update_custom_elements_styles_from_current_theme = NULL,
     .process_record = &process_record_screen_pomodoro,
+    .housekeeping_task = &housekeeping_task_screen_pomodoro,
 };
 
 lcd_module_t* lcd_modules[] = { &lcd_module_base, &lcd_module_pomodoro };
@@ -140,7 +141,7 @@ void update_theme_color(void) {
 
 void housekeeping_task_lcd(void) {
 
-    // TODO do only if master?
+    // TODO do only if master? do only if left?
     if (lcd_modules[selected_module]->housekeeping_task != NULL) {
         lcd_modules[selected_module]->housekeeping_task();
     }

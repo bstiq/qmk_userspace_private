@@ -384,44 +384,42 @@ static void load_screen_base_menu(void) {
 }
 
 void refresh_screen_base(void) {
-    if (is_keyboard_left()) {
-        const dilemma_status_t current_status = (const dilemma_status_t)dilemma_lcd_status;
-        const dilemma_status_t prev_status = (const dilemma_status_t)dilemma_lcd_status_prev;
-        static int last_layer;
-        int        current_layer = get_highest_layer(layer_state);
+    const dilemma_status_t current_status = (const dilemma_status_t)dilemma_lcd_status;
+    const dilemma_status_t prev_status = (const dilemma_status_t)dilemma_lcd_status_prev;
+    static int last_layer;
+    int        current_layer = get_highest_layer(layer_state);
 
-        if (current_layer != last_layer) {
-            switch (current_layer) {
-                case 0:
-                    // default:
-                        // we only trigger things if we come back from the menu layer
-                    if (screen_index == 1) {
-                        load_screen_base_base();
-                        trigger_menu_element(menus, menu_index);
-                        screen_index = 0;
-                    }
-                    break;
-                case LAYER_MENU:
-                    if (screen_index == 0) {
-                        load_screen_base_menu();
-                        screen_index = 1;
-                    }
-                    break;
-                default:
-                    break;
-            }
+    if (current_layer != last_layer) {
+        switch (current_layer) {
+            case 0:
+                // default:
+                    // we only trigger things if we come back from the menu layer
+                if (screen_index == 1) {
+                    load_screen_base_base();
+                    trigger_menu_element(menus, menu_index);
+                    screen_index = 0;
+                }
+                break;
+            case LAYER_MENU:
+                if (screen_index == 0) {
+                    load_screen_base_menu();
+                    screen_index = 1;
+                }
+                break;
+            default:
+                break;
         }
-
-        // if(current_layer == 0){
-        for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++) {
-            lv_obj_t* obj = widgets[i].obj;
-            if (obj && widgets[i].update_function)
-                widgets[i].update_function(obj, current_status, prev_status);
-        }
-        // }
-
-        last_layer = current_layer;
     }
+
+    // if(current_layer == 0){
+    for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++) {
+        lv_obj_t* obj = widgets[i].obj;
+        if (obj && widgets[i].update_function)
+            widgets[i].update_function(obj, current_status, prev_status);
+    }
+    // }
+
+    last_layer = current_layer;
 }
 
 bool process_record_screen_base(uint16_t keycode, keyrecord_t* record) {

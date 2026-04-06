@@ -17,7 +17,7 @@ typedef struct
 } obj_update_dilemma_pomodoro_status_t;
 
 static void load_screen_pomodoro_base(void);
-static void load_screen_pomodoro_menu(void);
+// static void load_screen_pomodoro_menu(void);
 static void menu_pomodoro_go_base(void);
 static void menu_pomodoro_start_25(void);
 static void menu_pomodoro_play_pause(void);
@@ -112,48 +112,56 @@ static void menu_pomodoro_start_10(void) {
     timer_is_running = true;
 }
 
+// TODO remove screen index handling in there, we handle it in housekeeping instead.
+// like this it's hidden, not nice
 static void load_screen_pomodoro_base(void) {
     load_screen_xx_base(menus, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro);
 }
 
-static void load_screen_pomodoro_menu(void) {
-    load_screen_xx_menu(menus, &menu_index, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro_menu);
-}
+// TODO remove screen index handling in there, we handle it in housekeeping instead.
+// like this it's hidden, not nice
+// static void load_screen_pomodoro_menu(void) {
+//     load_screen_xx_menu(menus, &menu_index, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro_menu);
+// }
 
 void housekeeping_task_screen_pomodoro(void) {
-    if (is_keyboard_left()) {
-        static int last_layer;
-        int current_layer = get_highest_layer(layer_state);
-
-        if (current_layer != last_layer)
+    // if(is_keyboard_master())
+    // {
+        if (is_keyboard_left())
         {
-            switch (current_layer)
+            static int last_layer;
+            int current_layer = get_highest_layer(layer_state);
+
+            if (current_layer != last_layer)
             {
-                case 0:
-                    if (screen_index == 1) {
-                        load_screen_pomodoro_base();
-                        trigger_menu_element(menus, menu_index);
-                        screen_index = 0;
-                    }
-                    break;
-                case LAYER_MENU:
-                    if (screen_index == 0) {
-                        load_screen_pomodoro_menu();
-                        screen_index = 1;
-                    }
-                    break;
+                switch (current_layer)
+                {
+                    case 0:
+                        if (screen_index == 1) {
+                            // load_screen_pomodoro_base();
+                            // trigger_menu_element(menus, menu_index);
+                            screen_index = 0;
+                        }
+                        break;
+                    case LAYER_MENU:
+                        if (screen_index == 0) {
+                            // load_screen_pomodoro_menu();
+                            screen_index = 1;
+                        }
+                        break;
+                }
             }
-        }
 
-        for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t); i++)
-        {
-            lv_obj_t* obj = widgets[i].obj;
-            if (obj && widgets[i].update_function)
-                widgets[i].update_function(obj);
-        }
+            for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t); i++)
+            {
+                lv_obj_t* obj = widgets[i].obj;
+                if (obj && widgets[i].update_function)
+                    widgets[i].update_function(obj);
+            }
 
-        last_layer = current_layer;
-    }
+            last_layer = current_layer;
+        }
+    // }
 }
 
 static void update_pomodoro_time(lv_obj_t* obj) {

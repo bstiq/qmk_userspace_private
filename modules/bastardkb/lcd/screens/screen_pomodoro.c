@@ -134,7 +134,7 @@ void refresh_screen_pomodoro(void) {
                 load_screen_pomodoro_base();
                 trigger_menu_element(menus, menu_index);
                 break;
-            case 4:
+            case LAYER_MENU:
                 // TODO replace with LAYER_LCD instead of hardcoding
                 load_screen_pomodoro_menu();
                 break;

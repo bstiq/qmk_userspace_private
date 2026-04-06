@@ -386,22 +386,30 @@ void refresh_screen_base(void) {
         if (current_layer != last_layer) {
             switch (current_layer) {
                 case 0:
-                default:
-                    load_screen_base_base();
-                    trigger_menu_element(menus, menu_index);
+                // default:
+                    // we only trigger things if we come back from the menu layer
+                    if(screen_index == 1){
+                        load_screen_base_base();
+                        trigger_menu_element(menus, menu_index);
+                        screen_index = 0;
+                    }
                     break;
-                case 4:
-                    // TODO replace with LAYER_LCD instead of hardcoding
+                case LAYER_MENU:
                     load_screen_base_menu();
+                    screen_index = 1;
+                    break;
+                default:
                     break;
             }
         }
 
-        for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++) {
-            lv_obj_t* obj = widgets[i].obj;
-            if (obj && widgets[i].update_function)
-                widgets[i].update_function(obj, current_status, prev_status);
-        }
+        // if(current_layer == 0){
+            for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++) {
+                lv_obj_t* obj = widgets[i].obj;
+                if (obj && widgets[i].update_function)
+                    widgets[i].update_function(obj, current_status, prev_status);
+            }
+        // }
 
         last_layer = current_layer;
     }

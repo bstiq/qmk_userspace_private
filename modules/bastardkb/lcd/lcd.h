@@ -17,7 +17,6 @@ typedef struct {
     void (*init_module)(void);
     void (*load_custom_theme_elements)(void);
     void (*update_custom_elements_styles_from_current_theme)(void);
-    void (*refresh_module)(void);
     bool (*process_record)(uint16_t keycode, keyrecord_t* record);
     void (*housekeeping_task)(void);
 } lcd_module_t;

@@ -5,7 +5,6 @@
 #include "lcd.h"
 
 void init_screen_base(void) ;
-void refresh_screen_base(void);
 void load_module_base(void);
 bool process_record_screen_base(uint16_t keycode, keyrecord_t *record);
 

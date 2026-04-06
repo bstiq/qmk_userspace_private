@@ -29,7 +29,6 @@ lcd_module_t lcd_module_base = {
     .load_custom_theme_elements = &load_themes,
     .load_module = &load_module_base,
     .update_custom_elements_styles_from_current_theme = &update_styles_from_current_theme,
-    .refresh_module = &refresh_screen_base,
     .process_record = &process_record_screen_base,
     .housekeeping_task = &housekeeping_task_screen_base,
 };
@@ -39,7 +38,6 @@ lcd_module_t lcd_module_pomodoro = {
     .load_custom_theme_elements = NULL,
     .load_module = &load_module_pomodoro,
     .update_custom_elements_styles_from_current_theme = NULL,
-    .refresh_module = &refresh_screen_pomodoro,
     .process_record = &process_record_screen_pomodoro,
 };
 
@@ -138,13 +136,6 @@ void update_theme_color(void) {
     //     }
     // }
     // first_display = false;
-}
-
-void refresh_lcd_info(void) {
-    // update_theme_color();
-    if (lcd_modules[selected_module]->refresh_module != NULL) {
-        lcd_modules[selected_module]->refresh_module();
-    }
 }
 
 void housekeeping_task_lcd(void) {

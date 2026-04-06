@@ -120,41 +120,48 @@ static void load_screen_pomodoro_menu(void) {
     load_screen_xx_menu(menus, &menu_index, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro_menu);
 }
 
-void refresh_screen_pomodoro(void) {
-    static int last_layer;
-    int current_layer = get_highest_layer(layer_state);
+void housekeeping_task_screen_pomodoro(void) {
+    if (is_keyboard_left()) {
+        static int last_layer;
+        int current_layer = get_highest_layer(layer_state);
 
-    // TODO the layer is hardcoded.... and it will be different on Dilemma and Dilemma
-    if (current_layer != last_layer)
-    {
-        switch (current_layer)
+        if (current_layer != last_layer)
         {
-            case 0:
-            default:
-                load_screen_pomodoro_base();
-                trigger_menu_element(menus, menu_index);
-                break;
-            case LAYER_MENU:
-                // TODO replace with LAYER_LCD instead of hardcoding
-                load_screen_pomodoro_menu();
-                break;
+            switch (current_layer)
+            {
+                case 0:
+                    if (screen_index == 1) {
+                        load_screen_pomodoro_base();
+                        trigger_menu_element(menus, menu_index);
+                        screen_index = 0;
+                    }
+                    break;
+                case LAYER_MENU:
+                    if (screen_index == 0) {
+                        load_screen_pomodoro_menu();
+                        screen_index = 1;
+                    }
+                    break;
+            }
         }
-    }
 
-    for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t); i++)
-    {
-        lv_obj_t* obj = widgets[i].obj;
-        if (obj && widgets[i].update_function)
-            widgets[i].update_function(obj);
-    }
+        for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t); i++)
+        {
+            lv_obj_t* obj = widgets[i].obj;
+            if (obj && widgets[i].update_function)
+                widgets[i].update_function(obj);
+        }
 
-    last_layer = current_layer;
+        last_layer = current_layer;
+    }
 }
 
 static void update_pomodoro_time(lv_obj_t* obj) {
     if (timer_is_running == true) {
-        // TODO update the timer text
         uint32_t elapsed = timer_max - timer_elapsed32(timer_start);
+        if(elapsed < 0) {
+            elapsed = 0;
+        }
         uint16_t minutes_elapsed = elapsed / 60000;
         uint16_t seconds_elapsed = (elapsed % 60000) / 1000;
 
@@ -248,6 +255,9 @@ static void update_pomodoro_arc(lv_obj_t* obj) {
     if (timer_is_running == true) {
         uint32_t elapsed = timer_max - timer_elapsed32(timer_start);
         uint16_t elapsed_percent = (elapsed * 100) / timer_max;
+        if ( elapsed_percent < 0) {
+            elapsed_percent = 0;
+        }
         lv_arc_set_value(obj, elapsed_percent);
     }
 }

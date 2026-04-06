@@ -136,7 +136,7 @@ void update_dilemma_status(void) {
 }
 
 void housekeeping_task_screen_base(void) {
-    // if (is_keyboard_master()) {
+    if (is_keyboard_master()) {
         update_dilemma_status();
         // if the keyboard is left, nothing to do - the screen will be refreshed by the main LCD housekeeping task
         if (is_keyboard_left()) {
@@ -170,7 +170,7 @@ void housekeeping_task_screen_base(void) {
         }
 
         dilemma_lcd_status_prev = dilemma_lcd_status;
-    // }
+    }
 }
 
 

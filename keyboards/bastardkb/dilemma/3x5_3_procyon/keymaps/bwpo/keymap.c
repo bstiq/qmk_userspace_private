@@ -27,6 +27,7 @@ enum dilemma_keymap_layers {
     LAYER_POINTER,
     LAYER_NUMERAL,
     LAYER_SYMBOLS,
+    LAYER_LCD,
 };
 
 // Automatically enable sniping-mode on the pointer layer.
@@ -62,7 +63,7 @@ enum dilemma_keymap_layers {
        KC_B,    KC_W,    KC_P,    KC_O,    KC_QUOT,    KC_DOT,    KC_V,    KC_D,    KC_L,    KC_J, \
        KC_A,    KC_U,    KC_I,    KC_E,    KC_COMM,    KC_C,    KC_T,    KC_S,    KC_R, KC_N, \
        KC_Z,    KC_Y,    KC_X,    KC_SLSH,    KC_K,    KC_M,    KC_Q, KC_G,  KC_H, KC_F, \
-                      ESC_MED, TAB_FUN, SPC_NAV, SPC_NUM, ENT_SYM, XXXXXXX
+                      ESC_MED, TAB_FUN, SPC_NAV, SPC_NUM, ENT_SYM, MO(LAYER_LCD)
 
 /** Convenience row shorthands. */
 #define _______________DEAD_HALF_ROW_______________ XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
@@ -126,6 +127,11 @@ enum dilemma_keymap_layers {
     _______________DEAD_HALF_ROW_______________,  KC_DEL, KC_HOME, KC_PGDN, KC_PGUP,  KC_END, \
                       XXXXXXX, _______, XXXXXXX,  KC_ENT, KC_ENT, _______
 
+#define LAYOUT_LAYER_LCD                                                             \
+    _______, _______, LCDPR, LCDNE, _______, _______________DEAD_HALF_ROW_______________, \
+    ______________HOME_ROW_GACS_L______________, _______________DEAD_HALF_ROW_______________, \
+    _______________DEAD_HALF_ROW_______________,  _______________DEAD_HALF_ROW_______________, \
+                      XXXXXXX, _______, XXXXXXX,  _______, _______, _______
  /**
   * \brief Numeral layout.
   *
@@ -209,6 +215,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [LAYER_NUMERAL] = LAYOUT_wrapper(LAYOUT_LAYER_NUMERAL),
   [LAYER_POINTER] = LAYOUT_wrapper(LAYOUT_LAYER_POINTER),
   [LAYER_SYMBOLS] = LAYOUT_wrapper(LAYOUT_LAYER_SYMBOLS),
+  [LAYER_LCD] = LAYOUT_wrapper(LAYOUT_LAYER_LCD),
 };
 // clang-format on
 

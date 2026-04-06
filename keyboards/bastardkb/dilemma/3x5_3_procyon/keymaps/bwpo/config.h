@@ -25,6 +25,6 @@
 #ifdef LAYER_MENU
 #    undef LAYER_MENU
 #endif
-#define LAYER_MENU 2
+#define LAYER_MENU 7
 
 // #define ENCODER_RESOLUTION 4

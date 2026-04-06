@@ -92,7 +92,6 @@ void init_screen_pomodoro(void) {
     };
 }
 
-// TODO this is useless, delete this
 static void menu_pomodoro_go_base(void) {
     set_current_module(MODULE_BASE);
 }
@@ -115,26 +114,12 @@ static void menu_pomodoro_start_10(void) {
 
 static void load_screen_pomodoro_base(void) {
     load_screen_xx_base(menus, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro);
-    // release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
-    // lv_disp_load_scr(ui_screen_pomodoro);
-    // screen_index = 0;
 }
 
 static void load_screen_pomodoro_menu(void) {
-    // release_all_buttons(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
-    // press_menu_button(menus[0]);
-    // lv_disp_load_scr(ui_screen_pomodoro_menu);
-    // menu_index = 0;
-    // screen_index = 1;
     load_screen_xx_menu(menus, &menu_index, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro_menu);
 }
 
-// TODO does this work if the keyboard is secondary instead of master?
-// we probably need to send the info over through rpc, just like in screen_base.
-// would it be worth it to make a pattern? since we will need to do this for
-// other screens as well we also have the issue of saving the selected widget.
-// This needs a global memory storage, not per-module we could also store a
-// dynamic array of int: selected_module, selected_theme, etc.
 void refresh_screen_pomodoro(void) {
     static int last_layer;
     int current_layer = get_highest_layer(layer_state);
@@ -267,12 +252,12 @@ static void update_pomodoro_arc(lv_obj_t* obj) {
     }
 }
 
-// TODO does this work well when the keyboard is not master?....
 // TODO this is something that will be reused in other menus, so we should move
 // it maybe to screens/menu_nav.c ?
 // TODO the layer is hardcoded.... and it will be different on Dilemma and Dilemma
 bool process_record_screen_pomodoro(uint16_t keycode, keyrecord_t* record)
 {
+    // TODO index is hardcoded...
     if (screen_index == 1) {
         process_record_menu(keycode, record, menus, &menu_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
     }

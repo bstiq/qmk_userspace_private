@@ -19,6 +19,11 @@
 
 painter_device_t lcd;
 
+typedef struct {
+    uint16_t keycode;
+    keyrecord_t record;
+} dilemma_keycode_event_t;
+
 lcd_module_t lcd_module_base = {
     .init_module = &init_screen_base,
     .load_custom_theme_elements = &load_themes,
@@ -90,18 +95,13 @@ void set_current_module(uint8_t module) {
 void keyboard_post_init_lcd(void) {
     load_dilemma_theme_config_from_eeprom();
 
-    // copy only the relevant information from eeprom into local config
-    // todo move this to theme.c, we want to manage the storage there.
-    // we also need to decouple the theme from the satus
-    // dilemma_lcd_status.current_theme_id = get_current_theme_id();
-
     if (is_keyboard_left()) {
         init_display();
     }
 
     // register rpc mouse data syncing
     transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
-    transaction_register_rpc(RPC_ID_MENU_SYNC, menu_info_sync_handler);
+    transaction_register_rpc(RPC_ID_KEYCODE_SYNC, module_sync_handler);
 }
 
 // TODO get colors based on real layer colors, instead of hardcoding them
@@ -149,6 +149,7 @@ void refresh_lcd_info(void) {
 
 void housekeeping_task_lcd(void) {
 
+    // TODO do only if master?
     if (lcd_modules[selected_module]->housekeeping_task != NULL) {
         lcd_modules[selected_module]->housekeeping_task();
     }
@@ -208,7 +209,7 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t* record) {
                 .keycode = keycode,
                 .record = *record,
             };
-            transaction_rpc_send(RPC_ID_MENU_SYNC, sizeof(dilemma_keycode_event), &dilemma_keycode_event);
+            transaction_rpc_send(RPC_ID_KEYCODE_SYNC, sizeof(dilemma_keycode_event), &dilemma_keycode_event);
         }
     }
     return true;
@@ -216,11 +217,8 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t* record) {
 
 /*
 called by right side, executed by left side (where the screen is)
-we do not store the updated config in eeprom, this is done by master in cycle_theme
-if later we would like to do that, first we need to sync halves in the dilemma code with kb eeprom, and then implement
-theme sync here with user eeprom
 */
-void menu_info_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
+void module_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
     if (is_keyboard_left()) {
         if (initiator2target_buffer_size == sizeof(dilemma_keycode_event_t)) {
             dilemma_keycode_event_t dilemma_keycode_event = *(const dilemma_keycode_event_t*)initiator2target_buffer;

@@ -139,6 +139,7 @@ void housekeeping_task_screen_base(void){
         update_dilemma_status();
         // if the keyboard is left, nothing to do - the screen will be refreshed by the main LCD housekeeping task
         if (is_keyboard_left()) {
+            refresh_lcd_info();
         }
         // if the keyboard is right, we need to send the sync info over to the left side
         // saving the theme id to eeprom has already been done in process_record
@@ -376,32 +377,34 @@ static void load_screen_base_menu(void){
 }
 
 void refresh_screen_base(void) {
-    const dilemma_status_t current_status = (const dilemma_status_t)dilemma_lcd_status;
-    const dilemma_status_t prev_status    = (const dilemma_status_t)dilemma_lcd_status_prev;
-    static int last_layer;
-    int        current_layer = get_highest_layer(layer_state);
+    if(is_keyboard_left()){
+        const dilemma_status_t current_status = (const dilemma_status_t)dilemma_lcd_status;
+        const dilemma_status_t prev_status = (const dilemma_status_t)dilemma_lcd_status_prev;
+        static int last_layer;
+        int        current_layer = get_highest_layer(layer_state);
 
-    if (current_layer != last_layer) {
-        switch (current_layer) {
-            case 0:
-            default:
-                load_screen_base_base();
-                trigger_menu_element(menus, menu_index);
-                break;
-            case 4:
-                // TODO replace with LAYER_LCD instead of hardcoding
-               load_screen_base_menu();
-               break;
+        if (current_layer != last_layer) {
+            switch (current_layer) {
+                case 0:
+                default:
+                    load_screen_base_base();
+                    trigger_menu_element(menus, menu_index);
+                    break;
+                case 4:
+                    // TODO replace with LAYER_LCD instead of hardcoding
+                    load_screen_base_menu();
+                    break;
+            }
         }
-    }
 
-    for(int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++){
-        lv_obj_t *obj = widgets[i].obj;
-        if (obj && widgets[i].update_function)  
-            widgets[i].update_function(obj, current_status, prev_status);
+        for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++) {
+            lv_obj_t* obj = widgets[i].obj;
+            if (obj && widgets[i].update_function)
+                widgets[i].update_function(obj, current_status, prev_status);
+        }
+
+        last_layer = current_layer;
     }
-    
-    last_layer = current_layer;
 }
 
 bool process_record_screen_base(uint16_t keycode, keyrecord_t *record) {
@@ -418,7 +421,7 @@ we do not store the updated config in eeprom, this is done by master in cycle_th
 if later we would like to do that, first we need to sync halves in the dilemma code with kb eeprom, and then implement
 theme sync here with user eeprom
 */
-// TODO the theme part should be separated and managed independentely in theme.c
+// TODO the theme part should be separated and managed independentely in theme.c... or, accept that the theme can only be changed through the base screen anyway 
 void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
     if (is_keyboard_left()) {
         if (initiator2target_buffer_size == sizeof(dilemma_lcd_status)) {
@@ -429,6 +432,7 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void* i
                 set_current_theme_id(dilemma_lcd_status.current_theme_id);
                 update_styles_from_current_theme();
             }
+            // TODO is this not done in the main housekeeping?
             refresh_lcd_info();
         }
     }

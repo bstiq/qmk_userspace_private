@@ -63,7 +63,7 @@ enum dilemma_keymap_layers {
        KC_B,    KC_W,    KC_P,    KC_O,    KC_QUOT,    KC_DOT,    KC_V,    KC_D,    KC_L,    KC_J, \
        KC_A,    KC_U,    KC_I,    KC_E,    KC_COMM,    KC_C,    KC_T,    KC_S,    KC_R, KC_N, \
        KC_Z,    KC_Y,    KC_X,    KC_SLSH,    KC_K,    KC_M,    KC_Q, KC_G,  KC_H, KC_F, \
-                      ESC_MED, TAB_FUN, SPC_NAV, SPC_NUM, ENT_SYM, MO(LAYER_LCD)
+                      ESC_MED, TAB_FUN, TAB_FUN, SPC_NUM, ENT_SYM, MO(LAYER_LCD)
 
 /** Convenience row shorthands. */
 #define _______________DEAD_HALF_ROW_______________ XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
@@ -129,7 +129,7 @@ enum dilemma_keymap_layers {
 
 #define LAYOUT_LAYER_LCD                                                             \
     _______, _______, LCDPR, LCDNE, _______, _______________DEAD_HALF_ROW_______________, \
-    ______________HOME_ROW_GACS_L______________, _______________DEAD_HALF_ROW_______________, \
+    _______, _______, LCDPR, LCDNE, _______ , _______________DEAD_HALF_ROW_______________, \
     _______________DEAD_HALF_ROW_______________,  _______________DEAD_HALF_ROW_______________, \
                       XXXXXXX, _______, XXXXXXX,  _______, _______, _______
  /**
@@ -143,7 +143,7 @@ enum dilemma_keymap_layers {
     KC_LBRC,    KC_7,    KC_8,    KC_9, KC_RBRC, _______________DEAD_HALF_ROW_______________, \
     KC_SCLN,    KC_4,    KC_5,    KC_6,  KC_EQL, ______________HOME_ROW_GACS_R______________, \
     KC_GRV,     KC_1,    KC_2,    KC_3, KC_BSLS, _______________DEAD_HALF_ROW_______________, \
-                       KC_DOT,    KC_0, KC_MINS, XXXXXXX, _______, _______
+                       KC_DOT,    KC_MINS, KC_0, XXXXXXX, _______, _______
 
   /**
    * \brief Symbols layer.
@@ -156,7 +156,7 @@ enum dilemma_keymap_layers {
     KC_LCBR, KC_AMPR, KC_ASTR, KC_LPRN, KC_RCBR, _______________DEAD_HALF_ROW_______________, \
     KC_COLN,  KC_DLR, KC_PERC, KC_CIRC, KC_PLUS, ______________HOME_ROW_GACS_R______________, \
     KC_TILD, KC_EXLM,   KC_AT, KC_HASH, KC_PIPE, _______________DEAD_HALF_ROW_______________, \
-                      KC_LPRN, KC_RPRN, KC_UNDS, _______, XXXXXXX, _______
+                      KC_UNDS, KC_LPRN, KC_RPRN, _______, XXXXXXX, _______
 
    /**
     * \brief Add Home Row mod to a layout.

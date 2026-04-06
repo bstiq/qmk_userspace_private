@@ -83,10 +83,12 @@ void init_display(void) {
 }
 
 void set_current_module(uint8_t module) {
-    if (module < sizeof(lcd_modules) / sizeof(lcd_module_t*)) {
-        selected_module = module;
-        if (lcd_modules[selected_module]->load_module) {
-            lcd_modules[selected_module]->load_module();
+    if (is_keyboard_left()) {
+        if (module < sizeof(lcd_modules) / sizeof(lcd_module_t*)) {
+            selected_module = module;
+            if (lcd_modules[selected_module]->load_module) {
+                lcd_modules[selected_module]->load_module();
+            }
         }
     }
 }

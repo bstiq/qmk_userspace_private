@@ -64,7 +64,7 @@ enum dilemma_keymap_layers {
        KC_B,    KC_W,    KC_P,    KC_O,    KC_QUOT,    KC_DOT,    KC_V,    KC_D,    KC_L,    KC_J, \
        KC_A,    KC_U,    KC_I,    KC_E,    KC_COMM,    KC_C,    KC_T,    KC_S,    KC_R, KC_N, \
        KC_Z,    KC_Y,    KC_X,    KC_SLSH,    KC_K,    KC_M,    KC_Q, KC_G,  KC_H, KC_F, \
-                      ESC_MED, ESC_MED, TAB_NAV, SPC_NUM, ENT_SYM, MO(LAYER_LCD)
+                      MO(LAYER_LCD), ESC_MED, TAB_NAV, SPC_NUM, ENT_SYM, MO(LAYER_LCD)
 
 /** Convenience row shorthands. */
 #define _______________DEAD_HALF_ROW_______________ XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX

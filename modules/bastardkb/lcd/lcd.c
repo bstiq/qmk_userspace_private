@@ -24,6 +24,10 @@ typedef struct {
     keyrecord_t record;
 } dilemma_keycode_event_t;
 
+typedef struct {
+    uint16_t module_id;
+} dilemma_module_event_t;
+
 lcd_module_t lcd_module_base = {
     .init_module = &init_screen_base,
     .load_custom_theme_elements = &load_themes,
@@ -82,11 +86,38 @@ void init_display(void) {
     // lv_disp_load_scr(ui_screen_pomodoro);
 }
 
+// we want to sync things on both sides
 void set_current_module(uint8_t module) {
-    if (module < sizeof(lcd_modules) / sizeof(lcd_module_t*)) {
+    if (is_keyboard_master()) {
+        if (module >= sizeof(lcd_modules) / sizeof(lcd_module_t*)) {
+            module = MODULE_BASE;
+        }
         selected_module = module;
-        if (lcd_modules[selected_module]->load_module) {
-            lcd_modules[selected_module]->load_module();
+        if (is_keyboard_left()) {
+            // we have the screen, we can directly set the module
+            if (lcd_modules[selected_module]->load_module) {
+                lcd_modules[selected_module]->load_module();
+            }
+        }
+        else {
+            // we need to send an RPC to the left side to set the module there (where the screen is)
+            dilemma_module_event_t dilemma_module_event = {
+                .module_id = module,
+            };
+            transaction_rpc_send(RPC_ID_MODULE_SYNC, sizeof(dilemma_module_event), &dilemma_module_event);
+        }
+    }
+}
+
+void module_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
+    if (is_keyboard_left()) {
+        if (initiator2target_buffer_size == sizeof(dilemma_module_event_t)) {
+            dilemma_module_event_t dilemma_module_event = *(const dilemma_module_event_t*)initiator2target_buffer;
+            const uint16_t module = (const uint16_t)dilemma_module_event.module_id;
+            selected_module = module;
+            if (lcd_modules[selected_module]->load_module) {
+                lcd_modules[selected_module]->load_module();
+            }
         }
     }
 }
@@ -100,7 +131,8 @@ void keyboard_post_init_lcd(void) {
 
     // register rpc mouse data syncing
     transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
-    transaction_register_rpc(RPC_ID_KEYCODE_SYNC, module_sync_handler);
+    transaction_register_rpc(RPC_ID_KEYCODE_SYNC, keycode_sync_handler);
+    transaction_register_rpc(RPC_ID_MODULE_SYNC, module_sync_handler);
 }
 
 // TODO get colors based on real layer colors, instead of hardcoding them
@@ -174,7 +206,7 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t* record) {
 /*
 called by right side, executed by left side (where the screen is)
 */
-void module_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
+void keycode_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
     if (is_keyboard_left()) {
         if (initiator2target_buffer_size == sizeof(dilemma_keycode_event_t)) {
             dilemma_keycode_event_t dilemma_keycode_event = *(const dilemma_keycode_event_t*)initiator2target_buffer;

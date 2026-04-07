@@ -37,6 +37,6 @@ void cycle_theme_and_save_in_eeprom(void);
 void init_display(void);
 void write_config_to_eeprom(void);
 
-void set_current_module(uint8_t module);
+void set_current_module(const uint8_t module);
 
 #endif

@@ -423,6 +423,8 @@ void refresh_screen_base(void) {
                 if (screen_index == 1) {
                     load_screen_base_base();
                     trigger_menu_element(menus, menu_index);
+                    // todo move menu_index out of the function above
+                    menu_index = 0;
                     screen_index = 0;
                 }
                 break;

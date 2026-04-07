@@ -82,9 +82,9 @@ void init_display(void) {
         }
     }
     // if(is_keyboard_left()){
-        lcd_modules[selected_module]->load_module();
+    lcd_modules[selected_module]->load_module();
     // }
-    
+
     // lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
     // lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
 
@@ -100,27 +100,27 @@ void init_display(void) {
 void set_current_module(const uint8_t module) {
     // if (is_keyboard_master()) {
     // if (is_keyboard_left()) {
-        if (module >= sizeof(lcd_modules) / sizeof(lcd_module_t*)) {
-            selected_module = MODULE_BASE;
-        }
-        else
-            selected_module = module;
+    if (module >= sizeof(lcd_modules) / sizeof(lcd_module_t*)) {
+        selected_module = MODULE_BASE;
+    }
+    else
+        selected_module = module;
 
-        //     if (is_keyboard_left()) {
-                // we have the screen, we can directly set the module
-        if (lcd_modules[selected_module]->load_module) {
-            lcd_modules[selected_module]->load_module();
-        }
-        //     }
-        // TODO retry this sync later if it did not register?...
-            // else {
-                // we need to send an RPC to the left side to set the module there (where the screen is)
-        // dilemma_module_event_t dilemma_module_event = {
-        //     .module_id = selected_module,
-        // };
-        // transaction_rpc_send(RPC_ID_MODULE_SYNC, sizeof(dilemma_module_event), &dilemma_module_event);
-    // }
-    // }
+    //     if (is_keyboard_left()) {
+            // we have the screen, we can directly set the module
+    if (lcd_modules[selected_module]->load_module) {
+        lcd_modules[selected_module]->load_module();
+    }
+    //     }
+    // TODO retry this sync later if it did not register?...
+        // else {
+            // we need to send an RPC to the left side to set the module there (where the screen is)
+    // dilemma_module_event_t dilemma_module_event = {
+    //     .module_id = selected_module,
+    // };
+    // transaction_rpc_send(RPC_ID_MODULE_SYNC, sizeof(dilemma_module_event), &dilemma_module_event);
+// }
+// }
 // }
 }
 
@@ -211,14 +211,12 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t* record) {
     return true;
 }
 
-/*
-called by right side, executed by left side (where the screen is)
-*/
+
 void keycode_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-        if (initiator2target_buffer_size == sizeof(dilemma_keycode_event_t)) {
-            dilemma_keycode_event_t dilemma_keycode_event = *(const dilemma_keycode_event_t*)initiator2target_buffer;
-            if (lcd_modules[selected_module]->process_record != NULL) {
-                lcd_modules[selected_module]->process_record(dilemma_keycode_event.keycode, &dilemma_keycode_event.record);
-            }
+    if (initiator2target_buffer_size == sizeof(dilemma_keycode_event_t)) {
+        dilemma_keycode_event_t dilemma_keycode_event = *(const dilemma_keycode_event_t*)initiator2target_buffer;
+        if (lcd_modules[selected_module]->process_record != NULL) {
+            lcd_modules[selected_module]->process_record(dilemma_keycode_event.keycode, &dilemma_keycode_event.record);
         }
+    }
 }

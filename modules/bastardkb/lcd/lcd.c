@@ -25,7 +25,7 @@ typedef struct {
 } dilemma_keycode_event_t;
 
 typedef struct {
-    uint16_t module_id;
+    uint8_t module_id;
 } dilemma_module_event_t;
 
 lcd_module_t lcd_module_base = {
@@ -90,43 +90,47 @@ void init_display(void) {
 }
 
 // this is only called by left side
+// but it's the primary that calls the housekeeping
+// so we also need to update the selected_module on the primary side
 void set_current_module(const uint8_t module) {
     // if (is_keyboard_master()) {
-    if (module >= sizeof(lcd_modules) / sizeof(lcd_module_t*)) {
-        selected_module = MODULE_BASE;
-    }
-    else
-        selected_module = module;
+    if (is_keyboard_left()) {
+        if (module >= sizeof(lcd_modules) / sizeof(lcd_module_t*)) {
+            selected_module = MODULE_BASE;
+        }
+        else
+            selected_module = module;
 
-    //     if (is_keyboard_left()) {
-            // we have the screen, we can directly set the module
-    if (lcd_modules[selected_module]->load_module) {
-        lcd_modules[selected_module]->load_module();
+        //     if (is_keyboard_left()) {
+                // we have the screen, we can directly set the module
+        if (lcd_modules[selected_module]->load_module) {
+            lcd_modules[selected_module]->load_module();
+        }
+        //     }
+        // TODO retry this sync later if it did not register?...
+            // else {
+                // we need to send an RPC to the left side to set the module there (where the screen is)
+        // dilemma_module_event_t dilemma_module_event = {
+        //     .module_id = selected_module,
+        // };
+        // transaction_rpc_send(RPC_ID_MODULE_SYNC, sizeof(dilemma_module_event), &dilemma_module_event);
     }
-    //     }
-    //     else {
-    //         // we need to send an RPC to the left side to set the module there (where the screen is)
-    //         dilemma_module_event_t dilemma_module_event = {
-    //             .module_id = module,
-    //         };
-    //         transaction_rpc_send(RPC_ID_MODULE_SYNC, sizeof(dilemma_module_event), &dilemma_module_event);
-    //     }
     // }
+// }
 }
 
-// TODO get rid of this? if no-sync code works
-// void module_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-//     if (is_keyboard_left()) {
-//         if (initiator2target_buffer_size == sizeof(dilemma_module_event_t)) {
-//             dilemma_module_event_t dilemma_module_event = *(const dilemma_module_event_t*)initiator2target_buffer;
-//             const uint16_t module = (const uint16_t)dilemma_module_event.module_id;
-//             selected_module = module;
-//             if (lcd_modules[selected_module]->load_module) {
-//                 lcd_modules[selected_module]->load_module();
-//             }
-//         }
-//     }
-// }
+// called by left side when right side is primary
+void module_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
+    if (!is_keyboard_left()) {
+        if (initiator2target_buffer_size == sizeof(dilemma_module_event_t)) {
+            // dilemma_module_event_t dilemma_module_event = *(const dilemma_module_event_t*)initiator2target_buffer;
+            // selected_module = (const uint16_t)dilemma_module_event.module_id;
+            // if (lcd_modules[selected_module]->load_module) {
+            //     lcd_modules[selected_module]->load_module();
+            // }
+        }
+    }
+}
 
 void keyboard_post_init_lcd(void) {
     load_dilemma_theme_config_from_eeprom();
@@ -136,7 +140,7 @@ void keyboard_post_init_lcd(void) {
     // register rpc mouse data syncing
     transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
     transaction_register_rpc(RPC_ID_KEYCODE_SYNC, keycode_sync_handler);
-    // transaction_register_rpc(RPC_ID_MODULE_SYNC, module_sync_handler);
+    transaction_register_rpc(RPC_ID_MODULE_SYNC, module_sync_handler);
 }
 
 // TODO get colors based on real layer colors, instead of hardcoding them

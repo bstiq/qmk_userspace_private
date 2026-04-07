@@ -63,7 +63,7 @@ static uint8_t screen_index = 0;
 static uint8_t menu_index = 0;
 
 void load_module_base(void) {
-    load_screen_base_base();
+        load_screen_base_base();
 }
 
 // TODO update things here only if this module is loaded.
@@ -416,11 +416,11 @@ void refresh_screen_base(void) {
 
     // if(current_layer == 0){
     // if (is_keyboard_left()) {
-        for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++) {
-            lv_obj_t* obj = widgets[i].obj;
-            if (obj && widgets[i].update_function)
-                widgets[i].update_function(obj, current_status, prev_status);
-        }
+    for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++) {
+        lv_obj_t* obj = widgets[i].obj;
+        if (obj && widgets[i].update_function)
+            widgets[i].update_function(obj, current_status, prev_status);
+    }
     // }
     // }
 

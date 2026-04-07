@@ -38,5 +38,6 @@ void init_display(void);
 void write_config_to_eeprom(void);
 
 void set_current_module(const uint8_t module);
+void module_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer);
 
 #endif

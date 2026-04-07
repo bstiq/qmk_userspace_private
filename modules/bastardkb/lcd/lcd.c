@@ -51,54 +51,58 @@ lcd_module_t* lcd_modules[] = { &lcd_module_base, &lcd_module_pomodoro };
 static uint8_t selected_module = MODULE_BASE;
 
 void init_display(void) {
-    // Display timeout
-    wait_ms(LCD_WAIT_TIME);
 
-    lcd = qp_st7789_make_spi_device(LCD_WIDTH, LCD_HEIGHT, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_SPI_DIVISOR, SPI_MODE);
-    qp_init(lcd, LCD_ROTATION);
+    if (is_keyboard_left()) {
+        // Display timeout
+        wait_ms(LCD_WAIT_TIME);
 
-    // Display offset
-    qp_set_viewport_offsets(lcd, LCD_OFFSET_X, LCD_OFFSET_Y);
+        lcd = qp_st7789_make_spi_device(LCD_WIDTH, LCD_HEIGHT, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_SPI_DIVISOR, SPI_MODE);
+        qp_init(lcd, LCD_ROTATION);
 
-    qp_lvgl_attach(lcd);
+        // Display offset
+        qp_set_viewport_offsets(lcd, LCD_OFFSET_X, LCD_OFFSET_Y);
 
-    // Power on display, fill with black
-    qp_power(lcd, 1);
-    qp_rect(lcd, 0, 0, 300, 300, HSV_BLACK, 1);
-    qp_flush(lcd);
+        qp_lvgl_attach(lcd);
 
-    // TODO move the load themes and init styles into the custom structure
-    load_themes();
-    init_styles();
+        // Power on display, fill with black
+        qp_power(lcd, 1);
+        qp_rect(lcd, 0, 0, 300, 300, HSV_BLACK, 1);
+        qp_flush(lcd);
 
-    for (int i = 0; i < sizeof(lcd_modules) / sizeof(lcd_module_t*); i++) {
-        if (lcd_modules[i]->init_module != NULL) {
-            lcd_modules[i]->init_module();
+        // TODO move the load themes and init styles into the custom structure
+        load_themes();
+        init_styles();
+
+        for (int i = 0; i < sizeof(lcd_modules) / sizeof(lcd_module_t*); i++) {
+            if (lcd_modules[i]->init_module != NULL) {
+                lcd_modules[i]->init_module();
+            }
         }
+        lcd_modules[selected_module]->load_module();
+
+        // lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
+        // lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
+
+        // display base layer screen upon init
+        // TODO is this necessary here? can we move it to a spot that makes more sense?
+        // lv_disp_load_scr(ui_screen_pomodoro);
     }
-    lcd_modules[selected_module]->load_module();
-
-    // lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
-    // lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
-
-    // display base layer screen upon init
-    // TODO is this necessary here? can we move it to a spot that makes more sense?
-    // lv_disp_load_scr(ui_screen_pomodoro);
 }
 
-// we want to sync things on both sides
+// this is only called by left side
 void set_current_module(const uint8_t module) {
     // if (is_keyboard_master()) {
-        if (module >= sizeof(lcd_modules) / sizeof(lcd_module_t*)) {
-            selected_module = MODULE_BASE;
-        }
-        else
-            selected_module = module;
+    if (module >= sizeof(lcd_modules) / sizeof(lcd_module_t*)) {
+        selected_module = MODULE_BASE;
+    }
+    else
+        selected_module = module;
+
     //     if (is_keyboard_left()) {
             // we have the screen, we can directly set the module
-            if (lcd_modules[selected_module]->load_module) {
-                lcd_modules[selected_module]->load_module();
-            }
+    if (lcd_modules[selected_module]->load_module) {
+        lcd_modules[selected_module]->load_module();
+    }
     //     }
     //     else {
     //         // we need to send an RPC to the left side to set the module there (where the screen is)
@@ -111,30 +115,28 @@ void set_current_module(const uint8_t module) {
 }
 
 // TODO get rid of this? if no-sync code works
-void module_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-    if (is_keyboard_left()) {
-        if (initiator2target_buffer_size == sizeof(dilemma_module_event_t)) {
-            dilemma_module_event_t dilemma_module_event = *(const dilemma_module_event_t*)initiator2target_buffer;
-            const uint16_t module = (const uint16_t)dilemma_module_event.module_id;
-            selected_module = module;
-            if (lcd_modules[selected_module]->load_module) {
-                lcd_modules[selected_module]->load_module();
-            }
-        }
-    }
-}
+// void module_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
+//     if (is_keyboard_left()) {
+//         if (initiator2target_buffer_size == sizeof(dilemma_module_event_t)) {
+//             dilemma_module_event_t dilemma_module_event = *(const dilemma_module_event_t*)initiator2target_buffer;
+//             const uint16_t module = (const uint16_t)dilemma_module_event.module_id;
+//             selected_module = module;
+//             if (lcd_modules[selected_module]->load_module) {
+//                 lcd_modules[selected_module]->load_module();
+//             }
+//         }
+//     }
+// }
 
 void keyboard_post_init_lcd(void) {
     load_dilemma_theme_config_from_eeprom();
 
-    if (is_keyboard_left()) {
-        init_display();
-    }
+    init_display();
 
     // register rpc mouse data syncing
     transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
     transaction_register_rpc(RPC_ID_KEYCODE_SYNC, keycode_sync_handler);
-    transaction_register_rpc(RPC_ID_MODULE_SYNC, module_sync_handler);
+    // transaction_register_rpc(RPC_ID_MODULE_SYNC, module_sync_handler);
 }
 
 // TODO get colors based on real layer colors, instead of hardcoding them
@@ -174,20 +176,17 @@ void update_theme_color(void) {
 }
 
 void housekeeping_task_lcd(void) {
-
-    // TODO do only if master? do only if left?
     if (lcd_modules[selected_module]->housekeeping_task != NULL) {
         lcd_modules[selected_module]->housekeeping_task();
     }
 }
 
-// the processing is done only on primary.
+// the lcd records processing is done only on left side
 // when screen is on secondary, we want to RPC it instead
 // TODO the second part shoud probably be handled in menu.c... but we need access to lcd_modules and selected_module, which would require a getter
 bool process_record_lcd(uint16_t keycode, keyrecord_t* record) {
     if (is_keyboard_master()) {
         if (is_keyboard_left()) {
-            // we have the screen installed. process things directly
             if (lcd_modules[selected_module]->process_record != NULL) {
                 lcd_modules[selected_module]->process_record(keycode, record);
             }
@@ -209,11 +208,13 @@ bool process_record_lcd(uint16_t keycode, keyrecord_t* record) {
 called by right side, executed by left side (where the screen is)
 */
 void keycode_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-    if (is_keyboard_left()) {
-        if (initiator2target_buffer_size == sizeof(dilemma_keycode_event_t)) {
-            dilemma_keycode_event_t dilemma_keycode_event = *(const dilemma_keycode_event_t*)initiator2target_buffer;
-            if (lcd_modules[selected_module]->process_record != NULL) {
-                lcd_modules[selected_module]->process_record(dilemma_keycode_event.keycode, &dilemma_keycode_event.record);
+    if (!is_keyboard_master()) {
+        if (is_keyboard_left()) {
+            if (initiator2target_buffer_size == sizeof(dilemma_keycode_event_t)) {
+                dilemma_keycode_event_t dilemma_keycode_event = *(const dilemma_keycode_event_t*)initiator2target_buffer;
+                if (lcd_modules[selected_module]->process_record != NULL) {
+                    lcd_modules[selected_module]->process_record(dilemma_keycode_event.keycode, &dilemma_keycode_event.record);
+                }
             }
         }
     }

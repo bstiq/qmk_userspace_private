@@ -127,43 +127,41 @@ static void load_screen_pomodoro_menu(void) {
 void housekeeping_task_screen_pomodoro(void) {
     // if(is_keyboard_master())
     // {
-        // if (is_keyboard_left())
-        // {
-    static int last_layer;
-    int current_layer = get_highest_layer(layer_state);
-
-    if (current_layer != last_layer)
+    if (is_keyboard_left())
     {
-        switch (current_layer)
-        {
-            case 0:
-                if (screen_index == 1) {
-                    load_screen_pomodoro_base();
-                    trigger_menu_element(menus, menu_index);
-                    screen_index = 0;
-                }
-                break;
-            case LAYER_MENU:
-                if (screen_index == 0) {
-                    load_screen_pomodoro_menu();
-                    screen_index = 1;
-                }
-                break;
-        }
-    }
+        static int last_layer;
+        int current_layer = get_highest_layer(layer_state);
 
-    if (is_keyboard_left()) {
+        if (current_layer != last_layer)
+        {
+            switch (current_layer)
+            {
+                case 0:
+                    if (screen_index == 1) {
+                        load_screen_pomodoro_base();
+                        trigger_menu_element(menus, menu_index);
+                        screen_index = 0;
+                    }
+                    break;
+                case LAYER_MENU:
+                    if (screen_index == 0) {
+                        load_screen_pomodoro_menu();
+                        screen_index = 1;
+                    }
+                    break;
+            }
+        }
+
         for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t); i++)
         {
             lv_obj_t* obj = widgets[i].obj;
             if (obj && widgets[i].update_function)
                 widgets[i].update_function(obj);
         }
-    }
 
-    last_layer = current_layer;
+        last_layer = current_layer;
+    }
     // }
-// }
 }
 
 static void update_pomodoro_time(lv_obj_t* obj) {

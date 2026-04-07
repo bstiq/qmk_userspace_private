@@ -140,38 +140,39 @@ void housekeeping_task_screen_base(void) {
     // if the keyboard is master, nothing to do - the screen will be refreshed by the main LCD housekeeping task
     if (is_keyboard_master()) {
         update_dilemma_status();
-        refresh_screen_base();
-    // }
-    // if the keyboard is right, we need to send the sync info over to the left side
-    // saving the theme id to eeprom has already been done in process_record
-    // else {
-        bool            needs_sync = false;
-        static bool     needs_resync = true; // perform an initial first sync
-        static uint32_t last_sync = 0;
-        // // Check if the state values are different.
-        if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
-            needs_sync = true;
+        if (is_keyboard_left()) {
+            refresh_screen_base();
         }
-        // check if a previous sync has failed
-        if (needs_resync) {
-            // we only want to retry syncing after a set amount of time
-            if (timer_elapsed32(last_sync) > 200) {
+        // }
+        // if the keyboard is right, we need to send the sync info over to the left side
+        // saving the theme id to eeprom has already been done in process_record
+        else {
+            bool            needs_sync = false;
+            static bool     needs_resync = true; // perform an initial first sync
+            static uint32_t last_sync = 0;
+            // // Check if the state values are different.
+            if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
                 needs_sync = true;
             }
-        }
-        // perform the sync if requested
-        if (needs_sync) {
-            // try to sync, if it fails we will retry in the next housekeeping loop
-            if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false) {
-                needs_resync = true;
+            // check if a previous sync has failed
+            if (needs_resync) {
+                // we only want to retry syncing after a set amount of time
+                if (timer_elapsed32(last_sync) > 200) {
+                    needs_sync = true;
+                }
             }
-            last_sync = timer_read32();
+            // perform the sync if requested
+            if (needs_sync) {
+                // try to sync, if it fails we will retry in the next housekeeping loop
+                if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false) {
+                    needs_resync = true;
+                }
+                last_sync = timer_read32();
+            }
+            dilemma_lcd_status_prev = dilemma_lcd_status;
         }
-        dilemma_lcd_status_prev = dilemma_lcd_status;
 
     }
-
-    // }
 }
 
 
@@ -384,6 +385,7 @@ static void load_screen_base_menu(void) {
     load_screen_xx_menu(menus, &menu_index, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_base_menu);
 }
 
+// this is called only by the left side, either directly by master, or through RPC from right side
 void refresh_screen_base(void) {
     const dilemma_status_t current_status = (const dilemma_status_t)dilemma_lcd_status;
     const dilemma_status_t prev_status = (const dilemma_status_t)dilemma_lcd_status_prev;
@@ -413,13 +415,13 @@ void refresh_screen_base(void) {
     }
 
     // if(current_layer == 0){
-    if (is_keyboard_left()) {
+    // if (is_keyboard_left()) {
         for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++) {
             lv_obj_t* obj = widgets[i].obj;
             if (obj && widgets[i].update_function)
                 widgets[i].update_function(obj, current_status, prev_status);
         }
-    }
+    // }
     // }
 
     last_layer = current_layer;
@@ -442,16 +444,18 @@ theme sync here with user eeprom
 // TODO the theme part should be separated and managed independentely in theme.c... or, accept that the theme can only be changed through the base screen anyway 
 void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
     if (!is_keyboard_master()) {
-        if (initiator2target_buffer_size == sizeof(dilemma_lcd_status)) {
-            dilemma_lcd_status_prev = dilemma_lcd_status;
-            dilemma_lcd_status = *(const dilemma_status_t*)initiator2target_buffer;
+        if (is_keyboard_left()) {
+            if (initiator2target_buffer_size == sizeof(dilemma_lcd_status)) {
+                dilemma_lcd_status_prev = dilemma_lcd_status;
+                dilemma_lcd_status = *(const dilemma_status_t*)initiator2target_buffer;
 
-            if (dilemma_lcd_status_prev.current_theme_id != dilemma_lcd_status.current_theme_id) {
-                set_current_theme_id(dilemma_lcd_status.current_theme_id);
-                update_styles_from_current_theme();
+                if (dilemma_lcd_status_prev.current_theme_id != dilemma_lcd_status.current_theme_id) {
+                    set_current_theme_id(dilemma_lcd_status.current_theme_id);
+                    update_styles_from_current_theme();
+                }
+                // TODO is this not done in the main housekeeping?
+                refresh_screen_base();
             }
-            // TODO is this not done in the main housekeeping?
-            refresh_screen_base();
         }
     }
 }

@@ -63,62 +63,84 @@ static uint8_t screen_index = 0;
 static uint8_t menu_index = 0;
 
 void load_module_base(void) {
-        load_screen_base_base();
+    load_screen_base_base();
 }
 
 // TODO update things here only if this module is loaded.
 
 // TODO isolate the ui_screen_base into this folder, and instead return a pointer to it with this function?
+// we init this on both sides, so that we can mirror the screen behaviour
+// this way, if primary/right is without screen, it will "know" which module number is loaded
 void init_screen_base(void) {
+    if (is_keyboard_left()) {
     ui_screen_base = lv_obj_create(NULL);
     lv_obj_t* cont = ui_create_container(ui_screen_base);
-
+    
     ui_screen_base_menu = lv_obj_create(NULL);
     lv_obj_t* cont_menu = ui_create_container(ui_screen_base_menu);
 
-    /* ----- Widgets ----- */
-    widgets[0] = (obj_update_dilemma_lcd_status_t){ ui_create_layer_label(cont), &update_layer_name, };
-    widgets[1] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "SHFT", true, MOD_MASK_SHIFT), &update_mod_shift, };
-    widgets[2] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "ALT", false, MOD_MASK_ALT), &update_mod_alt, };
-    widgets[3] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "CTRL", false, MOD_MASK_CTRL), &update_mod_ctrl, };
-    widgets[4] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "GUI", false, MOD_MASK_GUI), &update_mod_gui, };
-    ui_create_line_separator(cont, 1, 3);
-    widgets[5] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "SCROLL", true, 0), &update_mod_scroll, };
-    widgets[6] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "SNIPE", false, 0), &update_mod_snipe, };
+        /* ----- Widgets ----- */
+        widgets[0] = (obj_update_dilemma_lcd_status_t){ ui_create_layer_label(cont), &update_layer_name, };
+        widgets[1] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "SHFT", true, MOD_MASK_SHIFT), &update_mod_shift, };
+        widgets[2] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "ALT", false, MOD_MASK_ALT), &update_mod_alt, };
+        widgets[3] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "CTRL", false, MOD_MASK_CTRL), &update_mod_ctrl, };
+        widgets[4] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "GUI", false, MOD_MASK_GUI), &update_mod_gui, };
+        ui_create_line_separator(cont, 1, 3);
+        widgets[5] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "SCROLL", true, 0), &update_mod_scroll, };
+        widgets[6] = (obj_update_dilemma_lcd_status_t){ ui_create_mod_button(cont, "SNIPE", false, 0), &update_mod_snipe, };
 
-    // sniping DPI widgets
-    ui_create_secondary_text(cont, "SNIPE DPI", true, 4);
-    widgets[7] = (obj_update_dilemma_lcd_status_t){ ui_create_progress_bar(cont, 4), &update_mod_snipe_dpi_bar, };
-    widgets[8] = (obj_update_dilemma_lcd_status_t){ ui_create_number_label(cont, 2), &update_mod_snipe_dpi_number, };
+        // sniping DPI widgets
+        ui_create_secondary_text(cont, "SNIPE DPI", true, 4);
+        widgets[7] = (obj_update_dilemma_lcd_status_t){ ui_create_progress_bar(cont, 4), &update_mod_snipe_dpi_bar, };
+        widgets[8] = (obj_update_dilemma_lcd_status_t){ ui_create_number_label(cont, 2), &update_mod_snipe_dpi_number, };
 
-    // regular DPI widgets
-    ui_create_secondary_text(cont, "DPI", true, 2);
-    widgets[9] = (obj_update_dilemma_lcd_status_t){ ui_create_progress_bar(cont, 6), &update_mod_dpi_bar, };
-    widgets[10] = (obj_update_dilemma_lcd_status_t){ ui_create_number_label(cont, 2), &update_mod_dpi_number, };
+        // regular DPI widgets
+        ui_create_secondary_text(cont, "DPI", true, 2);
+        widgets[9] = (obj_update_dilemma_lcd_status_t){ ui_create_progress_bar(cont, 6), &update_mod_dpi_bar, };
+        widgets[10] = (obj_update_dilemma_lcd_status_t){ ui_create_number_label(cont, 2), &update_mod_dpi_number, };
 
-    // line separator
-    ui_create_line_separator(cont, 1, 3);
+        // line separator
+        ui_create_line_separator(cont, 1, 3);
 
-    // rgb widgets
-    ui_create_secondary_text(cont, "RGB", true, 2);
-    widgets[11] = (obj_update_dilemma_lcd_status_t){ ui_create_progress_bar(cont, 6), &update_rgb_bar, };
-    widgets[12] = (obj_update_dilemma_lcd_status_t){ ui_create_number_label(cont, 2), &update_rgb_value, };
-    widgets[13] = (obj_update_dilemma_lcd_status_t){ ui_create_secondary_text(cont, "effect...", true, 1), &update_rgb_effect };
+        // rgb widgets
+        ui_create_secondary_text(cont, "RGB", true, 2);
+        widgets[11] = (obj_update_dilemma_lcd_status_t){ ui_create_progress_bar(cont, 6), &update_rgb_bar, };
+        widgets[12] = (obj_update_dilemma_lcd_status_t){ ui_create_number_label(cont, 2), &update_rgb_value, };
+        widgets[13] = (obj_update_dilemma_lcd_status_t){ ui_create_secondary_text(cont, "effect...", true, 1), &update_rgb_effect };
 
-    /* ----- menus ----- */
-    menus[0] = (obj_update_dilemma_menu_t){
-        ui_create_menu_line(cont_menu, "Back to main"),
-        NULL,
-    };
-    menus[1] = (obj_update_dilemma_menu_t){
-        ui_create_menu_line(cont_menu, "Pomodoro"),
-        &menu_base_go_pomodoro,
-    };
-    // TODO later, create a "theme options" module? but then at each bootmagic flash it will be erased :(
-    menus[2] = (obj_update_dilemma_menu_t){
-        ui_create_menu_line(cont_menu, "Change theme"),
-        &menu_base_change_theme,
-    };
+        /* ----- menus ----- */
+        menus[0] = (obj_update_dilemma_menu_t){
+            ui_create_menu_line(cont_menu, "Back to main"),
+            NULL,
+        };
+        menus[1] = (obj_update_dilemma_menu_t){
+            ui_create_menu_line(cont_menu, "Pomodoro"),
+            &menu_base_go_pomodoro,
+        };
+        // TODO later, create a "theme options" module? but then at each bootmagic flash it will be erased :(
+        menus[2] = (obj_update_dilemma_menu_t){
+            ui_create_menu_line(cont_menu, "Change theme"),
+            &menu_base_change_theme,
+        };
+    }
+    else{
+        /* ----- menus ----- */
+        menus[0] = (obj_update_dilemma_menu_t){
+            NULL,
+            NULL,
+        };
+        menus[1] = (obj_update_dilemma_menu_t){
+            NULL,
+            &menu_base_go_pomodoro,
+        };
+        // TODO later, create a "theme options" module? but then at each bootmagic flash it will be erased :(
+        menus[2] = (obj_update_dilemma_menu_t){
+            NULL,
+            &menu_base_change_theme,
+        };
+    }
+// }
+
 
 }
 
@@ -140,37 +162,39 @@ void housekeeping_task_screen_base(void) {
     // if the keyboard is master, nothing to do - the screen will be refreshed by the main LCD housekeeping task
     if (is_keyboard_master()) {
         update_dilemma_status();
-        if (is_keyboard_left()) {
-            refresh_screen_base();
-        }
+        // if (is_keyboard_left()) {
+        // we refresh the screen also on the side that does have the screen.
+        // this way, we "mirror" what's happening, and the module number stays in sync
+        refresh_screen_base();
+        // }
         // }
         // if the keyboard is right, we need to send the sync info over to the left side
         // saving the theme id to eeprom has already been done in process_record
-        else {
-            bool            needs_sync = false;
-            static bool     needs_resync = true; // perform an initial first sync
-            static uint32_t last_sync = 0;
-            // // Check if the state values are different.
-            if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
+        // else {
+        bool            needs_sync = false;
+        static bool     needs_resync = true; // perform an initial first sync
+        static uint32_t last_sync = 0;
+        // // Check if the state values are different.
+        if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
+            needs_sync = true;
+        }
+        // check if a previous sync has failed
+        if (needs_resync) {
+            // we only want to retry syncing after a set amount of time
+            if (timer_elapsed32(last_sync) > 200) {
                 needs_sync = true;
             }
-            // check if a previous sync has failed
-            if (needs_resync) {
-                // we only want to retry syncing after a set amount of time
-                if (timer_elapsed32(last_sync) > 200) {
-                    needs_sync = true;
-                }
-            }
-            // perform the sync if requested
-            if (needs_sync) {
-                // try to sync, if it fails we will retry in the next housekeeping loop
-                if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false) {
-                    needs_resync = true;
-                }
-                last_sync = timer_read32();
-            }
-            dilemma_lcd_status_prev = dilemma_lcd_status;
         }
+        // perform the sync if requested
+        if (needs_sync) {
+            // try to sync, if it fails we will retry in the next housekeeping loop
+            if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false) {
+                needs_resync = true;
+            }
+            last_sync = timer_read32();
+        }
+        dilemma_lcd_status_prev = dilemma_lcd_status;
+        // }
 
     }
 }
@@ -385,7 +409,6 @@ static void load_screen_base_menu(void) {
     load_screen_xx_menu(menus, &menu_index, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_base_menu);
 }
 
-// this is called only by the left side, either directly by master, or through RPC from right side
 void refresh_screen_base(void) {
     const dilemma_status_t current_status = (const dilemma_status_t)dilemma_lcd_status;
     const dilemma_status_t prev_status = (const dilemma_status_t)dilemma_lcd_status_prev;
@@ -415,14 +438,13 @@ void refresh_screen_base(void) {
     }
 
     // if(current_layer == 0){
-    // if (is_keyboard_left()) {
-    for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++) {
-        lv_obj_t* obj = widgets[i].obj;
-        if (obj && widgets[i].update_function)
-            widgets[i].update_function(obj, current_status, prev_status);
+    if (is_keyboard_left()) {
+        for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_lcd_status_t); i++) {
+            lv_obj_t* obj = widgets[i].obj;
+            if (obj && widgets[i].update_function)
+                widgets[i].update_function(obj, current_status, prev_status);
+        }
     }
-    // }
-    // }
 
     last_layer = current_layer;
 }

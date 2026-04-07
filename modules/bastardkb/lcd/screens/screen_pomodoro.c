@@ -49,25 +49,26 @@ void load_module_pomodoro(void) { load_screen_pomodoro_base(); }
 // TODO isolate the ui_screen_base into this folder, and instead return a
 // pointer to it with this function?
 void init_screen_pomodoro(void) {
+    if (is_keyboard_left()) {
     ui_screen_pomodoro = lv_obj_create(NULL);
     lv_obj_t* cont = ui_create_container(ui_screen_pomodoro);
 
     ui_screen_pomodoro_menu = lv_obj_create(NULL);
     lv_obj_t* cont_menu = ui_create_container(ui_screen_pomodoro_menu);
 
-    /* ----- Widgets ----- */
-    widgets[0] = (obj_update_dilemma_pomodoro_status_t){
-        ui_create_pomodoro_title(cont),
-        NULL,
-    };
-    widgets[2] = (obj_update_dilemma_pomodoro_status_t){
-        ui_create_pomodoro_arc(cont),
-        &update_pomodoro_arc,
-    };
-    widgets[1] = (obj_update_dilemma_pomodoro_status_t){
-        ui_create_pomodoro_time(cont),
-        &update_pomodoro_time,
-    };
+        /* ----- Widgets ----- */
+        widgets[0] = (obj_update_dilemma_pomodoro_status_t){
+            ui_create_pomodoro_title(cont),
+            NULL,
+        };
+        widgets[2] = (obj_update_dilemma_pomodoro_status_t){
+            ui_create_pomodoro_arc(cont),
+            &update_pomodoro_arc,
+        };
+        widgets[1] = (obj_update_dilemma_pomodoro_status_t){
+            ui_create_pomodoro_time(cont),
+            &update_pomodoro_time,
+        };
 
     /* ----- menus ----- */
     menus[0] = (obj_update_dilemma_menu_t){
@@ -90,6 +91,25 @@ void init_screen_pomodoro(void) {
         ui_create_menu_line(cont_menu, "< Back to Main"),
         &menu_pomodoro_go_base,
     };
+}
+else{
+        /* ----- menus ----- */
+        menus[0] = (obj_update_dilemma_menu_t){NULL,
+            NULL,
+        };
+        menus[1] = (obj_update_dilemma_menu_t){NULL,
+            &menu_pomodoro_start_25,
+        };
+        menus[2] = (obj_update_dilemma_menu_t){NULL,
+            &menu_pomodoro_play_pause,
+        };
+        menus[3] = (obj_update_dilemma_menu_t){NULL,
+            &menu_pomodoro_start_10,
+        };
+        menus[4] = (obj_update_dilemma_menu_t){NULL,
+            &menu_pomodoro_go_base,
+        };
+}
 }
 
 static void menu_pomodoro_go_base(void) {
@@ -125,10 +145,10 @@ static void load_screen_pomodoro_menu(void) {
 }
 
 void housekeeping_task_screen_pomodoro(void) {
-    // if(is_keyboard_master())
-    // {
-    if (is_keyboard_left())
+    if (is_keyboard_master())
     {
+        // if (is_keyboard_left())
+        // {
         static int last_layer;
         int current_layer = get_highest_layer(layer_state);
 
@@ -152,11 +172,13 @@ void housekeeping_task_screen_pomodoro(void) {
             }
         }
 
-        for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t); i++)
-        {
-            lv_obj_t* obj = widgets[i].obj;
-            if (obj && widgets[i].update_function)
-                widgets[i].update_function(obj);
+        if (is_keyboard_left()) {
+            for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t); i++)
+            {
+                lv_obj_t* obj = widgets[i].obj;
+                if (obj && widgets[i].update_function)
+                    widgets[i].update_function(obj);
+            }
         }
 
         last_layer = current_layer;

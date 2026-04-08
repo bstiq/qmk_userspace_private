@@ -115,13 +115,13 @@ static void menu_pomodoro_start_10(void) {
 // TODO remove screen index handling in there, we handle it in housekeeping instead.
 // like this it's hidden, not nice
 static void load_screen_pomodoro_base(void) {
-    load_screen_xx_base(menus, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro);
+    load_screen_xx_base(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro);
 }
 
 // TODO remove screen index handling in there, we handle it in housekeeping instead.
 // like this it's hidden, not nice
 static void load_screen_pomodoro_menu(void) {
-    load_screen_xx_menu(menus, &menu_index, &screen_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro_menu);
+    load_screen_xx_menu(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro_menu);
 }
 
 void housekeeping_task_screen_pomodoro(void) {
@@ -140,6 +140,7 @@ void housekeeping_task_screen_pomodoro(void) {
                     if (screen_index == 1) {
                         load_screen_pomodoro_base();
                         trigger_menu_element(menus, menu_index);
+                        menu_index = 0;
                         screen_index = 0;
                     }
                     break;

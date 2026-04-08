@@ -552,7 +552,6 @@ void init_styles(void) {
 }
 
 void update_styles_from_current_theme(void) {
-    // TODO: iterate through all of those, by using a union/struct
     lv_obj_report_style_change(&current_style.mod_btn);
     lv_obj_report_style_change(&current_style.mod_btn_pressed);
     lv_obj_report_style_change(&current_style.layer_name);
@@ -579,5 +578,4 @@ void cycle_theme_and_save_in_eeprom(void) {
     set_current_theme_id(new_id);
     current_style = *themes[get_current_theme_id()];
     write_dilemma_theme_config_to_eeprom(&dilemma_config_theme);
-    // we will then update the theme in housekeeping.
 }

@@ -532,21 +532,21 @@ lv_obj_report_style_change(&(theme_style4.flex_container));
 
 }
 
-void read_dilemma_theme_config_from_eeprom(dilemma_config_lcd_t *config) {
+void read_dilemma_theme_config_from_eeprom(dilemma_config_theme_t *config) {
     config->raw = eeconfig_read_user() & 0xff;
 }
 
-void write_dilemma_theme_config_to_eeprom(dilemma_config_lcd_t *config) {
+void write_dilemma_theme_config_to_eeprom(dilemma_config_theme_t *config) {
     eeconfig_update_user(config->raw);
 }
 
 void load_dilemma_theme_config_from_eeprom(void) {
-    read_dilemma_theme_config_from_eeprom(&dilemma_config_lcd);
+    read_dilemma_theme_config_from_eeprom(&dilemma_config_theme);
 }
 
 void init_styles(void) {
-    read_dilemma_theme_config_from_eeprom(&dilemma_config_lcd);
-    set_current_theme_id(dilemma_config_lcd.current_theme_id);
+    read_dilemma_theme_config_from_eeprom(&dilemma_config_theme);
+    set_current_theme_id(dilemma_config_theme.current_theme_id);
     current_style = *themes[get_current_theme_id()];
     update_styles_from_current_theme();
 }
@@ -567,17 +567,17 @@ ui_styles_t *get_current_ui_styles(void) {
 }
 
 uint8_t get_current_theme_id(void) {
-    return dilemma_config_lcd.current_theme_id;
+    return dilemma_config_theme.current_theme_id;
 }
 
 void set_current_theme_id(uint8_t id) {
-    dilemma_config_lcd.current_theme_id = id;
+    dilemma_config_theme.current_theme_id = id;
 }
 
 void cycle_theme_and_save_in_eeprom(void) {
     uint8_t new_id = (get_current_theme_id() + 1) % (sizeof(themes) / sizeof(ui_styles_t *));
     set_current_theme_id(new_id);
     current_style = *themes[get_current_theme_id()];
-    write_dilemma_theme_config_to_eeprom(&dilemma_config_lcd);
+    write_dilemma_theme_config_to_eeprom(&dilemma_config_theme);
     // we will then update the theme in housekeeping.
 }

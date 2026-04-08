@@ -145,8 +145,8 @@ static void load_screen_pomodoro_menu(void) {
 }
 
 void housekeeping_task_screen_pomodoro(void) {
-    if (is_keyboard_master())
-    {
+    // if (is_keyboard_master())
+    // {
         // if (is_keyboard_left())
         // {
         static int last_layer;
@@ -172,17 +172,17 @@ void housekeeping_task_screen_pomodoro(void) {
             }
         }
 
-        if (is_keyboard_left()) {
+        // if (is_keyboard_left()) {
             for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t); i++)
             {
                 lv_obj_t* obj = widgets[i].obj;
                 if (obj && widgets[i].update_function)
                     widgets[i].update_function(obj);
             }
-        }
+        // }
 
         last_layer = current_layer;
-    }
+    // }
     // }
 }
 

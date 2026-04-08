@@ -10,19 +10,7 @@
 #include "menu.h"
 #include "ui_elements.h"
 #include "transactions.h"
-
-typedef struct {
-    uint8_t                mods;
-    bool                   sniping;
-    bool                   scrolling;
-    uint8_t                layer;
-    uint8_t                current_theme_id;
-    uint8_t                rgb_enabled;
-    uint8_t                rgb_effect_mode;
-    uint16_t               rgb_val;
-    uint16_t               dpi;
-    uint16_t               s_dpi;
-} dilemma_status_t;
+#include "dilemma_sync.h"
 
 typedef struct {
     lv_obj_t* obj;
@@ -144,59 +132,67 @@ void init_screen_base(void) {
 
 }
 
-void update_dilemma_status(void) {
-    dilemma_lcd_status.mods = get_mods();
-    dilemma_lcd_status.layer = get_highest_layer(layer_state);
-    dilemma_lcd_status.sniping = dilemma_get_pointer_sniping_enabled();
-    dilemma_lcd_status.dpi = dilemma_get_pointer_default_dpi();
-    dilemma_lcd_status.s_dpi = dilemma_get_pointer_sniping_dpi();
-    dilemma_lcd_status.scrolling = dilemma_get_pointer_dragscroll_enabled();
-    dilemma_lcd_status.rgb_enabled = rgb_matrix_is_enabled();
-    dilemma_lcd_status.rgb_effect_mode = rgb_matrix_get_mode();
-    dilemma_lcd_status.rgb_val = rgb_matrix_get_val();
-    dilemma_lcd_status.current_theme_id = get_current_theme_id();
-}
+// void update_dilemma_status(void) {
+//     dilemma_lcd_status.mods = get_mods();
+//     dilemma_lcd_status.layer = get_highest_layer(layer_state);
+//     dilemma_lcd_status.sniping = dilemma_get_pointer_sniping_enabled();
+//     dilemma_lcd_status.dpi = dilemma_get_pointer_default_dpi();
+//     dilemma_lcd_status.s_dpi = dilemma_get_pointer_sniping_dpi();
+//     dilemma_lcd_status.scrolling = dilemma_get_pointer_dragscroll_enabled();
+//     dilemma_lcd_status.rgb_enabled = rgb_matrix_is_enabled();
+//     dilemma_lcd_status.rgb_effect_mode = rgb_matrix_get_mode();
+//     dilemma_lcd_status.rgb_val = rgb_matrix_get_val();
+//     dilemma_lcd_status.current_theme_id = get_current_theme_id();
+// }
 
 void housekeeping_task_screen_base(void) {
     // if (is_keyboard_master()) {
     // if the keyboard is master, nothing to do - the screen will be refreshed by the main LCD housekeeping task
-    if (is_keyboard_master()) {
-        update_dilemma_status();
-        // if (is_keyboard_left()) {
-        // we refresh the screen also on the side that does have the screen.
-        // this way, we "mirror" what's happening, and the module number stays in sync
-        refresh_screen_base();
-        // }
-        // }
-        // if the keyboard is right, we need to send the sync info over to the left side
-        // saving the theme id to eeprom has already been done in process_record
-        // else {
-        bool            needs_sync = false;
-        static bool     needs_resync = true; // perform an initial first sync
-        static uint32_t last_sync = 0;
-        // // Check if the state values are different.
-        if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
-            needs_sync = true;
-        }
-        // check if a previous sync has failed
-        if (needs_resync) {
-            // we only want to retry syncing after a set amount of time
-            if (timer_elapsed32(last_sync) > 200) {
-                needs_sync = true;
-            }
-        }
-        // perform the sync if requested
-        if (needs_sync) {
-            // try to sync, if it fails we will retry in the next housekeeping loop
-            if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false) {
-                needs_resync = true;
-            }
-            last_sync = timer_read32();
-        }
-        dilemma_lcd_status_prev = dilemma_lcd_status;
-        // }
+    // if (is_keyboard_master()) {
+    //     update_dilemma_status();
+    //     // if (is_keyboard_left()) {
+    //     // we refresh the screen also on the side that does have the screen.
+    //     // this way, we "mirror" what's happening, and the module number stays in sync
+    //     refresh_screen_base();
+    //     // }
+    //     // }
+    //     // if the keyboard is right, we need to send the sync info over to the left side
+    //     // saving the theme id to eeprom has already been done in process_record
+    //     // else {
+    //     bool            needs_sync = false;
+    //     static bool     needs_resync = true; // perform an initial first sync
+    //     static uint32_t last_sync = 0;
+    //     // // Check if the state values are different.
+    //     if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
+    //         needs_sync = true;
+    //     }
+    //     // check if a previous sync has failed
+    //     if (needs_resync) {
+    //         // we only want to retry syncing after a set amount of time
+    //         if (timer_elapsed32(last_sync) > 200) {
+    //             needs_sync = true;
+    //         }
+    //     }
+    //     // perform the sync if requested
+    //     if (needs_sync) {
+    //         // try to sync, if it fails we will retry in the next housekeeping loop
+    //         if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false) {
+    //             needs_resync = true;
+    //         }
+    //         last_sync = timer_read32();
+    //     }
+    //     dilemma_lcd_status_prev = dilemma_lcd_status;
+    //     // }
 
-    }
+    // }
+
+    // if (is_keyboard_left()){
+        // TODO handle dilemma status somehow
+        dilemma_lcd_status = get_dilemma_status();
+        refresh_screen_base();
+        dilemma_lcd_status_prev = dilemma_lcd_status;
+        
+    // }
 }
 
 
@@ -478,7 +474,7 @@ void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void* i
                     update_styles_from_current_theme();
                 }
                 // TODO is this not done in the main housekeeping?
-                refresh_screen_base();
+                // refresh_screen_base();
             }
         }
     }

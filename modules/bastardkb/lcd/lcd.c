@@ -139,8 +139,9 @@ void module_sync_handler(uint8_t initiator2target_buffer_size, const void* initi
 
 void keyboard_post_init_lcd(void) {
     load_dilemma_theme_config_from_eeprom();
-
-    init_display();
+    if (is_keyboard_left()) {
+        init_display();
+    }
 
     // register rpc mouse data syncing
     transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
@@ -185,28 +186,43 @@ void update_theme_color(void) {
 }
 
 void housekeeping_task_lcd(void) {
-    if (lcd_modules[selected_module]->housekeeping_task != NULL) {
-        lcd_modules[selected_module]->housekeeping_task();
+    // todo handle syncing in another module
+    if (is_keyboard_left()) {
+        if (lcd_modules[selected_module]->housekeeping_task != NULL) {
+            lcd_modules[selected_module]->housekeeping_task();
+        }
     }
 }
 
 // records are processed on both sides, so that the right side knows what's happening on the left as well.
 bool process_record_lcd(uint16_t keycode, keyrecord_t* record) {
-    if (is_keyboard_master()) {
-        // if (is_keyboard_left()) {
+    // if (is_keyboard_master()) {
+    //     // if (is_keyboard_left()) {
+    //     if (lcd_modules[selected_module]->process_record != NULL) {
+    //         lcd_modules[selected_module]->process_record(keycode, record);
+    //         //     }
+    //         // }
+    //         // else {
+    //             // we need to RPC the keycode to the secondary side for processing
+    //             // TODO only send it if it's one of the custom screen keycodes
+    //         dilemma_keycode_event_t dilemma_keycode_event = {
+    //             .keycode = keycode,
+    //             .record = *record,
+    //         };
+    //         transaction_rpc_send(RPC_ID_KEYCODE_SYNC, sizeof(dilemma_keycode_event), &dilemma_keycode_event);
+    //     }
+    // }
+    if (is_keyboard_left()) {
         if (lcd_modules[selected_module]->process_record != NULL) {
             lcd_modules[selected_module]->process_record(keycode, record);
-            //     }
-            // }
-            // else {
-                // we need to RPC the keycode to the secondary side for processing
-                // TODO only send it if it's one of the custom screen keycodes
-            dilemma_keycode_event_t dilemma_keycode_event = {
-                .keycode = keycode,
-                .record = *record,
-            };
-            transaction_rpc_send(RPC_ID_KEYCODE_SYNC, sizeof(dilemma_keycode_event), &dilemma_keycode_event);
         }
+    }
+    else {
+        dilemma_keycode_event_t dilemma_keycode_event = {
+                        .keycode = keycode,
+                        .record = *record,
+        };
+        transaction_rpc_send(RPC_ID_KEYCODE_SYNC, sizeof(dilemma_keycode_event), &dilemma_keycode_event);
     }
     return true;
 }

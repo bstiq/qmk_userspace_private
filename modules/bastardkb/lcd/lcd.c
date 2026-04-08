@@ -98,12 +98,10 @@ void keyboard_post_init_lcd(void) {
         init_display();
     }
 
-    // register rpc mouse data syncing
     transaction_register_rpc(RPC_ID_KEYCODE_SYNC, keycode_sync_handler);
 }
 
 void housekeeping_task_lcd(void) {
-    // todo handle syncing in another module
     if (is_keyboard_left()) {
         if (lcd_modules[selected_module]->housekeeping_task != NULL) {
             lcd_modules[selected_module]->housekeeping_task();
@@ -111,8 +109,7 @@ void housekeeping_task_lcd(void) {
     }
 }
 
-// records are processed on both sides, so that the right side knows what's happening on the left as well.
-// records are usually processed on primary side only as per QMK logic
+// if right side is primary, we want to send the keycodes to the left for LCD processing
 // TODO retry if fails?
 bool process_record_lcd(uint16_t keycode, keyrecord_t* record) {
     if (is_keyboard_master()) {

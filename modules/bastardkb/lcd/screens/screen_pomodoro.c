@@ -55,19 +55,19 @@ void init_screen_pomodoro(void) {
     ui_screen_pomodoro_menu = lv_obj_create(NULL);
     lv_obj_t* cont_menu = ui_create_container(ui_screen_pomodoro_menu);
 
-        /* ----- Widgets ----- */
-        widgets[0] = (obj_update_dilemma_pomodoro_status_t){
-            ui_create_pomodoro_title(cont),
-            NULL,
-        };
-        widgets[2] = (obj_update_dilemma_pomodoro_status_t){
-            ui_create_pomodoro_arc(cont),
-            &update_pomodoro_arc,
-        };
-        widgets[1] = (obj_update_dilemma_pomodoro_status_t){
-            ui_create_pomodoro_time(cont),
-            &update_pomodoro_time,
-        };
+    /* ----- Widgets ----- */
+    widgets[0] = (obj_update_dilemma_pomodoro_status_t){
+        ui_create_pomodoro_title(cont),
+        NULL,
+    };
+    widgets[2] = (obj_update_dilemma_pomodoro_status_t){
+        ui_create_pomodoro_arc(cont),
+        &update_pomodoro_arc,
+    };
+    widgets[1] = (obj_update_dilemma_pomodoro_status_t){
+        ui_create_pomodoro_time(cont),
+        &update_pomodoro_time,
+    };
 
     /* ----- menus ----- */
     menus[0] = (obj_update_dilemma_menu_t){
@@ -112,59 +112,48 @@ static void menu_pomodoro_start_10(void) {
     timer_is_running = true;
 }
 
-// TODO remove screen index handling in there, we handle it in housekeeping instead.
-// like this it's hidden, not nice
 static void load_screen_pomodoro_base(void) {
     load_screen_xx_base(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro);
 }
 
-// TODO remove screen index handling in there, we handle it in housekeeping instead.
-// like this it's hidden, not nice
 static void load_screen_pomodoro_menu(void) {
     load_screen_xx_menu(menus, sizeof(menus) / sizeof(obj_update_dilemma_menu_t), ui_screen_pomodoro_menu);
 }
 
 void housekeeping_task_screen_pomodoro(void) {
-    // if (is_keyboard_master())
-    // {
-        // if (is_keyboard_left())
-        // {
-        static int last_layer;
-        int current_layer = get_highest_layer(layer_state);
+    static int last_layer;
+    int current_layer = get_highest_layer(layer_state);
 
-        if (current_layer != last_layer)
+    if (current_layer != last_layer)
+    {
+        switch (current_layer)
         {
-            switch (current_layer)
-            {
-                case 0:
-                    if (screen_index == 1) {
-                        load_screen_pomodoro_base();
-                        trigger_menu_element(menus, menu_index);
-                        menu_index = 0;
-                        screen_index = 0;
-                    }
-                    break;
-                case LAYER_MENU:
-                    if (screen_index == 0) {
-                        load_screen_pomodoro_menu();
-                        screen_index = 1;
-                    }
-                    break;
-            }
+            case 0:
+                if (screen_index == 1) {
+                    load_screen_pomodoro_base();
+                    trigger_menu_element(menus, menu_index);
+                    menu_index = 0;
+                    screen_index = 0;
+                }
+                break;
+            case LAYER_MENU:
+                if (screen_index == 0) {
+                    load_screen_pomodoro_menu();
+                    screen_index = 1;
+                }
+                break;
         }
+    }
 
-        // if (is_keyboard_left()) {
-            for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t); i++)
-            {
-                lv_obj_t* obj = widgets[i].obj;
-                if (obj && widgets[i].update_function)
-                    widgets[i].update_function(obj);
-            }
-        // }
+    for (int i = 0; i < sizeof(widgets) / sizeof(obj_update_dilemma_pomodoro_status_t); i++)
+    {
+        lv_obj_t* obj = widgets[i].obj;
+        if (obj && widgets[i].update_function){
+            widgets[i].update_function(obj);
+        }
+    }
 
-        last_layer = current_layer;
-    // }
-    // }
+    last_layer = current_layer;
 }
 
 static void update_pomodoro_time(lv_obj_t* obj) {
@@ -273,12 +262,9 @@ static void update_pomodoro_arc(lv_obj_t* obj) {
     }
 }
 
-// TODO this is something that will be reused in other menus, so we should move
-// it maybe to screens/menu_nav.c ?
 // TODO the layer is hardcoded.... and it will be different on Dilemma and Dilemma
 bool process_record_screen_pomodoro(uint16_t keycode, keyrecord_t* record)
 {
-    // TODO index is hardcoded...
     if (screen_index == 1) {
         process_record_menu(keycode, record, menus, &menu_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
     }

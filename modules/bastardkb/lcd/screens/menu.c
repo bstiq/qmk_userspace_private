@@ -13,7 +13,6 @@ void release_menu_button(const obj_update_dilemma_menu_t button){
     }
 }
 
-// TODO only do this if we're left side keyboard
 bool process_record_menu(uint16_t keycode, keyrecord_t *record, const obj_update_dilemma_menu_t menus[], uint8_t *menu_index, const uint8_t menu_size){
     switch (keycode) {
         case LCD_MENU_NEXT:

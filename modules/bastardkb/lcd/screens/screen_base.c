@@ -241,23 +241,15 @@ static void update_rgb_bar(lv_obj_t* obj, const dilemma_status_t current_status,
 
 static void update_mod_scroll(lv_obj_t* obj, const dilemma_status_t current_status, const dilemma_status_t prev_status) {
     if (current_status.scrolling != prev_status.scrolling) {
-        if (current_status.scrolling) {
-            lv_event_send(obj, LV_EVENT_PRESSED, NULL);
-        }
-        else {
-            lv_event_send(obj, LV_EVENT_RELEASED, NULL);
-        }
+        uint32_t event = current_status.scrolling ? LV_EVENT_PRESSED : LV_EVENT_RELEASED;
+        lv_event_send(obj, event, NULL);
     }
 }
 
 static void update_mod_snipe(lv_obj_t* obj, const dilemma_status_t current_status, const dilemma_status_t prev_status) {
     if (current_status.sniping != prev_status.sniping) {
-        if (current_status.sniping) {
-            lv_event_send(obj, LV_EVENT_PRESSED, NULL);
-        }
-        else {
-            lv_event_send(obj, LV_EVENT_RELEASED, NULL);
-        }
+        uint32_t event = current_status.sniping ? LV_EVENT_PRESSED : LV_EVENT_RELEASED;
+        lv_event_send(obj, event, NULL);
     }
 }
 
@@ -319,7 +311,6 @@ void refresh_screen_base(void) {
                 if (screen_index == 1) {
                     load_screen_base_base();
                     trigger_menu_element(menus, menu_index);
-                    // todo move menu_index out of the function above
                     menu_index = 0;
                     screen_index = 0;
                 }

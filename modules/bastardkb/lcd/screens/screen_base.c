@@ -60,7 +60,6 @@ void load_module_base(void) {
 // we init this on both sides, so that we can mirror the screen behaviour
 // this way, if primary/right is without screen, it will "know" which module number is loaded
 void init_screen_base(void) {
-    if (is_keyboard_left()) {
     ui_screen_base = lv_obj_create(NULL);
     lv_obj_t* cont = ui_create_container(ui_screen_base);
     
@@ -110,89 +109,12 @@ void init_screen_base(void) {
             ui_create_menu_line(cont_menu, "Change theme"),
             &menu_base_change_theme,
         };
-    }
-    else{
-        /* ----- menus ----- */
-        menus[0] = (obj_update_dilemma_menu_t){
-            NULL,
-            NULL,
-        };
-        menus[1] = (obj_update_dilemma_menu_t){
-            NULL,
-            &menu_base_go_pomodoro,
-        };
-        // TODO later, create a "theme options" module? but then at each bootmagic flash it will be erased :(
-        menus[2] = (obj_update_dilemma_menu_t){
-            NULL,
-            &menu_base_change_theme,
-        };
-    }
-// }
-
-
 }
 
-// void update_dilemma_status(void) {
-//     dilemma_lcd_status.mods = get_mods();
-//     dilemma_lcd_status.layer = get_highest_layer(layer_state);
-//     dilemma_lcd_status.sniping = dilemma_get_pointer_sniping_enabled();
-//     dilemma_lcd_status.dpi = dilemma_get_pointer_default_dpi();
-//     dilemma_lcd_status.s_dpi = dilemma_get_pointer_sniping_dpi();
-//     dilemma_lcd_status.scrolling = dilemma_get_pointer_dragscroll_enabled();
-//     dilemma_lcd_status.rgb_enabled = rgb_matrix_is_enabled();
-//     dilemma_lcd_status.rgb_effect_mode = rgb_matrix_get_mode();
-//     dilemma_lcd_status.rgb_val = rgb_matrix_get_val();
-//     dilemma_lcd_status.current_theme_id = get_current_theme_id();
-// }
-
 void housekeeping_task_screen_base(void) {
-    // if (is_keyboard_master()) {
-    // if the keyboard is master, nothing to do - the screen will be refreshed by the main LCD housekeeping task
-    // if (is_keyboard_master()) {
-    //     update_dilemma_status();
-    //     // if (is_keyboard_left()) {
-    //     // we refresh the screen also on the side that does have the screen.
-    //     // this way, we "mirror" what's happening, and the module number stays in sync
-    //     refresh_screen_base();
-    //     // }
-    //     // }
-    //     // if the keyboard is right, we need to send the sync info over to the left side
-    //     // saving the theme id to eeprom has already been done in process_record
-    //     // else {
-    //     bool            needs_sync = false;
-    //     static bool     needs_resync = true; // perform an initial first sync
-    //     static uint32_t last_sync = 0;
-    //     // // Check if the state values are different.
-    //     if (memcmp(&dilemma_lcd_status, &dilemma_lcd_status_prev, sizeof(dilemma_lcd_status))) {
-    //         needs_sync = true;
-    //     }
-    //     // check if a previous sync has failed
-    //     if (needs_resync) {
-    //         // we only want to retry syncing after a set amount of time
-    //         if (timer_elapsed32(last_sync) > 200) {
-    //             needs_sync = true;
-    //         }
-    //     }
-    //     // perform the sync if requested
-    //     if (needs_sync) {
-    //         // try to sync, if it fails we will retry in the next housekeeping loop
-    //         if (transaction_rpc_send(RPC_ID_MOUSE_SYNC, sizeof(dilemma_lcd_status), &dilemma_lcd_status) == false) {
-    //             needs_resync = true;
-    //         }
-    //         last_sync = timer_read32();
-    //     }
-    //     dilemma_lcd_status_prev = dilemma_lcd_status;
-    //     // }
-
-    // }
-
-    // if (is_keyboard_left()){
-        // TODO handle dilemma status somehow
         dilemma_lcd_status = get_dilemma_status();
         refresh_screen_base();
         dilemma_lcd_status_prev = dilemma_lcd_status;
-        
-    // }
 }
 
 
@@ -202,14 +124,10 @@ static void menu_base_go_pomodoro(void) {
 
 static void menu_base_change_theme(void) {
     cycle_theme_and_save_in_eeprom();
-    // if the keyboard is left, then we directly update the styles
-    // if the keyboard is right, we need to send the sync info over to the left side
-    // that will be done in housekeeping
+    // TODO remove this? should only be called by left anyway
     if (is_keyboard_left()) {
         update_styles_from_current_theme();
     }
-    // TODO this is done in cycle_theme_and_save_in_eeprom, we can remove it
-    // dilemma_lcd_status.current_theme_id = get_current_theme_id();
 }
 
 static const char* rgb_matrix_get_effect_name(void) {
@@ -315,7 +233,6 @@ static void update_rgb_bar(lv_obj_t* obj, const dilemma_status_t current_status,
     const bool rgb_change = (current_status.rgb_enabled != prev_status.rgb_enabled);
     if (!current_status.rgb_enabled) {
         if (rgb_change) {
-            // lv_label_set_text(ui_label_rgb_number, "Off"); // test
             lv_bar_set_value(obj, 0, LV_ANIM_OFF);
         }
     }
@@ -453,29 +370,4 @@ bool process_record_screen_base(uint16_t keycode, keyrecord_t* record) {
         process_record_menu(keycode, record, menus, &menu_index, sizeof(menus) / sizeof(obj_update_dilemma_menu_t));
     }
     return true;
-}
-
-/*
-called by right side, executed by left side (where the screen is)
-we do not store the updated config in eeprom, this is done by master in cycle_theme
-if later we would like to do that, first we need to sync halves in the dilemma code with kb eeprom, and then implement
-theme sync here with user eeprom
-*/
-// TODO the theme part should be separated and managed independentely in theme.c... or, accept that the theme can only be changed through the base screen anyway 
-void mouse_info_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-    if (!is_keyboard_master()) {
-        if (is_keyboard_left()) {
-            if (initiator2target_buffer_size == sizeof(dilemma_lcd_status)) {
-                dilemma_lcd_status_prev = dilemma_lcd_status;
-                dilemma_lcd_status = *(const dilemma_status_t*)initiator2target_buffer;
-
-                if (dilemma_lcd_status_prev.current_theme_id != dilemma_lcd_status.current_theme_id) {
-                    set_current_theme_id(dilemma_lcd_status.current_theme_id);
-                    update_styles_from_current_theme();
-                }
-                // TODO is this not done in the main housekeeping?
-                // refresh_screen_base();
-            }
-        }
-    }
 }

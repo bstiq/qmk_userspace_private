@@ -49,7 +49,6 @@ void load_module_pomodoro(void) { load_screen_pomodoro_base(); }
 // TODO isolate the ui_screen_base into this folder, and instead return a
 // pointer to it with this function?
 void init_screen_pomodoro(void) {
-    if (is_keyboard_left()) {
     ui_screen_pomodoro = lv_obj_create(NULL);
     lv_obj_t* cont = ui_create_container(ui_screen_pomodoro);
 
@@ -91,25 +90,6 @@ void init_screen_pomodoro(void) {
         ui_create_menu_line(cont_menu, "< Back to Main"),
         &menu_pomodoro_go_base,
     };
-}
-else{
-        /* ----- menus ----- */
-        menus[0] = (obj_update_dilemma_menu_t){NULL,
-            NULL,
-        };
-        menus[1] = (obj_update_dilemma_menu_t){NULL,
-            &menu_pomodoro_start_25,
-        };
-        menus[2] = (obj_update_dilemma_menu_t){NULL,
-            &menu_pomodoro_play_pause,
-        };
-        menus[3] = (obj_update_dilemma_menu_t){NULL,
-            &menu_pomodoro_start_10,
-        };
-        menus[4] = (obj_update_dilemma_menu_t){NULL,
-            &menu_pomodoro_go_base,
-        };
-}
 }
 
 static void menu_pomodoro_go_base(void) {

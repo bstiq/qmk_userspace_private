@@ -7,7 +7,7 @@
 #include <ctype.h>
 #include "theme.h"
 
-enum modules{
+enum modules {
     MODULE_BASE = 0,
     MODULE_POMODORO,
 };
@@ -23,15 +23,10 @@ typedef struct {
 
 void keyboard_post_init_lcd(void);
 
-void              housekeeping_task_lcd(void);
-void              update_theme_color(void);
-
-
-
-bool      process_record_lcd(uint16_t keycode, keyrecord_t *record);
+void housekeeping_task_lcd(void);
+bool process_record_lcd(uint16_t keycode, keyrecord_t* record);
 
 void keycode_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer);
-void module_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer);
 void refresh_lcd_info(void);
 void cycle_theme_and_save_in_eeprom(void);
 void init_display(void);

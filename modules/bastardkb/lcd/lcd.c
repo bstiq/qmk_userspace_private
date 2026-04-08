@@ -51,89 +51,44 @@ lcd_module_t* lcd_modules[] = { &lcd_module_base, &lcd_module_pomodoro };
 static uint8_t selected_module = MODULE_BASE;
 
 void init_display(void) {
+    // Display timeout
+    wait_ms(LCD_WAIT_TIME);
 
-    if (is_keyboard_left()) {
-        // Display timeout
-        wait_ms(LCD_WAIT_TIME);
+    lcd = qp_st7789_make_spi_device(LCD_WIDTH, LCD_HEIGHT, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_SPI_DIVISOR, SPI_MODE);
+    qp_init(lcd, LCD_ROTATION);
 
-        lcd = qp_st7789_make_spi_device(LCD_WIDTH, LCD_HEIGHT, LCD_CS_PIN, LCD_DC_PIN, LCD_RST_PIN, LCD_SPI_DIVISOR, SPI_MODE);
-        qp_init(lcd, LCD_ROTATION);
+    // Display offset
+    qp_set_viewport_offsets(lcd, LCD_OFFSET_X, LCD_OFFSET_Y);
 
-        // Display offset
-        qp_set_viewport_offsets(lcd, LCD_OFFSET_X, LCD_OFFSET_Y);
+    qp_lvgl_attach(lcd);
 
-        qp_lvgl_attach(lcd);
+    // Power on display, fill with black
+    qp_power(lcd, 1);
+    qp_rect(lcd, 0, 0, 300, 300, HSV_BLACK, 1);
+    qp_flush(lcd);
 
-        // Power on display, fill with black
-        qp_power(lcd, 1);
-        qp_rect(lcd, 0, 0, 300, 300, HSV_BLACK, 1);
-        qp_flush(lcd);
+    // TODO move the load themes and init styles into the custom structure
+    load_themes();
+    init_styles();
 
-        // TODO move the load themes and init styles into the custom structure
-        load_themes();
-        init_styles();
-
-        // we init modules on both sides, so that both sides are aware of where we are.
-        // this is so that if right is primary, it "emulates" the behavior of the left and knows which module is loaded.
-    }
     for (int i = 0; i < sizeof(lcd_modules) / sizeof(lcd_module_t*); i++) {
         if (lcd_modules[i]->init_module != NULL) {
             lcd_modules[i]->init_module();
         }
+
+        lcd_modules[selected_module]->load_module();
     }
-    // if(is_keyboard_left()){
-    lcd_modules[selected_module]->load_module();
-    // }
-
-    // lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
-    // lv_obj_t *ui_screen_pomodoro = init_screen_pomodoro();
-
-    // display base layer screen upon init
-    // TODO is this necessary here? can we move it to a spot that makes more sense?
-    // lv_disp_load_scr(ui_screen_pomodoro);
-// }
 }
 
-// this is only called by left side
-// but it's the primary that calls the housekeeping
-// so we also need to update the selected_module on the primary side
 void set_current_module(const uint8_t module) {
-    // if (is_keyboard_master()) {
-    // if (is_keyboard_left()) {
     if (module >= sizeof(lcd_modules) / sizeof(lcd_module_t*)) {
         selected_module = MODULE_BASE;
     }
     else
         selected_module = module;
 
-    //     if (is_keyboard_left()) {
-            // we have the screen, we can directly set the module
     if (lcd_modules[selected_module]->load_module) {
         lcd_modules[selected_module]->load_module();
-    }
-    //     }
-    // TODO retry this sync later if it did not register?...
-        // else {
-            // we need to send an RPC to the left side to set the module there (where the screen is)
-    // dilemma_module_event_t dilemma_module_event = {
-    //     .module_id = selected_module,
-    // };
-    // transaction_rpc_send(RPC_ID_MODULE_SYNC, sizeof(dilemma_module_event), &dilemma_module_event);
-// }
-// }
-// }
-}
-
-// called by left side when right side is primary
-void module_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-    if (!is_keyboard_left()) {
-        if (initiator2target_buffer_size == sizeof(dilemma_module_event_t)) {
-            // dilemma_module_event_t dilemma_module_event = *(const dilemma_module_event_t*)initiator2target_buffer;
-            // selected_module = (const uint16_t)dilemma_module_event.module_id;
-            // if (lcd_modules[selected_module]->load_module) {
-            //     lcd_modules[selected_module]->load_module();
-            // }
-        }
     }
 }
 
@@ -144,45 +99,7 @@ void keyboard_post_init_lcd(void) {
     }
 
     // register rpc mouse data syncing
-    transaction_register_rpc(RPC_ID_MOUSE_SYNC, mouse_info_sync_handler);
     transaction_register_rpc(RPC_ID_KEYCODE_SYNC, keycode_sync_handler);
-    transaction_register_rpc(RPC_ID_MODULE_SYNC, module_sync_handler);
-}
-
-// TODO get colors based on real layer colors, instead of hardcoding them
-void update_theme_color(void) {
-    // static bool first_display = true;
-    // if (get_current_theme().change_colors_on_layer_change) {
-    //     if (dilemma_lcd_status.layer != dilemma_lcd_status_prev.layer || first_display) {
-    //         HSV hsv;
-    //         switch (dilemma_lcd_status.layer) {
-    //             case 0:
-    //             default:
-    //                 hsv.h = 218;
-    //                 hsv.s = 70;
-    //                 hsv.v = 93;
-    //                 break;
-    //             case 1:
-    //                 hsv.h = 250;
-    //                 hsv.s = 100;
-    //                 hsv.v = 80;
-    //                 break;
-    //             case 2:
-    //                 hsv.h = 35;
-    //                 hsv.s = 100;
-    //                 hsv.v = 80;
-    //                 break;
-    //             case 3:
-    //                 hsv.h = 195;
-    //                 hsv.s = 30;
-    //                 hsv.v = 80;
-    //                 break;
-    //         }
-
-    //         change_style_colors(hsv);
-    //     }
-    // }
-    // first_display = false;
 }
 
 void housekeeping_task_lcd(void) {
@@ -195,44 +112,36 @@ void housekeeping_task_lcd(void) {
 }
 
 // records are processed on both sides, so that the right side knows what's happening on the left as well.
+// records are usually processed on primary side only as per QMK logic
+// TODO retry if fails?
 bool process_record_lcd(uint16_t keycode, keyrecord_t* record) {
-    // if (is_keyboard_master()) {
-    //     // if (is_keyboard_left()) {
-    //     if (lcd_modules[selected_module]->process_record != NULL) {
-    //         lcd_modules[selected_module]->process_record(keycode, record);
-    //         //     }
-    //         // }
-    //         // else {
-    //             // we need to RPC the keycode to the secondary side for processing
-    //             // TODO only send it if it's one of the custom screen keycodes
-    //         dilemma_keycode_event_t dilemma_keycode_event = {
-    //             .keycode = keycode,
-    //             .record = *record,
-    //         };
-    //         transaction_rpc_send(RPC_ID_KEYCODE_SYNC, sizeof(dilemma_keycode_event), &dilemma_keycode_event);
-    //     }
-    // }
-    if (is_keyboard_left()) {
-        if (lcd_modules[selected_module]->process_record != NULL) {
-            lcd_modules[selected_module]->process_record(keycode, record);
+    if (is_keyboard_master()) {
+        if (is_keyboard_left()) {
+            if (lcd_modules[selected_module]->process_record != NULL) {
+                lcd_modules[selected_module]->process_record(keycode, record);
+            }
         }
-    }
-    else {
-        dilemma_keycode_event_t dilemma_keycode_event = {
-                        .keycode = keycode,
-                        .record = *record,
-        };
-        transaction_rpc_send(RPC_ID_KEYCODE_SYNC, sizeof(dilemma_keycode_event), &dilemma_keycode_event);
+        else {
+            // if keyboard right is primary, send the keycode event to the left for processing
+            dilemma_keycode_event_t dilemma_keycode_event = {
+                            .keycode = keycode,
+                            .record = *record,
+            };
+            transaction_rpc_send(RPC_ID_KEYCODE_SYNC, sizeof(dilemma_keycode_event), &dilemma_keycode_event);
+        }
     }
     return true;
 }
 
 
 void keycode_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-    if (initiator2target_buffer_size == sizeof(dilemma_keycode_event_t)) {
-        dilemma_keycode_event_t dilemma_keycode_event = *(const dilemma_keycode_event_t*)initiator2target_buffer;
-        if (lcd_modules[selected_module]->process_record != NULL) {
-            lcd_modules[selected_module]->process_record(dilemma_keycode_event.keycode, &dilemma_keycode_event.record);
+    // it only makes sense to process this if we are on the left (with the screen)
+    if (is_keyboard_left()) {
+        if (initiator2target_buffer_size == sizeof(dilemma_keycode_event_t)) {
+            dilemma_keycode_event_t dilemma_keycode_event = *(const dilemma_keycode_event_t*)initiator2target_buffer;
+            if (lcd_modules[selected_module]->process_record != NULL) {
+                lcd_modules[selected_module]->process_record(dilemma_keycode_event.keycode, &dilemma_keycode_event.record);
+            }
         }
     }
 }

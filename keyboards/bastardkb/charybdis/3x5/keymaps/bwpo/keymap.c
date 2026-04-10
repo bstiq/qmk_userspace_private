@@ -32,9 +32,7 @@ enum charybdis_keymap_layers {
 
 enum custom_keycodes {
     QK_REG = SAFE_RANGE,
-    QK_HELP,
-    QK_US,
-    QK_USS
+    QK_HELP
 };
 
 // Automatically enable sniping-mode on the pointer layer.
@@ -276,26 +274,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             SEND_STRING_DELAY("I hope this helps, let me know if there's anything else!",5);
         } 
         break;
-    case QK_US:
-        if (record->event.pressed) {
-            SEND_STRING_DELAY("Great, thanks for letting me know.\nI will ship your keyboard in the next couple of days, you will get a separate email with a tracking link as soon as it's shipped!",5);
-        } 
-        break;
-    case QK_USS:
-        if (record->event.pressed) {
-            SEND_STRING_DELAY("Thank you for ordering a keyboard, I appreciate your trust.\n\n",5);
-            SEND_STRING_DELAY("Right now as you might now the situation in the US with shipping is complicated.\n",5);
-            SEND_STRING_DELAY("The official regulation is that you're expected to pay a 15% import tax + processing fee (usually 10-15$).\n\n",5);
-            SEND_STRING_DELAY("I've worked in close partnership with DHL Express to ensure that all the required information is digitally attached to each shipment.\n",5);
-            SEND_STRING_DELAY("However, the rules are very vague and a lot of things remain uncertain.\n",5);
-            SEND_STRING_DELAY("Because of this, most shipment providers have completely halted their shipments to the US.\n\n",5);
-            SEND_STRING_DELAY("If you are comfortable with it, I can ship your kit asap (in the coming couple of days).\n",5);
-            SEND_STRING_DELAY("If you prefer, I can also wait a bit to see if the situation gets more stable.\n\n",5);
-            SEND_STRING_DELAY("I'm very sorry for the complicated situation, and will stay available here and try to be as transparent as possible.\n",5);
-            SEND_STRING_DELAY("Please let me know what works for you!\n\n",5);
-        } 
-        break;
-
     }
     return true;
 };

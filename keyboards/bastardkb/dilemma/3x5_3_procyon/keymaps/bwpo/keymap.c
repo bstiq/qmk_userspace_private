@@ -30,6 +30,11 @@ enum dilemma_keymap_layers {
     LAYER_LCD,
 };
 
+enum custom_keycodes {
+    QK_REG = SAFE_RANGE,
+    QK_HELP
+};
+
 // Automatically enable sniping-mode on the pointer layer.
 // #define DILEMMA_AUTO_SNIPING_ON_LAYER LAYER_POINTER
 
@@ -129,7 +134,7 @@ enum dilemma_keymap_layers {
                       XXXXXXX, _______, XXXXXXX,  KC_ENT, KC_ENT, _______
 
 #define LAYOUT_LAYER_LCD                                                             \
-    _______, _______, LCDPR, LCDNE, _______, _______________DEAD_HALF_ROW_______________, \
+    QK_REG, _______, _______, _______, QK_HELP, _______________DEAD_HALF_ROW_______________, \
     _______, _______, LCDPR, LCDNE, _______ , _______________DEAD_HALF_ROW_______________, \
     _______________DEAD_HALF_ROW_______________,  _______________DEAD_HALF_ROW_______________, \
                       XXXXXXX, _______, XXXXXXX,  _______, _______, _______
@@ -239,6 +244,22 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [LAYER_POINTER]    = {ENCODER_CCW_CW(RM_HUED, RM_HUEU),  ENCODER_CCW_CW(RM_SATD, RM_SATU)},
     [LAYER_NUMERAL]    = {ENCODER_CCW_CW(RM_VALD, RM_VALU),  ENCODER_CCW_CW(RM_SPDD, RM_SPDU)},
     [LAYER_SYMBOLS]    = {ENCODER_CCW_CW(RM_PREV, RM_NEXT),  ENCODER_CCW_CW(KC_LEFT, KC_RGHT)},
+};
+
+bool process_record_user(uint16_t keycode, keyrecord_t* record) {
+    switch (keycode) {
+        case QK_REG:
+            if (record->event.pressed) {
+                SEND_STRING_DELAY("Regards,\nQuentin Lebastard\nBastard Keyboards", 5);
+            }
+            break;
+        case QK_HELP:
+            if (record->event.pressed) {
+                SEND_STRING_DELAY("I hope this helps, let me know if there's anything else!", 5);
+            }
+            break;
+    }
+    return true;
 };
 
 // clang-format on

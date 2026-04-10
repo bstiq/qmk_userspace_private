@@ -162,7 +162,7 @@ void housekeeping_task_screen_pomodoro(void) {
 static void update_pomodoro_time(lv_obj_t* obj) {
     if (timer_is_running == true) {
         uint32_t elapsed = timer_max - timer_elapsed32(timer_start);
-        if (elapsed < 0) {
+        if (timer_max < timer_elapsed32(timer_start)) {
             elapsed = 0;
         }
         uint16_t minutes_elapsed = elapsed / 60000;

@@ -13,9 +13,11 @@ SRC += montserratbold13.c
 SRC += dmsans13.c
 SRC += dmsans14.c
 SRC += dmsans20medium.c
+SRC += dmsansbold40.c
 SRC += dmsans14bold.c
 SRC += jetbrainsmono13.c
 SRC += jetbrainsmono14bold.c
+SRC += jetbrainsmonoextrabold60.c
 
 # Screens
 SRC += screens/screen_base.c

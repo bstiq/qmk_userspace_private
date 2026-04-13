@@ -13,6 +13,8 @@
 #include "nvm_eeprom_eeconfig_internal.h"
 #include "nvm_eeprom_via_internal.h"
 #include "keymap_introspection.h"
+#include <time.h>
+#include <stdlib.h>
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
@@ -108,6 +110,9 @@ uint8_t viable_get_feature_flags(void) {
 #endif
 #ifdef ONESHOT_ENABLE
     flags |= viable_flag_oneshot;
+#endif
+#ifdef LEADER_ENABLE
+    flags |= viable_flag_leader;
 #endif
     return flags;
 }
@@ -238,32 +243,27 @@ void viable_keycode_tap(uint16_t keycode) {
     viable_keycode_up(keycode);
 }
 
-// 0xDF Protocol handler
-// This function should be called from via_command_kb() in the keyboard code
-bool viable_handle_command(uint8_t *data, uint8_t length) {
-    // data[0] = 0xDF (VIABLE_PREFIX) - already verified by caller
-    // data[1] = command_id
-    // data[2...] = payload
-
-    uint8_t command_id = data[1];
+bool viable_handle_command(uint8_t* data, uint8_t length) {
+    printf("Handling command: %#08x\n", data[0]);
+    uint8_t command_id = data[0];
 
     switch (command_id) {
         case viable_cmd_get_info: {
-            // Response: [0xDF] [0x00] [ver0-3] [td_count] [combo_count] [ko_count] [ark_count] [flags] [uid0-7]
+            data[1] = VIABLE_PROTOCOL_VERSION & 0xFF;
+            data[2] = (VIABLE_PROTOCOL_VERSION >> 8) & 0xFF;
+            data[3] = (VIABLE_PROTOCOL_VERSION >> 16) & 0xFF;
+            data[4] = (VIABLE_PROTOCOL_VERSION >> 24) & 0xFF;
+            data[5] = VIABLE_TAP_DANCE_ENTRIES;
+            data[6] = VIABLE_COMBO_ENTRIES;
+            data[7] = VIABLE_KEY_OVERRIDE_ENTRIES;
+            data[8] = VIABLE_ALT_REPEAT_KEY_ENTRIES;
+            data[9] = viable_get_feature_flags();
             uint8_t uid[] = VIABLE_KEYBOARD_UID;
-            data[2] = VIABLE_PROTOCOL_VERSION & 0xFF;
-            data[3] = (VIABLE_PROTOCOL_VERSION >> 8) & 0xFF;
-            data[4] = (VIABLE_PROTOCOL_VERSION >> 16) & 0xFF;
-            data[5] = (VIABLE_PROTOCOL_VERSION >> 24) & 0xFF;
-            data[6] = VIABLE_TAP_DANCE_ENTRIES;
-            data[7] = VIABLE_COMBO_ENTRIES;
-            data[8] = VIABLE_KEY_OVERRIDE_ENTRIES;
-            data[9] = VIABLE_ALT_REPEAT_KEY_ENTRIES;
-            data[10] = viable_get_feature_flags();
-            memcpy(&data[11], uid, 8);
+            memcpy(&data[10], uid, 8);
             break;
         }
 
+        // TODO change data numbering for all other entries...
         case viable_cmd_tap_dance_get: {
             // Request: [0xDF] [0x01] [index]
             // Response: [0xDF] [0x01] [index] [10 bytes entry]
@@ -384,13 +384,13 @@ bool viable_handle_command(uint8_t *data, uint8_t length) {
         }
 
         case viable_cmd_definition_size: {
-            // Request: [0xDF] [0x0D]
-            // Response: [0xDF] [0x0D] [size0] [size1] [size2] [size3]
             uint32_t size = viable_get_definition_size();
-            data[2] = size & 0xFF;
-            data[3] = (size >> 8) & 0xFF;
-            data[4] = (size >> 16) & 0xFF;
-            data[5] = (size >> 24) & 0xFF;
+            printf("Definition size: %lu\n", size);
+            // todo memcpy instead?
+            data[1] = size & 0xFF;
+            data[2] = (size >> 8) & 0xFF;
+            data[3] = (size >> 16) & 0xFF;
+            data[4] = (size >> 24) & 0xFF;
             break;
         }
 
@@ -442,15 +442,20 @@ bool viable_handle_command(uint8_t *data, uint8_t length) {
     return true;
 }
 
-// Override via_command_kb to intercept Viable protocol commands
+// Override via_command_kb to intercept Via protocol commands
 bool via_command_kb(uint8_t *data, uint8_t length) {
-    // Check for Viable prefix (0xDF)
-    if (data[0] == VIABLE_PREFIX) {
-        viable_handle_command(data, length);
+    // try to handle it with viable
+    bool result = viable_handle_command(data, length);
+    if (result) {
+        printf("received a VIABLE command!");
         raw_hid_send(data, length);
-        return true;  // Command was handled
+        return true;
     }
-    return false;  // Let VIA handle other commands
+    // if that does not work, we forward it to via
+    else {
+        printf("received a VIA command!");
+        return false;
+    }
 }
 
 // Process record hook for Viable features

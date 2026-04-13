@@ -23,43 +23,46 @@
 // Protocol prefix for 0xDF direct protocol
 #define VIABLE_PREFIX 0xDF
 #define WRAPPER_PREFIX 0xDD
+#define BOOTSTRAP_PREFIX 0x00
 
 // USB serial number magic for GUI/web detection
+// TODO is this used? if we don't use vial anymore
 #ifndef SERIAL_NUMBER
 #    define SERIAL_NUMBER "viable:12345-00"
 #endif
 
 // Viable command IDs (0xDF protocol v2)
 enum viable_command_id {
-    viable_cmd_get_info          = 0x00,
-    viable_cmd_tap_dance_get     = 0x01,
-    viable_cmd_tap_dance_set     = 0x02,
-    viable_cmd_combo_get         = 0x03,
-    viable_cmd_combo_set         = 0x04,
-    viable_cmd_key_override_get  = 0x05,
-    viable_cmd_key_override_set  = 0x06,
-    viable_cmd_alt_repeat_key_get = 0x07,
-    viable_cmd_alt_repeat_key_set = 0x08,
-    viable_cmd_one_shot_get      = 0x09,
-    viable_cmd_one_shot_set      = 0x0A,
-    viable_cmd_save              = 0x0B,
-    viable_cmd_reset             = 0x0C,
-    viable_cmd_definition_size   = 0x0D,
-    viable_cmd_definition_chunk  = 0x0E,
+    viable_cmd_get_info          = 0x90,
+    viable_cmd_tap_dance_get     = 0x91,
+    viable_cmd_tap_dance_set     = 0x92,
+    viable_cmd_combo_get         = 0x93,
+    viable_cmd_combo_set         = 0x94,
+    viable_cmd_key_override_get  = 0x95,
+    viable_cmd_key_override_set  = 0x96,
+    viable_cmd_alt_repeat_key_get = 0x97,
+    viable_cmd_alt_repeat_key_set = 0x98,
+    viable_cmd_one_shot_get      = 0x99,
+    viable_cmd_one_shot_set      = 0x9A,
+    viable_cmd_save              = 0x9B,
+    viable_cmd_reset             = 0x9C,
+    viable_cmd_definition_size   = 0x9D,
+    viable_cmd_definition_chunk  = 0x9E,
     // QMK Settings commands
-    viable_cmd_qmk_settings_query = 0x10,
-    viable_cmd_qmk_settings_get   = 0x11,
-    viable_cmd_qmk_settings_set   = 0x12,
-    viable_cmd_qmk_settings_reset = 0x13,
-    viable_cmd_error             = 0xFF,
+    viable_cmd_qmk_settings_query = 0x9F,
+    viable_cmd_qmk_settings_get   = 0xA0,
+    viable_cmd_qmk_settings_set   = 0xA1,
+    viable_cmd_qmk_settings_reset = 0xA2,
+    viable_cmd_error             = 0xDE,
 };
 
 // Feature capability flags (returned in protocol info)
 enum viable_feature_flags {
     viable_flag_caps_word   = (1 << 0),
-    viable_flag_layer_lock  = (1 << 1),
-    viable_flag_oneshot     = (1 << 2),
-    // bits 3-7 reserved
+    viable_flag_layer_lock = (1 << 1),
+    viable_flag_oneshot = (1 << 2),
+    viable_flag_leader = (1 << 3),
+    // bits 4-7 reserved
 };
 
 // Keyboard definition chunk size (fits in 32-byte HID packet with header)

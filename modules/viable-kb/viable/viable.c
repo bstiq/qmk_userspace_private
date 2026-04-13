@@ -263,125 +263,125 @@ bool viable_handle_command(uint8_t* data, uint8_t length) {
             break;
         }
 
-        // TODO change data numbering for all other entries...
-        case viable_cmd_tap_dance_get: {
-            // Request: [0xDF] [0x01] [index]
-            // Response: [0xDF] [0x01] [index] [10 bytes entry]
-            uint8_t idx = data[2];
-            viable_tap_dance_entry_t entry = {0};
-            viable_get_tap_dance(idx, &entry);
-            memcpy(&data[3], &entry, sizeof(entry));
-            break;
-        }
+        // // TODO change data numbering for all other entries...
+        // case viable_cmd_tap_dance_get: {
+        //     // Request: [0xDF] [0x01] [index]
+        //     // Response: [0xDF] [0x01] [index] [10 bytes entry]
+        //     uint8_t idx = data[2];
+        //     viable_tap_dance_entry_t entry = {0};
+        //     viable_get_tap_dance(idx, &entry);
+        //     memcpy(&data[3], &entry, sizeof(entry));
+        //     break;
+        // }
 
-        case viable_cmd_tap_dance_set: {
-            // Request: [0xDF] [0x02] [index] [10 bytes entry]
-            // Response: [0xDF] [0x02] [status]
-            uint8_t idx = data[2];
-            viable_tap_dance_entry_t entry;
-            memcpy(&entry, &data[3], sizeof(entry));
-            data[2] = viable_set_tap_dance(idx, &entry) == 0 ? 0 : 1;
-            viable_reload_tap_dance();
-            break;
-        }
+        // case viable_cmd_tap_dance_set: {
+        //     // Request: [0xDF] [0x02] [index] [10 bytes entry]
+        //     // Response: [0xDF] [0x02] [status]
+        //     uint8_t idx = data[2];
+        //     viable_tap_dance_entry_t entry;
+        //     memcpy(&entry, &data[3], sizeof(entry));
+        //     data[2] = viable_set_tap_dance(idx, &entry) == 0 ? 0 : 1;
+        //     viable_reload_tap_dance();
+        //     break;
+        // }
 
-        case viable_cmd_combo_get: {
-            // Request: [0xDF] [0x03] [index]
-            // Response: [0xDF] [0x03] [index] [12 bytes entry]
-            uint8_t idx = data[2];
-            viable_combo_entry_t entry = {0};
-            viable_get_combo(idx, &entry);
-            memcpy(&data[3], &entry, sizeof(entry));
-            break;
-        }
+        // case viable_cmd_combo_get: {
+        //     // Request: [0xDF] [0x03] [index]
+        //     // Response: [0xDF] [0x03] [index] [12 bytes entry]
+        //     uint8_t idx = data[2];
+        //     viable_combo_entry_t entry = {0};
+        //     viable_get_combo(idx, &entry);
+        //     memcpy(&data[3], &entry, sizeof(entry));
+        //     break;
+        // }
 
-        case viable_cmd_combo_set: {
-            // Request: [0xDF] [0x04] [index] [12 bytes entry]
-            // Response: [0xDF] [0x04] [status]
-            uint8_t idx = data[2];
-            viable_combo_entry_t entry;
-            memcpy(&entry, &data[3], sizeof(entry));
-            data[2] = viable_set_combo(idx, &entry) == 0 ? 0 : 1;
-            viable_reload_combo();
-            break;
-        }
+        // case viable_cmd_combo_set: {
+        //     // Request: [0xDF] [0x04] [index] [12 bytes entry]
+        //     // Response: [0xDF] [0x04] [status]
+        //     uint8_t idx = data[2];
+        //     viable_combo_entry_t entry;
+        //     memcpy(&entry, &data[3], sizeof(entry));
+        //     data[2] = viable_set_combo(idx, &entry) == 0 ? 0 : 1;
+        //     viable_reload_combo();
+        //     break;
+        // }
 
-        case viable_cmd_key_override_get: {
-            // Request: [0xDF] [0x05] [index]
-            // Response: [0xDF] [0x05] [index] [12 bytes entry]
-            uint8_t idx = data[2];
-            viable_key_override_entry_t entry = {0};
-            viable_get_key_override(idx, &entry);
-            memcpy(&data[3], &entry, sizeof(entry));
-            break;
-        }
+        // case viable_cmd_key_override_get: {
+        //     // Request: [0xDF] [0x05] [index]
+        //     // Response: [0xDF] [0x05] [index] [12 bytes entry]
+        //     uint8_t idx = data[2];
+        //     viable_key_override_entry_t entry = {0};
+        //     viable_get_key_override(idx, &entry);
+        //     memcpy(&data[3], &entry, sizeof(entry));
+        //     break;
+        // }
 
-        case viable_cmd_key_override_set: {
-            // Request: [0xDF] [0x06] [index] [12 bytes entry]
-            // Response: [0xDF] [0x06] [status]
-            uint8_t idx = data[2];
-            viable_key_override_entry_t entry;
-            memcpy(&entry, &data[3], sizeof(entry));
-            data[2] = viable_set_key_override(idx, &entry) == 0 ? 0 : 1;
-            viable_reload_key_override();
-            break;
-        }
+        // case viable_cmd_key_override_set: {
+        //     // Request: [0xDF] [0x06] [index] [12 bytes entry]
+        //     // Response: [0xDF] [0x06] [status]
+        //     uint8_t idx = data[2];
+        //     viable_key_override_entry_t entry;
+        //     memcpy(&entry, &data[3], sizeof(entry));
+        //     data[2] = viable_set_key_override(idx, &entry) == 0 ? 0 : 1;
+        //     viable_reload_key_override();
+        //     break;
+        // }
 
-        case viable_cmd_alt_repeat_key_get: {
-            // Request: [0xDF] [0x07] [index]
-            // Response: [0xDF] [0x07] [index] [6 bytes entry]
-            uint8_t idx = data[2];
-            viable_alt_repeat_key_entry_t entry = {0};
-            viable_get_alt_repeat_key(idx, &entry);
-            memcpy(&data[3], &entry, sizeof(entry));
-            break;
-        }
+        // case viable_cmd_alt_repeat_key_get: {
+        //     // Request: [0xDF] [0x07] [index]
+        //     // Response: [0xDF] [0x07] [index] [6 bytes entry]
+        //     uint8_t idx = data[2];
+        //     viable_alt_repeat_key_entry_t entry = {0};
+        //     viable_get_alt_repeat_key(idx, &entry);
+        //     memcpy(&data[3], &entry, sizeof(entry));
+        //     break;
+        // }
 
-        case viable_cmd_alt_repeat_key_set: {
-            // Request: [0xDF] [0x08] [index] [6 bytes entry]
-            // Response: [0xDF] [0x08] [status]
-            uint8_t idx = data[2];
-            viable_alt_repeat_key_entry_t entry;
-            memcpy(&entry, &data[3], sizeof(entry));
-            data[2] = viable_set_alt_repeat_key(idx, &entry) == 0 ? 0 : 1;
-            viable_reload_alt_repeat_key();
-            break;
-        }
+        // case viable_cmd_alt_repeat_key_set: {
+        //     // Request: [0xDF] [0x08] [index] [6 bytes entry]
+        //     // Response: [0xDF] [0x08] [status]
+        //     uint8_t idx = data[2];
+        //     viable_alt_repeat_key_entry_t entry;
+        //     memcpy(&entry, &data[3], sizeof(entry));
+        //     data[2] = viable_set_alt_repeat_key(idx, &entry) == 0 ? 0 : 1;
+        //     viable_reload_alt_repeat_key();
+        //     break;
+        // }
 
-        case viable_cmd_one_shot_get: {
-            // Request: [0xDF] [0x09]
-            // Response: [0xDF] [0x09] [timeout_lo] [timeout_hi] [tap_toggle]
-            viable_one_shot_t settings = {0};
-            viable_get_one_shot(&settings);
-            data[2] = settings.timeout & 0xFF;
-            data[3] = (settings.timeout >> 8) & 0xFF;
-            data[4] = settings.tap_toggle;
-            break;
-        }
+        // case viable_cmd_one_shot_get: {
+        //     // Request: [0xDF] [0x09]
+        //     // Response: [0xDF] [0x09] [timeout_lo] [timeout_hi] [tap_toggle]
+        //     viable_one_shot_t settings = {0};
+        //     viable_get_one_shot(&settings);
+        //     data[2] = settings.timeout & 0xFF;
+        //     data[3] = (settings.timeout >> 8) & 0xFF;
+        //     data[4] = settings.tap_toggle;
+        //     break;
+        // }
 
-        case viable_cmd_one_shot_set: {
-            // Request: [0xDF] [0x0A] [timeout_lo] [timeout_hi] [tap_toggle]
-            // Response: [0xDF] [0x0A]
-            viable_one_shot_t settings;
-            settings.timeout = data[2] | (data[3] << 8);
-            settings.tap_toggle = data[4];
-            viable_set_one_shot(&settings);
-            break;
-        }
+        // case viable_cmd_one_shot_set: {
+        //     // Request: [0xDF] [0x0A] [timeout_lo] [timeout_hi] [tap_toggle]
+        //     // Response: [0xDF] [0x0A]
+        //     viable_one_shot_t settings;
+        //     settings.timeout = data[2] | (data[3] << 8);
+        //     settings.tap_toggle = data[4];
+        //     viable_set_one_shot(&settings);
+        //     break;
+        // }
 
-        case viable_cmd_save: {
-            // Request: [0xDF] [0x0B]
-            // Response: [0xDF] [0x0B]
-            viable_save();
-            break;
-        }
+        // case viable_cmd_save: {
+        //     // Request: [0xDF] [0x0B]
+        //     // Response: [0xDF] [0x0B]
+        //     viable_save();
+        //     break;
+        // }
 
-        case viable_cmd_reset: {
-            // Request: [0xDF] [0x0C]
-            // Response: [0xDF] [0x0C]
-            viable_reset();
-            break;
-        }
+        // case viable_cmd_reset: {
+        //     // Request: [0xDF] [0x0C]
+        //     // Response: [0xDF] [0x0C]
+        //     viable_reset();
+        //     break;
+        // }
 
         case viable_cmd_definition_size: {
             uint32_t size = viable_get_definition_size();
@@ -395,43 +395,45 @@ bool viable_handle_command(uint8_t* data, uint8_t length) {
         }
 
         case viable_cmd_definition_chunk: {
-            // Request: [0xDF] [0x0E] [offset_lo] [offset_hi]
-            // Response: [0xDF] [0x0E] [offset_lo] [offset_hi] [28 bytes data]
-            uint16_t offset = data[2] | (data[3] << 8);
-            viable_get_definition_chunk(offset, &data[4]);
+            // Request: [cmd] [offset_lo] [offset_hi] [request_size]
+            // Response: [cmd] [offset_lo] [offset_hi] [request_size] [22 bytes data]
+            const uint16_t offset = data[1] | (data[2] << 8); // offset is on 2 bytes
+            const uint8_t chunk_size = viable_get_definition_chunk(offset, &data[4]);
+            data[3] = chunk_size; 
+            printf("sending definition chunk %d at offset %u\n", data[3], offset);
             break;
         }
 
-        case viable_cmd_qmk_settings_query: {
-            // Request: [0xDF] [0x10] [qsid_lo] [qsid_hi]
-            // Response: [0xDF] [0x10] [qsid1_lo] [qsid1_hi] [qsid2_lo] ... [0xFF] [0xFF]
-            uint16_t qsid_gt = data[2] | (data[3] << 8);
-            viable_qmk_settings_query(qsid_gt, &data[2], length - 2);
-            break;
-        }
+        // case viable_cmd_qmk_settings_query: {
+        //     // Request: [0xDF] [0x10] [qsid_lo] [qsid_hi]
+        //     // Response: [0xDF] [0x10] [qsid1_lo] [qsid1_hi] [qsid2_lo] ... [0xFF] [0xFF]
+        //     uint16_t qsid_gt = data[2] | (data[3] << 8);
+        //     viable_qmk_settings_query(qsid_gt, &data[2], length - 2);
+        //     break;
+        // }
 
-        case viable_cmd_qmk_settings_get: {
-            // Request: [0xDF] [0x11] [qsid_lo] [qsid_hi]
-            // Response: [0xDF] [0x11] [status] [value bytes...]
-            uint16_t qsid = data[2] | (data[3] << 8);
-            data[2] = viable_qmk_settings_get(qsid, &data[3], length - 3);
-            break;
-        }
+        // case viable_cmd_qmk_settings_get: {
+        //     // Request: [0xDF] [0x11] [qsid_lo] [qsid_hi]
+        //     // Response: [0xDF] [0x11] [status] [value bytes...]
+        //     uint16_t qsid = data[2] | (data[3] << 8);
+        //     data[2] = viable_qmk_settings_get(qsid, &data[3], length - 3);
+        //     break;
+        // }
 
-        case viable_cmd_qmk_settings_set: {
-            // Request: [0xDF] [0x12] [qsid_lo] [qsid_hi] [value bytes...]
-            // Response: [0xDF] [0x12] [status]
-            uint16_t qsid = data[2] | (data[3] << 8);
-            data[2] = viable_qmk_settings_set(qsid, &data[4], length - 4);
-            break;
-        }
+        // case viable_cmd_qmk_settings_set: {
+        //     // Request: [0xDF] [0x12] [qsid_lo] [qsid_hi] [value bytes...]
+        //     // Response: [0xDF] [0x12] [status]
+        //     uint16_t qsid = data[2] | (data[3] << 8);
+        //     data[2] = viable_qmk_settings_set(qsid, &data[4], length - 4);
+        //     break;
+        // }
 
-        case viable_cmd_qmk_settings_reset: {
-            // Request: [0xDF] [0x13]
-            // Response: [0xDF] [0x13]
-            viable_qmk_settings_reset();
-            break;
-        }
+        // case viable_cmd_qmk_settings_reset: {
+        //     // Request: [0xDF] [0x13]
+        //     // Response: [0xDF] [0x13]
+        //     viable_qmk_settings_reset();
+        //     break;
+        // }
 
         default:
             // Unknown command - set error response

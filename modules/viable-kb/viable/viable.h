@@ -51,8 +51,9 @@ enum viable_command_id {
     // QMK Settings commands
     viable_cmd_qmk_settings_query = 0x9F,
     viable_cmd_qmk_settings_get   = 0xA0,
-    viable_cmd_qmk_settings_set   = 0xA1,
+    viable_cmd_qmk_settings_set = 0xA1,
     viable_cmd_qmk_settings_reset = 0xA2,
+    viable_cmd_layer_state_get = 0xA5,
     viable_cmd_error             = 0xDE,
 };
 

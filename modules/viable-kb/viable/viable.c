@@ -243,6 +243,7 @@ void viable_keycode_tap(uint16_t keycode) {
     viable_keycode_up(keycode);
 }
 
+// TODO: get leaders, layer states, hardware fragments
 bool viable_handle_command(uint8_t* data, uint8_t length) {
     printf("Handling command: %#08x\n", data[0]);
     uint8_t command_id = data[0];
@@ -404,13 +405,14 @@ bool viable_handle_command(uint8_t* data, uint8_t length) {
             break;
         }
 
-        // case viable_cmd_qmk_settings_query: {
-        //     // Request: [0xDF] [0x10] [qsid_lo] [qsid_hi]
-        //     // Response: [0xDF] [0x10] [qsid1_lo] [qsid1_hi] [qsid2_lo] ... [0xFF] [0xFF]
-        //     uint16_t qsid_gt = data[2] | (data[3] << 8);
-        //     viable_qmk_settings_query(qsid_gt, &data[2], length - 2);
-        //     break;
-        // }
+        case viable_cmd_qmk_settings_query: {
+            // Request: [cmd] [qsid_lo] [qsid_hi]
+            // Response: [cmd] [qsid1_lo] [qsid1_hi] [qsid2_lo] ... [0xFF] [0xFF]
+            uint16_t qsid_gt = data[1] | (data[2] << 8);
+            // why is lefgth 2 here?
+            viable_qmk_settings_query(qsid_gt, &data[1], length - 2);
+            break;
+        }
 
         // case viable_cmd_qmk_settings_get: {
         //     // Request: [0xDF] [0x11] [qsid_lo] [qsid_hi]
@@ -436,8 +438,6 @@ bool viable_handle_command(uint8_t* data, uint8_t length) {
         // }
 
         default:
-            // Unknown command - set error response
-            data[1] = viable_cmd_error;
             return false;
     }
 
@@ -449,13 +449,13 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
     // try to handle it with viable
     bool result = viable_handle_command(data, length);
     if (result) {
-        printf("received a VIABLE command!");
+        printf("received a VIABLE command!\n");
         raw_hid_send(data, length);
         return true;
     }
     // if that does not work, we forward it to via
     else {
-        printf("received a VIA command!");
+        printf("received a VIA command!\n");
         return false;
     }
 }

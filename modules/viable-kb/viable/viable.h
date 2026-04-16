@@ -55,6 +55,7 @@ enum viable_command_id {
     viable_cmd_qmk_settings_reset = 0xA2,
     viable_cmd_layer_state_get = 0xA5,
     viable_cmd_error             = 0xDE,
+    id_keycodes_version    = 0x07, // in new via version, has not landed yet - for now, override
 };
 
 // Feature capability flags (returned in protocol info)

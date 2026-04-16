@@ -247,8 +247,10 @@ void viable_keycode_tap(uint16_t keycode) {
 bool viable_handle_command(uint8_t* data, uint8_t length) {
     printf("Handling command: %#08x\n", data[0]);
     uint8_t command_id = data[0];
+    uint8_t *command_data = &(data[1]);
 
     switch (command_id) {
+        // todo switch to command_data just like in VIA
         case viable_cmd_get_info: {
             data[1] = VIABLE_PROTOCOL_VERSION & 0xFF;
             data[2] = (VIABLE_PROTOCOL_VERSION >> 8) & 0xFF;
@@ -261,6 +263,17 @@ bool viable_handle_command(uint8_t* data, uint8_t length) {
             data[9] = viable_get_feature_flags();
             uint8_t uid[] = VIABLE_KEYBOARD_UID;
             memcpy(&data[10], uid, 8);
+            break;
+        }
+
+        // this will be present in future version of VIA (0x000D).
+        // for now, we override it
+        case id_keycodes_version: {
+            uint32_t value  = QMK_KEYCODES_VERSION_BCD;
+            command_data[1] = (value >> 24) & 0xFF;
+            command_data[2] = (value >> 16) & 0xFF;
+            command_data[3] = (value >> 8) & 0xFF;
+            command_data[4] = value & 0xFF;
             break;
         }
 

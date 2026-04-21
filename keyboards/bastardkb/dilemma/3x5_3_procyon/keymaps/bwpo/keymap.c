@@ -34,6 +34,7 @@ enum custom_keycodes {
     QK_REG = SAFE_RANGE,
     QK_HELP
 };
+
 const uint16_t PROGMEM combo1[] = { RSFT_T(KC_I), LCTL_T(KC_E), COMBO_END };
 const uint16_t PROGMEM combo2[] = { RSFT_T(KC_S), LCTL_T(KC_T), COMBO_END };
 const uint16_t PROGMEM combo3[] = { KC_P, KC_O, COMBO_END };

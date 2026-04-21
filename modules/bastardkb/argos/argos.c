@@ -1,7 +1,7 @@
 // Copyright 2025 Ira Cooper <ira@wakeful.net>
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include "viable.h"
+#include "argos.h"
 #include "quantum.h"
 #include "via.h"
 #include "raw_hid.h"
@@ -19,29 +19,29 @@
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
 // Magic position for keycode execution
-#define VIABLE_MATRIX_MAGIC 240
+#define ARGOS_MATRIX_MAGIC 240
 
 // Global for keycode override during tap dance execution
-uint16_t g_viable_magic_keycode_override;
+uint16_t g_argos_magic_keycode_override;
 
 // Internal EEPROM access functions - uses eeconfig_kb_datablock
-__attribute__((weak)) void viable_read_eeprom(uint16_t offset, void *buf, uint16_t size) {
+__attribute__((weak)) void argos_read_eeprom(uint16_t offset, void *buf, uint16_t size) {
         void *ee_start = (void *)(uintptr_t)(DYNAMIC_KEYMAP_EEPROM_MAX_ADDR + offset);
-        void *ee_end   = (void *)(uintptr_t)(DYNAMIC_KEYMAP_EEPROM_MAX_ADDR + MIN(VIABLE_EEPROM_SIZE_CALC, offset + size));
+        void *ee_end   = (void *)(uintptr_t)(DYNAMIC_KEYMAP_EEPROM_MAX_ADDR + MIN(ARGOS_EEPROM_SIZE_CALC, offset + size));
         // xprintf("EEPROM read: offset=%p size=%p\n", ee_start, ee_end);
         eeprom_read_block(buf, ee_start, ee_end - ee_start);
 }
 
-__attribute__((weak)) void viable_write_eeprom(uint16_t offset, const void *buf, uint16_t size) {
+__attribute__((weak)) void argos_write_eeprom(uint16_t offset, const void *buf, uint16_t size) {
        void *ee_start = (void *)(uintptr_t)(DYNAMIC_KEYMAP_EEPROM_MAX_ADDR + offset);
-       void *ee_end   = (void *)(uintptr_t)(DYNAMIC_KEYMAP_EEPROM_MAX_ADDR + MIN(VIABLE_EEPROM_SIZE_CALC, offset + size));
+       void *ee_end   = (void *)(uintptr_t)(DYNAMIC_KEYMAP_EEPROM_MAX_ADDR + MIN(ARGOS_EEPROM_SIZE_CALC, offset + size));
        eeprom_update_block(buf, ee_start, ee_end - ee_start);
 }
 
 // Magic header for EEPROM validation - derived from QMK_BUILDDATE
 // QMK_BUILDDATE format: "2019-11-05-11:29:54"
 // Use full timestamp (date + time) so every build gets unique magic
-static void viable_get_magic(uint8_t *magic) {
+static void argos_get_magic(uint8_t *magic) {
     char *p = QMK_BUILDDATE;
     magic[0] = ((p[2] & 0x0F) << 4) | (p[3] & 0x0F);  // year low 2 digits
     magic[1] = ((p[5] & 0x0F) << 4) | (p[6] & 0x0F);  // month
@@ -51,224 +51,224 @@ static void viable_get_magic(uint8_t *magic) {
     magic[5] = ((p[17] & 0x0F) << 4) | (p[18] & 0x0F); // second
 }
 
-static bool viable_eeprom_is_valid(void) {
-    uint8_t stored[VIABLE_MAGIC_SIZE];
-    uint8_t expected[VIABLE_MAGIC_SIZE];
-    viable_read_eeprom(VIABLE_MAGIC_OFFSET, stored, VIABLE_MAGIC_SIZE);
-    viable_get_magic(expected);
-    return memcmp(stored, expected, VIABLE_MAGIC_SIZE) == 0;
+static bool argos_eeprom_is_valid(void) {
+    uint8_t stored[ARGOS_MAGIC_SIZE];
+    uint8_t expected[ARGOS_MAGIC_SIZE];
+    argos_read_eeprom(ARGOS_MAGIC_OFFSET, stored, ARGOS_MAGIC_SIZE);
+    argos_get_magic(expected);
+    return memcmp(stored, expected, ARGOS_MAGIC_SIZE) == 0;
 }
 
-static void viable_eeprom_set_valid(void) {
-    uint8_t magic[VIABLE_MAGIC_SIZE];
-    viable_get_magic(magic);
-    viable_write_eeprom(VIABLE_MAGIC_OFFSET, magic, VIABLE_MAGIC_SIZE);
+static void argos_eeprom_set_valid(void) {
+    uint8_t magic[ARGOS_MAGIC_SIZE];
+    argos_get_magic(magic);
+    argos_write_eeprom(ARGOS_MAGIC_OFFSET, magic, ARGOS_MAGIC_SIZE);
 }
 
-void viable_init(void) {
+void argos_init(void) {
     // Check if EEPROM data is valid (matches current firmware version)
-    if (!viable_eeprom_is_valid()) {
-        // Reset all viable data to defaults
-        viable_reset();
-        viable_qmk_settings_reset();
+    if (!argos_eeprom_is_valid()) {
+        // Reset all argos data to defaults
+        argos_reset();
+        argos_qmk_settings_reset();
         // Mark as valid
-        viable_eeprom_set_valid();
+        argos_eeprom_set_valid();
     }
 
-    viable_reload_tap_dance();
-    viable_reload_combo();
-    viable_reload_key_override();
-    viable_reload_alt_repeat_key();
-    viable_qmk_settings_init();
+    argos_reload_tap_dance();
+    argos_reload_combo();
+    argos_reload_key_override();
+    argos_reload_alt_repeat_key();
+    argos_qmk_settings_init();
 }
 
 // Weak keyboard post-init hook
-__attribute__((weak)) void keyboard_post_init_viable_kb(void) {}
+__attribute__((weak)) void keyboard_post_init_argos_kb(void) {}
 
 // Module hook for post-init
-void keyboard_post_init_viable(void) {
-    keyboard_post_init_viable_kb();
-    viable_init();
+void keyboard_post_init_argos(void) {
+    keyboard_post_init_argos_kb();
+    argos_init();
 }
 
 // Override QMK's get_oneshot_timeout for runtime configuration
 // TEMPORARILY DISABLED - may be called before EEPROM ready
 // uint16_t get_oneshot_timeout(void) {
-//     viable_one_shot_t settings;
-//     viable_get_one_shot(&settings);
+//     argos_one_shot_t settings;
+//     argos_get_one_shot(&settings);
 //     return settings.timeout;
 // }
 
 // Get feature flags based on what's enabled
-uint8_t viable_get_feature_flags(void) {
+uint8_t argos_get_feature_flags(void) {
     uint8_t flags = 0;
 #ifdef CAPS_WORD_ENABLE
-    flags |= viable_flag_caps_word;
+    flags |= argos_flag_caps_word;
 #endif
 #ifdef LAYER_LOCK_ENABLE
-    flags |= viable_flag_layer_lock;
+    flags |= argos_flag_layer_lock;
 #endif
 #ifdef ONESHOT_ENABLE
-    flags |= viable_flag_oneshot;
+    flags |= argos_flag_oneshot;
 #endif
 #ifdef LEADER_ENABLE
-    flags |= viable_flag_leader;
+    flags |= argos_flag_leader;
 #endif
     return flags;
 }
 
 // Storage functions - Tap Dance
-int viable_get_tap_dance(uint8_t index, viable_tap_dance_entry_t *entry) {
-    if (index >= VIABLE_TAP_DANCE_ENTRIES) return -1;
-    viable_read_eeprom(VIABLE_TAP_DANCE_OFFSET + index * sizeof(viable_tap_dance_entry_t),
-                       entry, sizeof(viable_tap_dance_entry_t));
+int argos_get_tap_dance(uint8_t index, argos_tap_dance_entry_t *entry) {
+    if (index >= ARGOS_TAP_DANCE_ENTRIES) return -1;
+    argos_read_eeprom(ARGOS_TAP_DANCE_OFFSET + index * sizeof(argos_tap_dance_entry_t),
+                       entry, sizeof(argos_tap_dance_entry_t));
     return 0;
 }
 
-int viable_set_tap_dance(uint8_t index, const viable_tap_dance_entry_t *entry) {
-    if (index >= VIABLE_TAP_DANCE_ENTRIES) return -1;
-    viable_write_eeprom(VIABLE_TAP_DANCE_OFFSET + index * sizeof(viable_tap_dance_entry_t),
-                        entry, sizeof(viable_tap_dance_entry_t));
+int argos_set_tap_dance(uint8_t index, const argos_tap_dance_entry_t *entry) {
+    if (index >= ARGOS_TAP_DANCE_ENTRIES) return -1;
+    argos_write_eeprom(ARGOS_TAP_DANCE_OFFSET + index * sizeof(argos_tap_dance_entry_t),
+                        entry, sizeof(argos_tap_dance_entry_t));
     return 0;
 }
 
 // Storage functions - Combo
-int viable_get_combo(uint8_t index, viable_combo_entry_t *entry) {
-    if (index >= VIABLE_COMBO_ENTRIES) return -1;
-    viable_read_eeprom(VIABLE_COMBO_OFFSET + index * sizeof(viable_combo_entry_t),
-                       entry, sizeof(viable_combo_entry_t));
+int argos_get_combo(uint8_t index, argos_combo_entry_t *entry) {
+    if (index >= ARGOS_COMBO_ENTRIES) return -1;
+    argos_read_eeprom(ARGOS_COMBO_OFFSET + index * sizeof(argos_combo_entry_t),
+                       entry, sizeof(argos_combo_entry_t));
     return 0;
 }
 
-int viable_set_combo(uint8_t index, const viable_combo_entry_t *entry) {
-    if (index >= VIABLE_COMBO_ENTRIES) return -1;
-    viable_write_eeprom(VIABLE_COMBO_OFFSET + index * sizeof(viable_combo_entry_t),
-                        entry, sizeof(viable_combo_entry_t));
+int argos_set_combo(uint8_t index, const argos_combo_entry_t *entry) {
+    if (index >= ARGOS_COMBO_ENTRIES) return -1;
+    argos_write_eeprom(ARGOS_COMBO_OFFSET + index * sizeof(argos_combo_entry_t),
+                        entry, sizeof(argos_combo_entry_t));
     return 0;
 }
 
 // Storage functions - Key Override
-int viable_get_key_override(uint8_t index, viable_key_override_entry_t *entry) {
-    if (index >= VIABLE_KEY_OVERRIDE_ENTRIES) return -1;
-    viable_read_eeprom(VIABLE_KEY_OVERRIDE_OFFSET + index * sizeof(viable_key_override_entry_t),
-                       entry, sizeof(viable_key_override_entry_t));
+int argos_get_key_override(uint8_t index, argos_key_override_entry_t *entry) {
+    if (index >= ARGOS_KEY_OVERRIDE_ENTRIES) return -1;
+    argos_read_eeprom(ARGOS_KEY_OVERRIDE_OFFSET + index * sizeof(argos_key_override_entry_t),
+                       entry, sizeof(argos_key_override_entry_t));
     return 0;
 }
 
-int viable_set_key_override(uint8_t index, const viable_key_override_entry_t *entry) {
-    if (index >= VIABLE_KEY_OVERRIDE_ENTRIES) return -1;
-    viable_write_eeprom(VIABLE_KEY_OVERRIDE_OFFSET + index * sizeof(viable_key_override_entry_t),
-                        entry, sizeof(viable_key_override_entry_t));
+int argos_set_key_override(uint8_t index, const argos_key_override_entry_t *entry) {
+    if (index >= ARGOS_KEY_OVERRIDE_ENTRIES) return -1;
+    argos_write_eeprom(ARGOS_KEY_OVERRIDE_OFFSET + index * sizeof(argos_key_override_entry_t),
+                        entry, sizeof(argos_key_override_entry_t));
     return 0;
 }
 
 // Storage functions - Alt Repeat Key
-int viable_get_alt_repeat_key(uint8_t index, viable_alt_repeat_key_entry_t *entry) {
-    if (index >= VIABLE_ALT_REPEAT_KEY_ENTRIES) return -1;
-    viable_read_eeprom(VIABLE_ALT_REPEAT_KEY_OFFSET + index * sizeof(viable_alt_repeat_key_entry_t),
-                       entry, sizeof(viable_alt_repeat_key_entry_t));
+int argos_get_alt_repeat_key(uint8_t index, argos_alt_repeat_key_entry_t *entry) {
+    if (index >= ARGOS_ALT_REPEAT_KEY_ENTRIES) return -1;
+    argos_read_eeprom(ARGOS_ALT_REPEAT_KEY_OFFSET + index * sizeof(argos_alt_repeat_key_entry_t),
+                       entry, sizeof(argos_alt_repeat_key_entry_t));
     return 0;
 }
 
-int viable_set_alt_repeat_key(uint8_t index, const viable_alt_repeat_key_entry_t *entry) {
-    if (index >= VIABLE_ALT_REPEAT_KEY_ENTRIES) return -1;
-    viable_write_eeprom(VIABLE_ALT_REPEAT_KEY_OFFSET + index * sizeof(viable_alt_repeat_key_entry_t),
-                        entry, sizeof(viable_alt_repeat_key_entry_t));
+int argos_set_alt_repeat_key(uint8_t index, const argos_alt_repeat_key_entry_t *entry) {
+    if (index >= ARGOS_ALT_REPEAT_KEY_ENTRIES) return -1;
+    argos_write_eeprom(ARGOS_ALT_REPEAT_KEY_OFFSET + index * sizeof(argos_alt_repeat_key_entry_t),
+                        entry, sizeof(argos_alt_repeat_key_entry_t));
     return 0;
 }
 
 // Storage functions - One-Shot
-void viable_get_one_shot(viable_one_shot_t *settings) {
-    viable_read_eeprom(VIABLE_ONE_SHOT_OFFSET, settings, sizeof(viable_one_shot_t));
+void argos_get_one_shot(argos_one_shot_t *settings) {
+    argos_read_eeprom(ARGOS_ONE_SHOT_OFFSET, settings, sizeof(argos_one_shot_t));
 }
 
-void viable_set_one_shot(const viable_one_shot_t *settings) {
-    viable_write_eeprom(VIABLE_ONE_SHOT_OFFSET, settings, sizeof(viable_one_shot_t));
+void argos_set_one_shot(const argos_one_shot_t *settings) {
+    argos_write_eeprom(ARGOS_ONE_SHOT_OFFSET, settings, sizeof(argos_one_shot_t));
 }
 
-void viable_save(void) {
+void argos_save(void) {
     // Data is written directly to EEPROM, nothing additional to flush
 }
 
-void viable_reset(void) {
+void argos_reset(void) {
     // Zero out all EEPROM storage
     uint8_t zero[16] = {0};
-    for (uint16_t i = 0; i < VIABLE_EEPROM_SIZE; i += sizeof(zero)) {
+    for (uint16_t i = 0; i < ARGOS_EEPROM_SIZE; i += sizeof(zero)) {
         uint16_t chunk = sizeof(zero);
-        if (i + chunk > VIABLE_EEPROM_SIZE) {
-            chunk = VIABLE_EEPROM_SIZE - i;
+        if (i + chunk > ARGOS_EEPROM_SIZE) {
+            chunk = ARGOS_EEPROM_SIZE - i;
         }
-        viable_write_eeprom(i, zero, chunk);
+        argos_write_eeprom(i, zero, chunk);
     }
-    viable_reload_tap_dance();
-    viable_reload_combo();
-    viable_reload_key_override();
-    viable_reload_alt_repeat_key();
+    argos_reload_tap_dance();
+    argos_reload_combo();
+    argos_reload_key_override();
+    argos_reload_alt_repeat_key();
 }
 
 // Keycode execution helpers
-void viable_keycode_down(uint16_t keycode) {
-    g_viable_magic_keycode_override = keycode;
+void argos_keycode_down(uint16_t keycode) {
+    g_argos_magic_keycode_override = keycode;
 
     if (keycode <= QK_MODS_MAX) {
         register_code16(keycode);
     } else {
         action_exec((keyevent_t){
             .type = KEY_EVENT,
-            .key = (keypos_t){.row = VIABLE_MATRIX_MAGIC, .col = VIABLE_MATRIX_MAGIC},
+            .key = (keypos_t){.row = ARGOS_MATRIX_MAGIC, .col = ARGOS_MATRIX_MAGIC},
             .pressed = 1,
             .time = (timer_read() | 1)
         });
     }
 }
 
-void viable_keycode_up(uint16_t keycode) {
-    g_viable_magic_keycode_override = keycode;
+void argos_keycode_up(uint16_t keycode) {
+    g_argos_magic_keycode_override = keycode;
 
     if (keycode <= QK_MODS_MAX) {
         unregister_code16(keycode);
     } else {
         action_exec((keyevent_t){
             .type = KEY_EVENT,
-            .key = (keypos_t){.row = VIABLE_MATRIX_MAGIC, .col = VIABLE_MATRIX_MAGIC},
+            .key = (keypos_t){.row = ARGOS_MATRIX_MAGIC, .col = ARGOS_MATRIX_MAGIC},
             .pressed = 0,
             .time = (timer_read() | 1)
         });
     }
 }
 
-void viable_keycode_tap(uint16_t keycode) {
-    viable_keycode_down(keycode);
+void argos_keycode_tap(uint16_t keycode) {
+    argos_keycode_down(keycode);
     wait_ms(TAP_CODE_DELAY);
-    viable_keycode_up(keycode);
+    argos_keycode_up(keycode);
 }
 
 // TODO: get leaders, layer states, hardware fragments
-bool viable_handle_command(uint8_t* data, uint8_t length) {
+bool argos_handle_command(uint8_t* data, uint8_t length) {
     printf("Handling command: %#08x\n", data[0]);
     uint8_t command_id = data[0];
     uint8_t *command_data = &(data[1]);
 
     switch (command_id) {
         // todo switch to command_data just like in VIA
-        case viable_cmd_get_info: {
-            data[1] = VIABLE_PROTOCOL_VERSION & 0xFF;
-            data[2] = (VIABLE_PROTOCOL_VERSION >> 8) & 0xFF;
-            data[3] = (VIABLE_PROTOCOL_VERSION >> 16) & 0xFF;
-            data[4] = (VIABLE_PROTOCOL_VERSION >> 24) & 0xFF;
-            data[5] = VIABLE_TAP_DANCE_ENTRIES;
-            data[6] = VIABLE_COMBO_ENTRIES;
-            data[7] = VIABLE_KEY_OVERRIDE_ENTRIES;
-            data[8] = VIABLE_ALT_REPEAT_KEY_ENTRIES;
-            data[9] = viable_get_feature_flags();
-            uint8_t uid[] = VIABLE_KEYBOARD_UID;
+        case argos_cmd_get_info: {
+            data[1] = ARGOS_PROTOCOL_VERSION & 0xFF;
+            data[2] = (ARGOS_PROTOCOL_VERSION >> 8) & 0xFF;
+            data[3] = (ARGOS_PROTOCOL_VERSION >> 16) & 0xFF;
+            data[4] = (ARGOS_PROTOCOL_VERSION >> 24) & 0xFF;
+            data[5] = ARGOS_TAP_DANCE_ENTRIES;
+            data[6] = ARGOS_COMBO_ENTRIES;
+            data[7] = ARGOS_KEY_OVERRIDE_ENTRIES;
+            data[8] = ARGOS_ALT_REPEAT_KEY_ENTRIES;
+            data[9] = argos_get_feature_flags();
+            uint8_t uid[] = ARGOS_KEYBOARD_UID;
             memcpy(&data[10], uid, 8);
             break;
         }
 
         // this will be present in future version of VIA (0x000D).
         // for now, we override it
-        case id_keycodes_version: {
+        case argos_cmd_keycodes_version: {
             uint32_t value  = QMK_KEYCODES_VERSION_BCD;
             command_data[1] = (value >> 24) & 0xFF;
             command_data[2] = (value >> 16) & 0xFF;
@@ -278,127 +278,127 @@ bool viable_handle_command(uint8_t* data, uint8_t length) {
         }
 
         // // TODO change data numbering for all other entries...
-        // case viable_cmd_tap_dance_get: {
+        // case argos_cmd_tap_dance_get: {
         //     // Request: [0xDF] [0x01] [index]
         //     // Response: [0xDF] [0x01] [index] [10 bytes entry]
         //     uint8_t idx = data[2];
-        //     viable_tap_dance_entry_t entry = {0};
-        //     viable_get_tap_dance(idx, &entry);
+        //     argos_tap_dance_entry_t entry = {0};
+        //     argos_get_tap_dance(idx, &entry);
         //     memcpy(&data[3], &entry, sizeof(entry));
         //     break;
         // }
 
-        // case viable_cmd_tap_dance_set: {
+        // case argos_cmd_tap_dance_set: {
         //     // Request: [0xDF] [0x02] [index] [10 bytes entry]
         //     // Response: [0xDF] [0x02] [status]
         //     uint8_t idx = data[2];
-        //     viable_tap_dance_entry_t entry;
+        //     argos_tap_dance_entry_t entry;
         //     memcpy(&entry, &data[3], sizeof(entry));
-        //     data[2] = viable_set_tap_dance(idx, &entry) == 0 ? 0 : 1;
-        //     viable_reload_tap_dance();
+        //     data[2] = argos_set_tap_dance(idx, &entry) == 0 ? 0 : 1;
+        //     argos_reload_tap_dance();
         //     break;
         // }
 
-        // case viable_cmd_combo_get: {
+        // case argos_cmd_combo_get: {
         //     // Request: [0xDF] [0x03] [index]
         //     // Response: [0xDF] [0x03] [index] [12 bytes entry]
         //     uint8_t idx = data[2];
-        //     viable_combo_entry_t entry = {0};
-        //     viable_get_combo(idx, &entry);
+        //     argos_combo_entry_t entry = {0};
+        //     argos_get_combo(idx, &entry);
         //     memcpy(&data[3], &entry, sizeof(entry));
         //     break;
         // }
 
-        // case viable_cmd_combo_set: {
+        // case argos_cmd_combo_set: {
         //     // Request: [0xDF] [0x04] [index] [12 bytes entry]
         //     // Response: [0xDF] [0x04] [status]
         //     uint8_t idx = data[2];
-        //     viable_combo_entry_t entry;
+        //     argos_combo_entry_t entry;
         //     memcpy(&entry, &data[3], sizeof(entry));
-        //     data[2] = viable_set_combo(idx, &entry) == 0 ? 0 : 1;
-        //     viable_reload_combo();
+        //     data[2] = argos_set_combo(idx, &entry) == 0 ? 0 : 1;
+        //     argos_reload_combo();
         //     break;
         // }
 
-        // case viable_cmd_key_override_get: {
+        // case argos_cmd_key_override_get: {
         //     // Request: [0xDF] [0x05] [index]
         //     // Response: [0xDF] [0x05] [index] [12 bytes entry]
         //     uint8_t idx = data[2];
-        //     viable_key_override_entry_t entry = {0};
-        //     viable_get_key_override(idx, &entry);
+        //     argos_key_override_entry_t entry = {0};
+        //     argos_get_key_override(idx, &entry);
         //     memcpy(&data[3], &entry, sizeof(entry));
         //     break;
         // }
 
-        // case viable_cmd_key_override_set: {
+        // case argos_cmd_key_override_set: {
         //     // Request: [0xDF] [0x06] [index] [12 bytes entry]
         //     // Response: [0xDF] [0x06] [status]
         //     uint8_t idx = data[2];
-        //     viable_key_override_entry_t entry;
+        //     argos_key_override_entry_t entry;
         //     memcpy(&entry, &data[3], sizeof(entry));
-        //     data[2] = viable_set_key_override(idx, &entry) == 0 ? 0 : 1;
-        //     viable_reload_key_override();
+        //     data[2] = argos_set_key_override(idx, &entry) == 0 ? 0 : 1;
+        //     argos_reload_key_override();
         //     break;
         // }
 
-        // case viable_cmd_alt_repeat_key_get: {
+        // case argos_cmd_alt_repeat_key_get: {
         //     // Request: [0xDF] [0x07] [index]
         //     // Response: [0xDF] [0x07] [index] [6 bytes entry]
         //     uint8_t idx = data[2];
-        //     viable_alt_repeat_key_entry_t entry = {0};
-        //     viable_get_alt_repeat_key(idx, &entry);
+        //     argos_alt_repeat_key_entry_t entry = {0};
+        //     argos_get_alt_repeat_key(idx, &entry);
         //     memcpy(&data[3], &entry, sizeof(entry));
         //     break;
         // }
 
-        // case viable_cmd_alt_repeat_key_set: {
+        // case argos_cmd_alt_repeat_key_set: {
         //     // Request: [0xDF] [0x08] [index] [6 bytes entry]
         //     // Response: [0xDF] [0x08] [status]
         //     uint8_t idx = data[2];
-        //     viable_alt_repeat_key_entry_t entry;
+        //     argos_alt_repeat_key_entry_t entry;
         //     memcpy(&entry, &data[3], sizeof(entry));
-        //     data[2] = viable_set_alt_repeat_key(idx, &entry) == 0 ? 0 : 1;
-        //     viable_reload_alt_repeat_key();
+        //     data[2] = argos_set_alt_repeat_key(idx, &entry) == 0 ? 0 : 1;
+        //     argos_reload_alt_repeat_key();
         //     break;
         // }
 
-        // case viable_cmd_one_shot_get: {
+        // case argos_cmd_one_shot_get: {
         //     // Request: [0xDF] [0x09]
         //     // Response: [0xDF] [0x09] [timeout_lo] [timeout_hi] [tap_toggle]
-        //     viable_one_shot_t settings = {0};
-        //     viable_get_one_shot(&settings);
+        //     argos_one_shot_t settings = {0};
+        //     argos_get_one_shot(&settings);
         //     data[2] = settings.timeout & 0xFF;
         //     data[3] = (settings.timeout >> 8) & 0xFF;
         //     data[4] = settings.tap_toggle;
         //     break;
         // }
 
-        // case viable_cmd_one_shot_set: {
+        // case argos_cmd_one_shot_set: {
         //     // Request: [0xDF] [0x0A] [timeout_lo] [timeout_hi] [tap_toggle]
         //     // Response: [0xDF] [0x0A]
-        //     viable_one_shot_t settings;
+        //     argos_one_shot_t settings;
         //     settings.timeout = data[2] | (data[3] << 8);
         //     settings.tap_toggle = data[4];
-        //     viable_set_one_shot(&settings);
+        //     argos_set_one_shot(&settings);
         //     break;
         // }
 
-        // case viable_cmd_save: {
+        // case argos_cmd_save: {
         //     // Request: [0xDF] [0x0B]
         //     // Response: [0xDF] [0x0B]
-        //     viable_save();
+        //     argos_save();
         //     break;
         // }
 
-        // case viable_cmd_reset: {
+        // case argos_cmd_reset: {
         //     // Request: [0xDF] [0x0C]
         //     // Response: [0xDF] [0x0C]
-        //     viable_reset();
+        //     argos_reset();
         //     break;
         // }
 
-        case viable_cmd_definition_size: {
-            uint32_t size = viable_get_definition_size();
+        case argos_cmd_definition_size: {
+            uint32_t size = argos_get_definition_size();
             printf("Definition size: %lu\n", size);
             // todo memcpy instead?
             data[1] = size & 0xFF;
@@ -408,45 +408,45 @@ bool viable_handle_command(uint8_t* data, uint8_t length) {
             break;
         }
 
-        case viable_cmd_definition_chunk: {
+        case argos_cmd_definition_chunk: {
             // Request: [cmd] [offset_lo] [offset_hi] [request_size]
             // Response: [cmd] [offset_lo] [offset_hi] [request_size] [22 bytes data]
             const uint16_t offset = data[1] | (data[2] << 8); // offset is on 2 bytes
-            const uint8_t chunk_size = viable_get_definition_chunk(offset, &data[4]);
+            const uint8_t chunk_size = argos_get_definition_chunk(offset, &data[4]);
             data[3] = chunk_size; 
             printf("sending definition chunk %d at offset %u\n", data[3], offset);
             break;
         }
 
-        case viable_cmd_qmk_settings_query: {
+        case argos_cmd_qmk_settings_query: {
             // Request: [cmd] [qsid_lo] [qsid_hi]
             // Response: [cmd] [qsid1_lo] [qsid1_hi] [qsid2_lo] ... [0xFF] [0xFF]
             uint16_t qsid_gt = data[1] | (data[2] << 8);
             // why is lefgth 2 here?
-            viable_qmk_settings_query(qsid_gt, &data[1], length - 2);
+            argos_qmk_settings_query(qsid_gt, &data[1], length - 2);
             break;
         }
 
-        // case viable_cmd_qmk_settings_get: {
+        // case argos_cmd_qmk_settings_get: {
         //     // Request: [0xDF] [0x11] [qsid_lo] [qsid_hi]
         //     // Response: [0xDF] [0x11] [status] [value bytes...]
         //     uint16_t qsid = data[2] | (data[3] << 8);
-        //     data[2] = viable_qmk_settings_get(qsid, &data[3], length - 3);
+        //     data[2] = argos_qmk_settings_get(qsid, &data[3], length - 3);
         //     break;
         // }
 
-        // case viable_cmd_qmk_settings_set: {
+        // case argos_cmd_qmk_settings_set: {
         //     // Request: [0xDF] [0x12] [qsid_lo] [qsid_hi] [value bytes...]
         //     // Response: [0xDF] [0x12] [status]
         //     uint16_t qsid = data[2] | (data[3] << 8);
-        //     data[2] = viable_qmk_settings_set(qsid, &data[4], length - 4);
+        //     data[2] = argos_qmk_settings_set(qsid, &data[4], length - 4);
         //     break;
         // }
 
-        // case viable_cmd_qmk_settings_reset: {
+        // case argos_cmd_qmk_settings_reset: {
         //     // Request: [0xDF] [0x13]
         //     // Response: [0xDF] [0x13]
-        //     viable_qmk_settings_reset();
+        //     argos_qmk_settings_reset();
         //     break;
         // }
 
@@ -459,10 +459,10 @@ bool viable_handle_command(uint8_t* data, uint8_t length) {
 
 // Override via_command_kb to intercept Via protocol commands
 bool via_command_kb(uint8_t *data, uint8_t length) {
-    // try to handle it with viable
-    bool result = viable_handle_command(data, length);
+    // try to handle it with argos
+    bool result = argos_handle_command(data, length);
     if (result) {
-        printf("received a VIABLE command!\n");
+        printf("received a ARGOS command!\n");
         raw_hid_send(data, length);
         return true;
     }
@@ -473,9 +473,9 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
     }
 }
 
-// Process record hook for Viable features
-bool process_record_viable(uint16_t keycode, keyrecord_t *record) {
-    if (!process_record_viable_tap_dance(keycode, record)) {
+// Process record hook for Argos features
+bool process_record_argos(uint16_t keycode, keyrecord_t *record) {
+    if (!process_record_argos_tap_dance(keycode, record)) {
         return false;
     }
     return true;
@@ -483,8 +483,8 @@ bool process_record_viable(uint16_t keycode, keyrecord_t *record) {
 
 // Override keymap_key_to_keycode to handle magic position for tap dance/combo execution
 uint16_t keymap_key_to_keycode(uint8_t layer, keypos_t key) {
-     if (key.row == VIABLE_MATRIX_MAGIC && key.col == VIABLE_MATRIX_MAGIC) {
-        return g_viable_magic_keycode_override;
+     if (key.row == ARGOS_MATRIX_MAGIC && key.col == ARGOS_MATRIX_MAGIC) {
+        return g_argos_magic_keycode_override;
     } else  if (key.row < MATRIX_ROWS && key.col < MATRIX_COLS) {
         return keycode_at_keymap_location(layer, key.row, key.col);
     }

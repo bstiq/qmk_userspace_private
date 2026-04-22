@@ -24,7 +24,7 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
 
 void argos_init(void) {
-  
+
 }
 
 // Weak keyboard post-init hook
@@ -39,199 +39,278 @@ void keyboard_post_init_argos(void) {
 // TODO: get leaders, layer states, hardware fragments
 bool argos_handle_command(uint8_t* data, uint8_t length) {
     printf("Handling command: %#08x\n", data[0]);
-    uint8_t command_id = data[0];
+    uint8_t protocol = data[0];
 
-    switch (command_id) {
-        // todo switch to command_data just like in VIA
-        // case argos_cmd_get_info: {
-        //     data[1] = ARGOS_PROTOCOL_VERSION & 0xFF;
-        //     data[2] = (ARGOS_PROTOCOL_VERSION >> 8) & 0xFF;
-        //     data[3] = (ARGOS_PROTOCOL_VERSION >> 16) & 0xFF;
-        //     data[4] = (ARGOS_PROTOCOL_VERSION >> 24) & 0xFF;
-        //     data[5] = ARGOS_TAP_DANCE_ENTRIES;
-        //     data[6] = ARGOS_COMBO_ENTRIES;
-        //     data[7] = ARGOS_KEY_OVERRIDE_ENTRIES;
-        //     data[8] = ARGOS_ALT_REPEAT_KEY_ENTRIES;
-        //     data[9] = argos_get_feature_flags();
-        //     uint8_t uid[] = ARGOS_KEYBOARD_UID;
-        //     memcpy(&data[10], uid, 8);
+    if (protocol != ARGOS_CMD_PREFIX) return false; // not an Argos command
+
+    uint8_t* command_id = &(data[1]);
+    uint8_t* command_data = &(data[2]);
+
+
+    switch (*command_id) {
+        case argos_id_get_protocol_version: {
+            command_data[0] = ARGOS_PROTOCOL_VERSION >> 8;
+            command_data[1] = ARGOS_PROTOCOL_VERSION & 0xFF;
+            break;
+        }
+
+
+            /*
+            process_combo.c 
+            keymap_introspection
+
+            #    define COMBO_ACTIVE(combo) (combo->state & 0x80)
+#    define COMBO_DISABLED(combo) (combo->state & 0x40)
+#    define COMBO_STATE(combo) (combo->state & 0x3F)
+
+            typedef struct combo_t {
+        const uint16_t *keys;
+        uint16_t        keycode;
+    #ifdef EXTRA_SHORT_COMBOS
+        uint8_t state;
+    #else
+        bool disabled;
+        bool active;
+    #    if defined(EXTRA_EXTRA_LONG_COMBOS)
+        uint32_t state;
+    #    elif defined(EXTRA_LONG_COMBOS)
+        uint16_t state;
+    #    else
+        uint8_t state;
+    #    endif
+    #endif
+    } combo_t;
+                                          */
+
+        //                                   // TODO test if combos enabled
+        // case argos_id_get_combos_count: {
+        //     uint8_t combo_size = ARRAY_SIZE(key_combos);
+            
+        //     command_data[0] = combo_size;
         //     break;
         // }
+        case argos_id_get_combo: {
+            uint8_t combo_index = command_data[0];
+            combo_t* combo = combo_get_raw(combo_index);
 
-        // // TODO change data numbering for all other entries...
-        // case argos_cmd_tap_dance_get: {
-        //     // Request: [0xDF] [0x01] [index]
-        //     // Response: [0xDF] [0x01] [index] [10 bytes entry]
-        //     uint8_t idx = data[2];
-        //     argos_tap_dance_entry_t entry = {0};
-        //     argos_get_tap_dance(idx, &entry);
-        //     memcpy(&data[3], &entry, sizeof(entry));
-        //     break;
-        // }
+            // Then, we need to serialize it into the response data.
+            // For now, we will return: disabled, active, keycode.
+            command_data[1] = combo->disabled;
+            // keycode is 2 bytes, we will split it into 2 uint8_t
+            command_data[2] = combo->keycode & 0xFF;
+            command_data[3] = (combo->keycode >> 8) & 0xFF;
+            // then, we have up to 3 keys that can be pressed together.
+            for (int i = 0; i <= 2; i++) {
+                uint16_t key = combo->keys[i];
+                command_data[4 + i * 2] = key & 0xFF;
+                command_data[5 + i * 2] = (key >> 8) & 0xFF;
+            }
+            break;
+        }
 
-        // case argos_cmd_tap_dance_set: {
-        //     // Request: [0xDF] [0x02] [index] [10 bytes entry]
-        //     // Response: [0xDF] [0x02] [status]
-        //     uint8_t idx = data[2];
-        //     argos_tap_dance_entry_t entry;
-        //     memcpy(&entry, &data[3], sizeof(entry));
-        //     data[2] = argos_set_tap_dance(idx, &entry) == 0 ? 0 : 1;
-        //     argos_reload_tap_dance();
-        //     break;
-        // }
+        case argos_id_set_combo: {
+            uint8_t combo_index = command_data[0];
+            combo_t* combo;
 
-        // case argos_cmd_combo_get: {
-        //     // Request: [0xDF] [0x03] [index]
-        //     // Response: [0xDF] [0x03] [index] [12 bytes entry]
-        //     uint8_t idx = data[2];
-        //     argos_combo_entry_t entry = {0};
-        //     argos_get_combo(idx, &entry);
-        //     memcpy(&data[3], &entry, sizeof(entry));
-        //     break;
-        // }
+            combo->disabled = command_data[1];
+            combo->keycode = command_data[2] | (command_data[3] << 8);
+            for (int i = 0; i <= 2; i++) {
+                uint16_t key = command_data[4 + i * 2] | (command_data[5 + i * 2] << 8);
+                combo->keys[i] = key;
+            }
+            
+            break;
+        }
+                                // todo switch to command_data just like in VIA
+                                // case argos_cmd_get_info: {
+                                //     data[1] = ARGOS_PROTOCOL_VERSION & 0xFF;
+                                //     data[2] = (ARGOS_PROTOCOL_VERSION >> 8) & 0xFF;
+                                //     data[3] = (ARGOS_PROTOCOL_VERSION >> 16) & 0xFF;
+                                //     data[4] = (ARGOS_PROTOCOL_VERSION >> 24) & 0xFF;
+                                //     data[5] = ARGOS_TAP_DANCE_ENTRIES;
+                                //     data[6] = ARGOS_COMBO_ENTRIES;
+                                //     data[7] = ARGOS_KEY_OVERRIDE_ENTRIES;
+                                //     data[8] = ARGOS_ALT_REPEAT_KEY_ENTRIES;
+                                //     data[9] = argos_get_feature_flags();
+                                //     uint8_t uid[] = ARGOS_KEYBOARD_UID;
+                                //     memcpy(&data[10], uid, 8);
+                                //     break;
+                                // }
 
-        // case argos_cmd_combo_set: {
-        //     // Request: [0xDF] [0x04] [index] [12 bytes entry]
-        //     // Response: [0xDF] [0x04] [status]
-        //     uint8_t idx = data[2];
-        //     argos_combo_entry_t entry;
-        //     memcpy(&entry, &data[3], sizeof(entry));
-        //     data[2] = argos_set_combo(idx, &entry) == 0 ? 0 : 1;
-        //     argos_reload_combo();
-        //     break;
-        // }
+                                // // TODO change data numbering for all other entries...
+                                // case argos_cmd_tap_dance_get: {
+                                //     // Request: [0xDF] [0x01] [index]
+                                //     // Response: [0xDF] [0x01] [index] [10 bytes entry]
+                                //     uint8_t idx = data[2];
+                                //     argos_tap_dance_entry_t entry = {0};
+                                //     argos_get_tap_dance(idx, &entry);
+                                //     memcpy(&data[3], &entry, sizeof(entry));
+                                //     break;
+                                // }
 
-        // case argos_cmd_key_override_get: {
-        //     // Request: [0xDF] [0x05] [index]
-        //     // Response: [0xDF] [0x05] [index] [12 bytes entry]
-        //     uint8_t idx = data[2];
-        //     argos_key_override_entry_t entry = {0};
-        //     argos_get_key_override(idx, &entry);
-        //     memcpy(&data[3], &entry, sizeof(entry));
-        //     break;
-        // }
+                                // case argos_cmd_tap_dance_set: {
+                                //     // Request: [0xDF] [0x02] [index] [10 bytes entry]
+                                //     // Response: [0xDF] [0x02] [status]
+                                //     uint8_t idx = data[2];
+                                //     argos_tap_dance_entry_t entry;
+                                //     memcpy(&entry, &data[3], sizeof(entry));
+                                //     data[2] = argos_set_tap_dance(idx, &entry) == 0 ? 0 : 1;
+                                //     argos_reload_tap_dance();
+                                //     break;
+                                // }
 
-        // case argos_cmd_key_override_set: {
-        //     // Request: [0xDF] [0x06] [index] [12 bytes entry]
-        //     // Response: [0xDF] [0x06] [status]
-        //     uint8_t idx = data[2];
-        //     argos_key_override_entry_t entry;
-        //     memcpy(&entry, &data[3], sizeof(entry));
-        //     data[2] = argos_set_key_override(idx, &entry) == 0 ? 0 : 1;
-        //     argos_reload_key_override();
-        //     break;
-        // }
+                                // case argos_cmd_combo_get: {
+                                //     // Request: [0xDF] [0x03] [index]
+                                //     // Response: [0xDF] [0x03] [index] [12 bytes entry]
+                                //     uint8_t idx = data[2];
+                                //     argos_combo_entry_t entry = {0};
+                                //     argos_get_combo(idx, &entry);
+                                //     memcpy(&data[3], &entry, sizeof(entry));
+                                //     break;
+                                // }
 
-        // case argos_cmd_alt_repeat_key_get: {
-        //     // Request: [0xDF] [0x07] [index]
-        //     // Response: [0xDF] [0x07] [index] [6 bytes entry]
-        //     uint8_t idx = data[2];
-        //     argos_alt_repeat_key_entry_t entry = {0};
-        //     argos_get_alt_repeat_key(idx, &entry);
-        //     memcpy(&data[3], &entry, sizeof(entry));
-        //     break;
-        // }
+                                // case argos_cmd_combo_set: {
+                                //     // Request: [0xDF] [0x04] [index] [12 bytes entry]
+                                //     // Response: [0xDF] [0x04] [status]
+                                //     uint8_t idx = data[2];
+                                //     argos_combo_entry_t entry;
+                                //     memcpy(&entry, &data[3], sizeof(entry));
+                                //     data[2] = argos_set_combo(idx, &entry) == 0 ? 0 : 1;
+                                //     argos_reload_combo();
+                                //     break;
+                                // }
 
-        // case argos_cmd_alt_repeat_key_set: {
-        //     // Request: [0xDF] [0x08] [index] [6 bytes entry]
-        //     // Response: [0xDF] [0x08] [status]
-        //     uint8_t idx = data[2];
-        //     argos_alt_repeat_key_entry_t entry;
-        //     memcpy(&entry, &data[3], sizeof(entry));
-        //     data[2] = argos_set_alt_repeat_key(idx, &entry) == 0 ? 0 : 1;
-        //     argos_reload_alt_repeat_key();
-        //     break;
-        // }
+                                // case argos_cmd_key_override_get: {
+                                //     // Request: [0xDF] [0x05] [index]
+                                //     // Response: [0xDF] [0x05] [index] [12 bytes entry]
+                                //     uint8_t idx = data[2];
+                                //     argos_key_override_entry_t entry = {0};
+                                //     argos_get_key_override(idx, &entry);
+                                //     memcpy(&data[3], &entry, sizeof(entry));
+                                //     break;
+                                // }
 
-        // case argos_cmd_one_shot_get: {
-        //     // Request: [0xDF] [0x09]
-        //     // Response: [0xDF] [0x09] [timeout_lo] [timeout_hi] [tap_toggle]
-        //     argos_one_shot_t settings = {0};
-        //     argos_get_one_shot(&settings);
-        //     data[2] = settings.timeout & 0xFF;
-        //     data[3] = (settings.timeout >> 8) & 0xFF;
-        //     data[4] = settings.tap_toggle;
-        //     break;
-        // }
+                                // case argos_cmd_key_override_set: {
+                                //     // Request: [0xDF] [0x06] [index] [12 bytes entry]
+                                //     // Response: [0xDF] [0x06] [status]
+                                //     uint8_t idx = data[2];
+                                //     argos_key_override_entry_t entry;
+                                //     memcpy(&entry, &data[3], sizeof(entry));
+                                //     data[2] = argos_set_key_override(idx, &entry) == 0 ? 0 : 1;
+                                //     argos_reload_key_override();
+                                //     break;
+                                // }
 
-        // case argos_cmd_one_shot_set: {
-        //     // Request: [0xDF] [0x0A] [timeout_lo] [timeout_hi] [tap_toggle]
-        //     // Response: [0xDF] [0x0A]
-        //     argos_one_shot_t settings;
-        //     settings.timeout = data[2] | (data[3] << 8);
-        //     settings.tap_toggle = data[4];
-        //     argos_set_one_shot(&settings);
-        //     break;
-        // }
+                                // case argos_cmd_alt_repeat_key_get: {
+                                //     // Request: [0xDF] [0x07] [index]
+                                //     // Response: [0xDF] [0x07] [index] [6 bytes entry]
+                                //     uint8_t idx = data[2];
+                                //     argos_alt_repeat_key_entry_t entry = {0};
+                                //     argos_get_alt_repeat_key(idx, &entry);
+                                //     memcpy(&data[3], &entry, sizeof(entry));
+                                //     break;
+                                // }
 
-        // case argos_cmd_save: {
-        //     // Request: [0xDF] [0x0B]
-        //     // Response: [0xDF] [0x0B]
-        //     argos_save();
-        //     break;
-        // }
+                                // case argos_cmd_alt_repeat_key_set: {
+                                //     // Request: [0xDF] [0x08] [index] [6 bytes entry]
+                                //     // Response: [0xDF] [0x08] [status]
+                                //     uint8_t idx = data[2];
+                                //     argos_alt_repeat_key_entry_t entry;
+                                //     memcpy(&entry, &data[3], sizeof(entry));
+                                //     data[2] = argos_set_alt_repeat_key(idx, &entry) == 0 ? 0 : 1;
+                                //     argos_reload_alt_repeat_key();
+                                //     break;
+                                // }
 
-        // case argos_cmd_reset: {
-        //     // Request: [0xDF] [0x0C]
-        //     // Response: [0xDF] [0x0C]
-        //     argos_reset();
-        //     break;
-        // }
+                                // case argos_cmd_one_shot_get: {
+                                //     // Request: [0xDF] [0x09]
+                                //     // Response: [0xDF] [0x09] [timeout_lo] [timeout_hi] [tap_toggle]
+                                //     argos_one_shot_t settings = {0};
+                                //     argos_get_one_shot(&settings);
+                                //     data[2] = settings.timeout & 0xFF;
+                                //     data[3] = (settings.timeout >> 8) & 0xFF;
+                                //     data[4] = settings.tap_toggle;
+                                //     break;
+                                // }
 
-        // Not used for now
-        // case argos_cmd_definition_size: {
-        //     // uint32_t size = argos_get_definition_size();
-        //     printf("Definition size: %lu\n", size);
-        //     // todo memcpy instead?
-        //     data[1] = size & 0xFF;
-        //     data[2] = (size >> 8) & 0xFF;
-        //     data[3] = (size >> 16) & 0xFF;
-        //     data[4] = (size >> 24) & 0xFF;
-        //     break;
-        // }
+                                // case argos_cmd_one_shot_set: {
+                                //     // Request: [0xDF] [0x0A] [timeout_lo] [timeout_hi] [tap_toggle]
+                                //     // Response: [0xDF] [0x0A]
+                                //     argos_one_shot_t settings;
+                                //     settings.timeout = data[2] | (data[3] << 8);
+                                //     settings.tap_toggle = data[4];
+                                //     argos_set_one_shot(&settings);
+                                //     break;
+                                // }
 
-                                      // Not used for now
-        // case argos_cmd_definition_chunk: {
-        //     // Request: [cmd] [offset_lo] [offset_hi] [request_size]
-        //     // Response: [cmd] [offset_lo] [offset_hi] [request_size] [22 bytes data]
-        //     const uint16_t offset = data[1] | (data[2] << 8); // offset is on 2 bytes
-        //     const uint8_t chunk_size = argos_get_definition_chunk(offset, &data[4]);
-        //     data[3] = chunk_size; 
-        //     printf("sending definition chunk %d at offset %u\n", data[3], offset);
-        //     break;
-        // }
+                                // case argos_cmd_save: {
+                                //     // Request: [0xDF] [0x0B]
+                                //     // Response: [0xDF] [0x0B]
+                                //     argos_save();
+                                //     break;
+                                // }
 
-        // case argos_cmd_qmk_settings_query: {
-        //     // Request: [cmd] [qsid_lo] [qsid_hi]
-        //     // Response: [cmd] [qsid1_lo] [qsid1_hi] [qsid2_lo] ... [0xFF] [0xFF]
-        //     uint16_t qsid_gt = data[1] | (data[2] << 8);
-        //     // why is lefgth 2 here?
-        //     argos_qmk_settings_query(qsid_gt, &data[1], length - 2);
-        //     break;
-        // }
+                                // case argos_cmd_reset: {
+                                //     // Request: [0xDF] [0x0C]
+                                //     // Response: [0xDF] [0x0C]
+                                //     argos_reset();
+                                //     break;
+                                // }
 
-        // case argos_cmd_qmk_settings_get: {
-        //     // Request: [0xDF] [0x11] [qsid_lo] [qsid_hi]
-        //     // Response: [0xDF] [0x11] [status] [value bytes...]
-        //     uint16_t qsid = data[2] | (data[3] << 8);
-        //     data[2] = argos_qmk_settings_get(qsid, &data[3], length - 3);
-        //     break;
-        // }
+                                // Not used for now
+                                // case argos_cmd_definition_size: {
+                                //     // uint32_t size = argos_get_definition_size();
+                                //     printf("Definition size: %lu\n", size);
+                                //     // todo memcpy instead?
+                                //     data[1] = size & 0xFF;
+                                //     data[2] = (size >> 8) & 0xFF;
+                                //     data[3] = (size >> 16) & 0xFF;
+                                //     data[4] = (size >> 24) & 0xFF;
+                                //     break;
+                                // }
 
-        // case argos_cmd_qmk_settings_set: {
-        //     // Request: [0xDF] [0x12] [qsid_lo] [qsid_hi] [value bytes...]
-        //     // Response: [0xDF] [0x12] [status]
-        //     uint16_t qsid = data[2] | (data[3] << 8);
-        //     data[2] = argos_qmk_settings_set(qsid, &data[4], length - 4);
-        //     break;
-        // }
+                                                              // Not used for now
+                                // case argos_cmd_definition_chunk: {
+                                //     // Request: [cmd] [offset_lo] [offset_hi] [request_size]
+                                //     // Response: [cmd] [offset_lo] [offset_hi] [request_size] [22 bytes data]
+                                //     const uint16_t offset = data[1] | (data[2] << 8); // offset is on 2 bytes
+                                //     const uint8_t chunk_size = argos_get_definition_chunk(offset, &data[4]);
+                                //     data[3] = chunk_size; 
+                                //     printf("sending definition chunk %d at offset %u\n", data[3], offset);
+                                //     break;
+                                // }
 
-        // case argos_cmd_qmk_settings_reset: {
-        //     // Request: [0xDF] [0x13]
-        //     // Response: [0xDF] [0x13]
-        //     argos_qmk_settings_reset();
-        //     break;
-        // }
+                                // case argos_cmd_qmk_settings_query: {
+                                //     // Request: [cmd] [qsid_lo] [qsid_hi]
+                                //     // Response: [cmd] [qsid1_lo] [qsid1_hi] [qsid2_lo] ... [0xFF] [0xFF]
+                                //     uint16_t qsid_gt = data[1] | (data[2] << 8);
+                                //     // why is lefgth 2 here?
+                                //     argos_qmk_settings_query(qsid_gt, &data[1], length - 2);
+                                //     break;
+                                // }
+
+                                // case argos_cmd_qmk_settings_get: {
+                                //     // Request: [0xDF] [0x11] [qsid_lo] [qsid_hi]
+                                //     // Response: [0xDF] [0x11] [status] [value bytes...]
+                                //     uint16_t qsid = data[2] | (data[3] << 8);
+                                //     data[2] = argos_qmk_settings_get(qsid, &data[3], length - 3);
+                                //     break;
+                                // }
+
+                                // case argos_cmd_qmk_settings_set: {
+                                //     // Request: [0xDF] [0x12] [qsid_lo] [qsid_hi] [value bytes...]
+                                //     // Response: [0xDF] [0x12] [status]
+                                //     uint16_t qsid = data[2] | (data[3] << 8);
+                                //     data[2] = argos_qmk_settings_set(qsid, &data[4], length - 4);
+                                //     break;
+                                // }
+
+                                // case argos_cmd_qmk_settings_reset: {
+                                //     // Request: [0xDF] [0x13]
+                                //     // Response: [0xDF] [0x13]
+                                //     argos_qmk_settings_reset();
+                                //     break;
+                                // }
 
         default:
             return false;
@@ -241,7 +320,7 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
 }
 
 // Override via_command_kb to intercept Via protocol commands
-bool via_command_kb(uint8_t *data, uint8_t length) {
+bool via_command_kb(uint8_t* data, uint8_t length) {
     // try to handle it with argos
     bool result = argos_handle_command(data, length);
     if (result) {

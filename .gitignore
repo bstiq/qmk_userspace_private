@@ -9,3 +9,6 @@
 *.hex
 *.bin
 *.uf2
+
+modules/bastardkb/argoscopy
+modules/bastardkb/argoscopy/*

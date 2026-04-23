@@ -177,6 +177,8 @@ bool process_record_argos_combo(uint16_t keycode, keyrecord_t *record)
 
         /* ---- Step 4: reload combos */
         // We do this because QMK's combo_t structure has a const on the keys, so we need to manually reload it from eeprom
+        // TODO only reload the specific combo we just modified.
+        // Otherwise it's a lot of eeprom reads...
         argos_combos_load_eeprom();
 
             //     if (listening_keycode_index == 0)

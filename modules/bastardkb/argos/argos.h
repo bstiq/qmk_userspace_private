@@ -38,3 +38,33 @@ enum argos_command_id {
     // argos_cmd_layer_state_get = 0xA5,
     // argos_cmd_error             = 0xDE,
 };
+
+#define ARGOS_COMBO_ENTRIES 16
+#define ARGOS_KEYS_PER_COMBO 4
+
+// TODO we could move all of the below into a custom structure...
+// but then we'd have to read/write eeprom all at once, which feels inneficient maybe?
+typedef struct {
+        uint16_t input[ARGOS_KEYS_PER_COMBO];
+        uint16_t output;
+        uint8_t enabled; // TODO not very efficient 
+        uint16_t custom_combo_term;
+} argos_combo_t;
+
+// -------------------------------
+// TODO is this really needed? maybe for a reset? do we even need
+// resets when QMK bootmagic is a thing?
+// or maybe when data is not valid, TODO later....
+#define ARGOS_OFFSET_HAS_COPIED_QMK 0
+#define ARGOS_SIZE_HAS_COPIED_QMK sizeof(bool)
+
+#define ARGOS_OFFSET_COMBO (ARGOS_OFFSET_HAS_COPIED_QMK + ARGOS_SIZE_HAS_COPIED_QMK)
+#define ARGOS_SIZE_COMBOS (ARGOS_COMBO_ENTRIES * ARGOS_SIZE_COMBO)
+#define ARGOS_SIZE_EEPROM (ARGOS_OFFSET_COMBO + ARGOS_SIZE_COMBOS)
+// TODO END
+// -------------------------------
+
+__attribute__((weak)) void argos_read_eeprom(uint16_t offset, void *buf, uint16_t size);
+__attribute__((weak)) void argos_write_eeprom(uint16_t offset, const void *buf, uint16_t size);
+void keyboard_post_init_argos(void);
+bool argos_handle_command(uint8_t* data, uint8_t length);

@@ -147,14 +147,73 @@ typedef enum
 
 bool process_record_argos_combo(uint16_t keycode, keyrecord_t *record)
 {
-    // if (listening_for_combo_key && record->event.pressed)
-    // {
-    //     /* ---- Step 1 : Send back the data to the GUI so it knows we received the command */
-    //     uint8_t data[32] = {0};
-    //     data[0] = ARGOS_CMD_PREFIX;
-    //     data[1] = argos_id_capture_combo_key; // Not necessary, but nice
-    //     raw_hid_send(data, sizeof(data));
-    //     listening_for_combo_key = false;
+    if (listening_for_combo_key && record->event.pressed)
+    {
+        /* ---- Step 1 : Send back the data to the GUI so it knows we received the command */
+        uint8_t data[32] = {0};
+        data[0] = ARGOS_CMD_PREFIX;
+        data[1] = argos_id_capture_combo_key; // Not necessary, but nice
+        raw_hid_send(data, sizeof(data));
+        listening_for_combo_key = false;
+
+        /* ---- Step 2: Modify the combo */
+        argos_combo_t combo;
+        argos_read_combo_eeprom(listening_combo_index, &combo);
+
+        // key result
+        if(listening_keycode_index == 0)
+        {
+            combo.keycode = keycode;
+        } 
+        // key input
+        else if ((listening_keycode_index - 1 < ARGOS_KEYS_PER_COMBO)
+            && listening_keycode_index - 1 >= 0)
+        {
+            combo.keys[listening_keycode_index - 1] = keycode;
+        }
+
+        /* ---- Step 3: Save the newly created combo in memory */
+        argos_set_combo_eeprom(listening_combo_index, &combo);
+
+        /* ---- Step 4: reload combos */
+        // We do this because QMK's combo_t structure has a const on the keys, so we need to manually reload it from eeprom
+        argos_combos_load_eeprom();
+
+            //     if (listening_keycode_index == 0)
+    //     {
+    //         combo_t comboNew = {
+    //             .keys = combo.keys,
+    //             .keycode = keycode,
+    //             .disabled = combo.disabled,
+    //             .active = combo.active,
+    //             .state = combo.state}; 
+    //     }
+    //     else if (listening_keycode_index - 1 < ARGOS_KEYS_PER_COMBO)
+    //     {
+    //         uint16_t key_array[ARGOS_KEYS_PER_COMBO];
+    //         for(int i = 0; i < ARGOS_KEYS_PER_COMBO; i++){
+    //             key_array[i] = combo.keys[i];
+    //         }
+    //         key_array[listening_keycode_index - 1] = keycode;
+    //         combo_t comboNew = {
+    //             .keys = key_array,
+    //             .keycode = combo.keycode,
+    //             .disabled = combo.disabled,
+    //             .active = combo.active,
+    //             .state = combo.state};
+    //         /* ---- Step 3: Save the newly created combo in memory */
+    //         argos_set_combo_eeprom(listening_combo_index, &comboNew);
+
+    //         /* ---- Step 4: reload combos */
+    //         // We do this because QMK's combo_t structure has a const on the keys, so we need to manually reload it from eeprom
+    //         // TODO: separate into a argos_combo_load_eeprom(index) --> where we set the memory there?
+    //         argos_combos_load_eeprom();
+    //         // This is one of the input keycodes
+    //         // combo.keys[listening_keycode_index - 1] = keycode;
+    //         // printf("> Is input %d / %d\n", listening_keycode_index - 1, combo.input[listening_keycode_index - 1]);
+    //     }
+
+    }
 
     //     printf("Captured combo key: %d\n", keycode);
 

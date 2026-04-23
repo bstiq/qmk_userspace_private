@@ -45,7 +45,7 @@ void keyboard_post_init_argos(void) {
     bool has_copied_qmk_config = false;
     argos_read_eeprom(ARGOS_OFFSET_HAS_COPIED_QMK, &has_copied_qmk_config, sizeof(has_copied_qmk_config));
     if (!has_copied_qmk_config) {
-        argos_copy_combos_from_QMK();
+        argos_combo_copy_from_QMK();
         has_copied_qmk_config = true;
         argos_write_eeprom(ARGOS_OFFSET_HAS_COPIED_QMK, &has_copied_qmk_config, sizeof(has_copied_qmk_config));
     }
@@ -60,10 +60,15 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
     uint8_t* command_id = &(data[1]);
     uint8_t* command_data = &(data[2]);
 
+    // whether we should send a response back after handling the command
+    // for example, when listening for a combo key, we want to wait until the key is pressed to send the data 
+    bool send_data = false; 
+
     switch (*command_id) {
         case argos_id_get_protocol_version: {
             command_data[0] = ARGOS_PROTOCOL_VERSION >> 8;
             command_data[1] = ARGOS_PROTOCOL_VERSION & 0xFF;
+            send_data = true;
             break;
         }
 
@@ -105,22 +110,6 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
 
         // TODO: send keys per combo to the webapp so it knows how to unpack data
         case argos_id_get_combo: {
-            // uint8_t combo_index = command_data[0];
-            // combo_t* combo = combo_get_raw(combo_index);
-
-            // // Then, we need to serialize it into the response data.
-            // // For now, we will return: disabled, active, keycode.
-            // command_data[1] = combo->disabled;
-            // // keycode is 2 bytes, we will split it into 2 uint8_t
-            // command_data[2] = combo->keycode & 0xFF;
-            // command_data[3] = (combo->keycode >> 8) & 0xFF;
-            // // then, we have up to 3 keys that can be pressed together.
-            // for (int i = 0; i <= 2; i++) {
-            //     uint16_t key = combo->keys[i];
-            //     command_data[4 + i * 2] = key & 0xFF;
-            //     command_data[5 + i * 2] = (key >> 8) & 0xFF;
-            // }
-            // break;
             uint8_t combo_index = command_data[0];
             if(combo_index >= ARGOS_COMBO_ENTRIES) break; // invalid index
             argos_combo_t combo = argos_get_combo(combo_index);
@@ -137,7 +126,16 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
                     command_data[6 + i * 2] = key & 0xFF;
                     command_data[7 + i * 2] = (key >> 8) & 0xFF;
                 }
+                send_data = true;
             // }
+            break;
+        }
+
+        case argos_id_capture_combo_key: {
+            // This command is used to capture the next key press and return it in the response.
+            // It is meant to be used when setting up a combo, to easily capture the keycode of each key in the combo.
+            // We will also process the assignment of the captured key directly, without having to process another HID message.
+            argos_combo_listen_for_key(command_data);
             break;
         }
 
@@ -160,6 +158,10 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
             return false;
     }
 
+    if(send_data){
+        raw_hid_send(data, length);
+    }
+
     return true;
 }
 
@@ -168,11 +170,8 @@ bool via_command_kb(uint8_t* data, uint8_t length) {
     // try to handle it with argos
     bool result = argos_handle_command(data, length);
     if (result) {
-        printf("received a ARGOS command!\n");
-        raw_hid_send(data, length);
         return true;
     }
-    // // if that does not work, we forward it to via
     else {
         printf("received a VIA command!\n");
         return false;
@@ -180,10 +179,12 @@ bool via_command_kb(uint8_t* data, uint8_t length) {
     return false;
 }
 
-// Process record hook for Argos features
-// bool process_record_argos(uint16_t keycode, keyrecord_t *record) {
-//     if (!process_record_argos_tap_dance(keycode, record)) {
-//         return false;
-//     }
-//     return true;
-// }
+bool process_record_argos(uint16_t keycode, keyrecord_t *record) {
+    if(record->event.pressed){
+        bool captured = !process_record_argos_combo(keycode, record);
+        if(captured) {
+            return false; // we captured a combo key, no need to process further
+        }
+    }
+    return true;
+}

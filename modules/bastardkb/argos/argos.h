@@ -15,6 +15,7 @@ enum argos_command_id {
     argos_id_get_protocol_version = 0x01,
     argos_id_get_combo = 0x02,
     argos_id_set_combo = 0x03,
+    argos_id_capture_combo_key = 0x04,
     // argos_id_get_combos_count = 0x03,
     // argos_cmd_tap_dance_get     = 0x91,
     // argos_cmd_tap_dance_set     = 0x92,
@@ -68,3 +69,4 @@ __attribute__((weak)) void argos_read_eeprom(uint16_t offset, void *buf, uint16_
 __attribute__((weak)) void argos_write_eeprom(uint16_t offset, const void *buf, uint16_t size);
 void keyboard_post_init_argos(void);
 bool argos_handle_command(uint8_t* data, uint8_t length);
+void argos_raw_hid_send_captured_key(void);

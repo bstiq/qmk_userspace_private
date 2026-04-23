@@ -49,8 +49,7 @@ void keyboard_post_init_argos(void) {
         has_copied_qmk_config = true;
         argos_write_eeprom(ARGOS_OFFSET_HAS_COPIED_QMK, &has_copied_qmk_config, sizeof(has_copied_qmk_config));
     }
-    else
-        argos_combos_load_eeprom();
+    argos_combos_load_eeprom();
 }
 
 bool argos_handle_command(uint8_t* data, uint8_t length) {
@@ -114,7 +113,8 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
         case argos_id_get_combo: {
             uint8_t combo_index = command_data[0];
             if(combo_index >= ARGOS_COMBO_ENTRIES) break; // invalid index
-            combo_t combo = argos_get_combo(combo_index);
+            argos_combo_t combo;
+            argos_read_combo_eeprom(combo_index, &combo);
             // TODO fix check combo exists..
             // if (combo) { 
                 // printf("Returning combo %d: enabled=%d output=%d keys=[%d %d %d %d]\n", combo_index, combo.enabled, combo.output, combo.input[0], combo.input[1], combo.input[2], combo.input[3]);

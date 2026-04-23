@@ -21,6 +21,10 @@
 #    define ARGOS_SIZE_HAS_COPIED_QMK sizeof(bool)
 #endif
 
+#ifndef ARGOS_SIZE_HAS_COPIED_QMK
+#    define ARGOS_SIZE_HAS_COPIED_QMK sizeof(bool)
+#endif
+
 // TODO size of combo for argos_combo_entries instead of hardcoding 12
 #define ARGOS_EEPROM_SIZE_CALC (\
     ARGOS_SIZE_HAS_COPIED_QMK + \

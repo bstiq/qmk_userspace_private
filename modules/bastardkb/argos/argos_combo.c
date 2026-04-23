@@ -18,11 +18,15 @@
 #include "argos_combo.h"
 
 /*
-    We will use this to store our own custom combos,
-    but also to send to QMK's combo processing functions.
-    So it's a lot easier to follow the same data structure
+    argos_combos is used to store the combos
+    in the same way that QMK does.
+    It is loaded from eeprom, and read from eeprom.
+    The limitation is that we can't modify the input keys (const),
+    So instead we use a custom data storage of definite size.
 */
 static combo_t argos_combos[ARGOS_COMBO_ENTRIES];
+// +1 for COMBO_END terminator
+static uint16_t argos_combo_keys[ARGOS_COMBO_ENTRIES][ARGOS_KEYS_PER_COMBO + 1]; 
 
 bool listening_for_combo_key = false;
 uint8_t listening_keycode_index = 0;
@@ -34,36 +38,37 @@ uint8_t listening_combo_index = 0;
 void argos_combos_load_eeprom()
 {
     // initialize all combos
+    memset(argos_combo_keys, 0, sizeof(argos_combo_keys));
     memset(argos_combos, 0, sizeof(argos_combos));
+
     for (int i = 0; i < ARGOS_COMBO_ENTRIES; i++)
     {
-        combo_t *combo = malloc(sizeof(combo_t));
-        argos_read_combo_eeprom(i, combo);
-        if (combo != NULL)
-        {
-            // printf("loaded combo %d:", i);
-            // printf(" > enabled=%d", combo->enabled);
-            // printf(" > output=%d", combo->output);
-            // printf(" > keys=[");
-            // for (int j = 0; j < ARGOS_KEYS_PER_COMBO; j++)
-            // {
-            //     printf("%d ", combo->input[j]);
-            // }
-            // printf("]\n");
-            // argos_combos[i] = combo;
-            memcpy(&argos_combos[i], combo, sizeof(combo_t));
-        }
-        // ... continue
-        // argos_combos[i] = combo;
-        // memcpy(&argos_combos[i], &combo, sizeof(combo_t));
-
-        // if (combo != NULL) {
-        //     argos_combos[i] = *combo;
-        // } else {
-        //     // if read fails, initialize to default
-        //     memset(&argos_combos[i], 0, sizeof(combo_t));
+        // combo_t *combo = malloc(sizeof(combo_t));
+        // argos_read_combo_eeprom(i, combo);
+        // if (combo != NULL)
+        // {
+        //     memcpy(&argos_combos[i], combo, sizeof(combo_t));
         // }
+        uint16_t *keys = argos_combo_keys[i];
+        argos_combos[i].keys = keys;
+
+        argos_combo_t entry;
+        if(argos_read_combo_eeprom(i, &entry)){
+            memcpy(keys, entry.keys, sizeof(entry.keys));
+            // Ensure null termination
+            keys[ARGOS_KEYS_PER_COMBO] = COMBO_END;
+            argos_combos[i].keycode = entry.keycode;
+            // TODO manage disabled combos... with a custom array probably
+        }
+            // // No combo stored in eeprom, set to default empty combo
+            // keys[0] = COMBO_END;
+            // argos_combos[i].keycode = KC_NO;
     }
+}
+
+// Override
+uint16_t combo_count(void) {
+    return ARGOS_COMBO_ENTRIES;
 }
 
 /*
@@ -71,11 +76,13 @@ void argos_combos_load_eeprom()
     To do this, QMK provides a handy weak function: combo_get
     We can override it, and return our custom combos
 */
-combo_t* combo_get(uint16_t combo_idx) {
-    if (combo_idx >= ARGOS_COMBO_ENTRIES) {
+combo_t *combo_get(uint16_t combo_idx)
+{
+    if (combo_idx >= ARGOS_COMBO_ENTRIES)
+    {
         return NULL;
     }
-    // we need to convert out 
+    // we need to convert out
     return &argos_combos[combo_idx];
 }
 
@@ -103,11 +110,23 @@ void argos_combos_copy_from_QMK(void)
             // TODO test some kind of zero assignment to the keycode result maybe?
             return; // no more combos
         }
-    
-        memcpy(&argos_combos[i], combo, sizeof(combo_t));
 
-        argos_set_combo_eeprom(i, combo);
-        free(combo);
+        // we need to convert from combo_t to argos_combo_t before saving to eeprom
+        argos_combo_t comboNew = {
+            .keys = {0},
+            .keycode = combo->keycode,
+            .disabled = combo->disabled,
+            .active = combo->active,
+            .state = combo->state};
+        for (int j = 0; j < ARGOS_KEYS_PER_COMBO; j++) {
+            comboNew.keys[j] = combo->keys[j];
+        }
+
+        // memcpy(&argos_combos[i], combo, sizeof(combo_t));
+        argos_set_combo_eeprom(i, &comboNew);
+        // we can't reload the combos here (input keys are a const),
+        // it will be done later in argos_combos_load_eeprom
+        // free(combo);
     }
 }
 
@@ -119,78 +138,108 @@ void argos_combo_listen_for_key(uint8_t *data)
     listening_for_combo_key = true;
 }
 
-
-typedef enum { COMBO_KEY_NOT_PRESSED, COMBO_KEY_PRESSED, COMBO_KEY_REPRESSED } combo_key_action_t;
+typedef enum
+{
+    COMBO_KEY_NOT_PRESSED,
+    COMBO_KEY_PRESSED,
+    COMBO_KEY_REPRESSED
+} combo_key_action_t;
 
 bool process_record_argos_combo(uint16_t keycode, keyrecord_t *record)
 {
-    if (listening_for_combo_key && record->event.pressed)
-    {
-        /* ---- Step 1 : Send back the data to the GUI so it knows we received the command */
-        uint8_t data[32] = {0};
-        data[0] = ARGOS_CMD_PREFIX;
-        data[1] = argos_id_capture_combo_key; // Not necessary, but nice
-        raw_hid_send(data, sizeof(data));
-        listening_for_combo_key = false;
-        
-        printf("Captured combo key: %d\n", keycode);
+    // if (listening_for_combo_key && record->event.pressed)
+    // {
+    //     /* ---- Step 1 : Send back the data to the GUI so it knows we received the command */
+    //     uint8_t data[32] = {0};
+    //     data[0] = ARGOS_CMD_PREFIX;
+    //     data[1] = argos_id_capture_combo_key; // Not necessary, but nice
+    //     raw_hid_send(data, sizeof(data));
+    //     listening_for_combo_key = false;
 
-        // Copy over the combo we want to modify
-        combo_t combo = argos_get_combo(listening_combo_index);
+    //     printf("Captured combo key: %d\n", keycode);
 
-        // Now we need to assign the key to the correct combo.
-        // We need: combo index, key index in the combo, and the captured keycode
-        // Key index: 0 (result), 1... x (input)
+    //     /* ---- Step 2: Create a copy of the combo we want to modify */
+    //     argos_combo_t combo;
+    //     argos_read_combo_eeprom(listening_combo_index, &combo);
 
-        printf("Assigning captured key to combo index %d, key index %d\n", data[2], data[3] - 1);
-        printf("Keycode: %d\n", keycode);
-        // We already have the combos loaded up, so we just need to
-        // update the correct keycode and save it back to EEPROM.
-        // combo_t combo = argos_get_combo(listening_combo_index);
-        if (listening_keycode_index == 0)
-        {
-            // This is the output keycode
-            combo.keycode = keycode;
-            // printf("> Is output: %d\n", combo.output);
-        }
-        else if (listening_keycode_index - 1 < ARGOS_KEYS_PER_COMBO)
-        {
-            // This is one of the input keycodes
-            uint16_t *key = &combo.keys[listening_keycode_index - 1];
-            *key = keycode;
-            // printf("> Is input %d / %d\n", listening_keycode_index - 1, combo.input[listening_keycode_index - 1]);
-        }
-        else
-        {
-            printf("Invalid key index in combo capture: %d\n", data[3]);
-            return false;
-        }
+    //     // Now we need to assign the key to the correct combo.
+    //     // We need: combo index, key index in the combo, and the captured keycode
+    //     // Key index: 0 (result), 1... x (input)
+    //     printf("Assigning captured key to combo index %d, key index %d\n", listening_combo_index, listening_keycode_index);
+    //     printf("Keycode: %d\n", keycode);
+    //     // We already have the combos loaded up, so we just need to
+    //     // update the correct keycode and save it back to EEPROM.
+    //     // combo_t combo = argos_get_combo(listening_combo_index);
+    //     if (listening_keycode_index == 0)
+    //     {
+    //         combo_t comboNew = {
+    //             .keys = combo.keys,
+    //             .keycode = keycode,
+    //             .disabled = combo.disabled,
+    //             .active = combo.active,
+    //             .state = combo.state}; 
+    //         /* ---- Step 3: Save the newly created combo in memory */
+    //         argos_set_combo_eeprom(listening_combo_index, &comboNew);
 
-        // save combo in memory
-        argos_combos[listening_combo_index] = combo;
-        argos_set_combo_eeprom(listening_combo_index, &argos_combos[listening_combo_index]);
+    //         /* ---- Step 4: reload combos */
+    //         // We do this because QMK's combo_t structure has a const on the keys, so we need to manually reload it from eeprom
+    //         // TODO: separate into a argos_combo_load_eeprom(index) --> where we set the memory there?
+    //         argos_combos_load_eeprom();
+    //     }
+    //     else if (listening_keycode_index - 1 < ARGOS_KEYS_PER_COMBO)
+    //     {
+    //         uint16_t key_array[ARGOS_KEYS_PER_COMBO];
+    //         for(int i = 0; i < ARGOS_KEYS_PER_COMBO; i++){
+    //             key_array[i] = combo.keys[i];
+    //         }
+    //         key_array[listening_keycode_index - 1] = keycode;
+    //         combo_t comboNew = {
+    //             .keys = key_array,
+    //             .keycode = combo.keycode,
+    //             .disabled = combo.disabled,
+    //             .active = combo.active,
+    //             .state = combo.state};
+    //         /* ---- Step 3: Save the newly created combo in memory */
+    //         argos_set_combo_eeprom(listening_combo_index, &comboNew);
 
-        return false; // this was a capture, do not process keycodes further
-    }
+    //         /* ---- Step 4: reload combos */
+    //         // We do this because QMK's combo_t structure has a const on the keys, so we need to manually reload it from eeprom
+    //         // TODO: separate into a argos_combo_load_eeprom(index) --> where we set the memory there?
+    //         argos_combos_load_eeprom();
+    //         // This is one of the input keycodes
+    //         // combo.keys[listening_keycode_index - 1] = keycode;
+    //         // printf("> Is input %d / %d\n", listening_keycode_index - 1, combo.input[listening_keycode_index - 1]);
+    //     }
+    //     else
+    //     {
+    //         printf("Invalid key index in combo capture: %d\n", data[3]);
+    //         return false;
+    //     }
+
+    //     return false; // this was a capture, do not process keycodes further
+    // }
     return true;
 }
 
 // TODO sanity check on index?
-combo_t argos_get_combo(uint8_t index)
-{
-    return argos_combos[index];
-}
+// combo_t argos_get_combo(uint8_t index)
+// {
+//     if(index < ARGOS_COMBO_ENTRIES){
+//         return argos_combos[index];
+//     }
+//     return NULL;
+// }
 
-combo_t *argos_read_combo_eeprom(uint8_t index, combo_t *combo)
+bool argos_read_combo_eeprom(uint8_t index, argos_combo_t *combo)
 {
     if (index >= ARGOS_COMBO_ENTRIES)
-        return NULL;
+        return false;
     argos_read_eeprom(ARGOS_OFFSET_COMBO + index * sizeof(combo_t),
                       combo, sizeof(combo_t));
-    return combo;
+    return true;
 }
 
-void argos_set_combo_eeprom(uint8_t index, combo_t *combo)
+void argos_set_combo_eeprom(uint8_t index, argos_combo_t *combo)
 {
     if (index >= ARGOS_COMBO_ENTRIES)
         return;

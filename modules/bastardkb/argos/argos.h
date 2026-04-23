@@ -43,6 +43,21 @@ enum argos_command_id {
 #define ARGOS_COMBO_ENTRIES 16
 #define ARGOS_KEYS_PER_COMBO 4
 
+#ifndef ARGOS_SIZE_COMBO
+#    define ARGOS_SIZE_COMBO 12 // sizeof(combo_t) - TODO fix this hardcoding
+#endif
+
+/*
+    We define our own structure, with the keys NOT const
+*/
+typedef struct {
+    uint16_t keys[ARGOS_KEYS_PER_COMBO];
+    uint16_t        keycode;
+    bool     disabled;
+    bool     active;
+    uint8_t state;
+} argos_combo_t;
+
 // -------------------------------
 // TODO is this really needed? maybe for a reset? do we even need
 // resets when QMK bootmagic is a thing?

@@ -20,16 +20,8 @@
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
-/*
-    To make migrating from QMK as easy as possible, on first load we copy
-    over the previous configuration.
-    QMK does not store combos, tap dance etc in eeprom, so we have to load them
-    and then manually copy each one into eeprom through our custom data structure
-*/
-bool has_copied_qmk_config = false;
-
 // Internal EEPROM access functions - uses eeconfig_kb_datablock
-// TODO does this mess with the dilemma screen configuration?
+// TODO does this mess with the dilemma screen configuration? It should not
 __attribute__((weak)) void argos_read_eeprom(uint16_t offset, void *buf, uint16_t size) {
         void *ee_start = (void *)(uintptr_t)(DYNAMIC_KEYMAP_EEPROM_MAX_ADDR + offset);
         void *ee_end   = (void *)(uintptr_t)(DYNAMIC_KEYMAP_EEPROM_MAX_ADDR + MIN(ARGOS_EEPROM_SIZE_CALC, offset + size));
@@ -47,36 +39,26 @@ __attribute__((weak)) void argos_write_eeprom(uint16_t offset, const void *buf, 
     over the combos.
     QMK does not store combos in eeprom, so we have to load them using combo_get_raw
     and then manually copy each one into eeprom through our custom data structure
+    TODO other things, not only combos
 */
-void argos_init(void) {
+void keyboard_post_init_argos(void) {
+    bool has_copied_qmk_config = false;
     argos_read_eeprom(ARGOS_OFFSET_HAS_COPIED_QMK, &has_copied_qmk_config, sizeof(has_copied_qmk_config));
     if (!has_copied_qmk_config) {
         argos_copy_combos_from_QMK();
-         has_copied_qmk_config = true;
+        has_copied_qmk_config = true;
         argos_write_eeprom(ARGOS_OFFSET_HAS_COPIED_QMK, &has_copied_qmk_config, sizeof(has_copied_qmk_config));
     }
     argos_load_combos_eeprom();
 }
 
-// Weak keyboard post-init hook
-__attribute__((weak)) void keyboard_post_init_argos_kb(void) {}
-
-// Module hook for post-init
-void keyboard_post_init_argos(void) {
-    keyboard_post_init_argos_kb();
-    argos_init();
-}
-
-
 bool argos_handle_command(uint8_t* data, uint8_t length) {
-    printf("Handling command: %#08x\n", data[0]);
     uint8_t protocol = data[0];
 
     if (protocol != ARGOS_CMD_PREFIX) return false; // not an Argos command
 
     uint8_t* command_id = &(data[1]);
     uint8_t* command_data = &(data[2]);
-
 
     switch (*command_id) {
         case argos_id_get_protocol_version: {
@@ -145,13 +127,15 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
             // TODO fix check combo exists..
             // if (combo) { 
                 printf("Returning combo %d: enabled=%d output=%d keys=[%d %d %d %d]\n", combo_index, combo.enabled, combo.output, combo.input[0], combo.input[1], combo.input[2], combo.input[3]);
-                command_data[1] = !(combo.enabled);
+                command_data[1] = combo.enabled;
                 command_data[2] = combo.output & 0xFF;
                 command_data[3] = (combo.output >> 8) & 0xFF;
+                command_data[4] = combo.custom_combo_term & 0xFF;
+                command_data[5] = (combo.custom_combo_term >> 8) & 0xFF;
                 for (int i = 0; i < ARGOS_KEYS_PER_COMBO; i++) {
                     uint16_t key = combo.input[i];
-                    command_data[4 + i * 2] = key & 0xFF;
-                    command_data[5 + i * 2] = (key >> 8) & 0xFF;
+                    command_data[6 + i * 2] = key & 0xFF;
+                    command_data[7 + i * 2] = (key >> 8) & 0xFF;
                 }
             // }
             break;

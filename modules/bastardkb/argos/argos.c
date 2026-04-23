@@ -45,11 +45,12 @@ void keyboard_post_init_argos(void) {
     bool has_copied_qmk_config = false;
     argos_read_eeprom(ARGOS_OFFSET_HAS_COPIED_QMK, &has_copied_qmk_config, sizeof(has_copied_qmk_config));
     if (!has_copied_qmk_config) {
-        argos_combo_copy_from_QMK();
+        argos_combos_copy_from_QMK();
         has_copied_qmk_config = true;
         argos_write_eeprom(ARGOS_OFFSET_HAS_COPIED_QMK, &has_copied_qmk_config, sizeof(has_copied_qmk_config));
     }
-    argos_load_combos_eeprom();
+    else
+        argos_combos_load_eeprom();
 }
 
 bool argos_handle_command(uint8_t* data, uint8_t length) {
@@ -109,20 +110,22 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
         // }
 
         // TODO: send keys per combo to the webapp so it knows how to unpack data
+        // TODO manage custom tapping terms?
         case argos_id_get_combo: {
             uint8_t combo_index = command_data[0];
             if(combo_index >= ARGOS_COMBO_ENTRIES) break; // invalid index
-            argos_combo_t combo = argos_get_combo(combo_index);
+            combo_t combo = argos_get_combo(combo_index);
             // TODO fix check combo exists..
             // if (combo) { 
-                printf("Returning combo %d: enabled=%d output=%d keys=[%d %d %d %d]\n", combo_index, combo.enabled, combo.output, combo.input[0], combo.input[1], combo.input[2], combo.input[3]);
-                command_data[1] = combo.enabled;
-                command_data[2] = combo.output & 0xFF;
-                command_data[3] = (combo.output >> 8) & 0xFF;
-                command_data[4] = combo.custom_combo_term & 0xFF;
-                command_data[5] = (combo.custom_combo_term >> 8) & 0xFF;
+                // printf("Returning combo %d: enabled=%d output=%d keys=[%d %d %d %d]\n", combo_index, combo.enabled, combo.output, combo.input[0], combo.input[1], combo.input[2], combo.input[3]);
+                command_data[1] = !combo.disabled;
+                command_data[2] = combo.keycode & 0xFF;
+                command_data[3] = (combo.keycode >> 8) & 0xFF;
+                // data 4 and 5 reserved for custom tapping term later
+                // command_data[4] = combo.custom_combo_term & 0xFF;
+                // command_data[5] = (combo.custom_combo_term >> 8) & 0xFF;
                 for (int i = 0; i < ARGOS_KEYS_PER_COMBO; i++) {
-                    uint16_t key = combo.input[i];
+                    uint16_t key = combo.keys[i];
                     command_data[6 + i * 2] = key & 0xFF;
                     command_data[7 + i * 2] = (key >> 8) & 0xFF;
                 }

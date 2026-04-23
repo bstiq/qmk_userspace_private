@@ -43,15 +43,6 @@ enum argos_command_id {
 #define ARGOS_COMBO_ENTRIES 16
 #define ARGOS_KEYS_PER_COMBO 4
 
-// TODO we could move all of the below into a custom structure...
-// but then we'd have to read/write eeprom all at once, which feels inneficient maybe?
-typedef struct {
-        uint16_t input[ARGOS_KEYS_PER_COMBO];
-        uint16_t output;
-        uint8_t enabled; // TODO not very efficient 
-        uint16_t custom_combo_term;
-} argos_combo_t;
-
 // -------------------------------
 // TODO is this really needed? maybe for a reset? do we even need
 // resets when QMK bootmagic is a thing?

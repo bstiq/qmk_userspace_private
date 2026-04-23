@@ -14,7 +14,7 @@
 #endif
 
 #ifndef ARGOS_SIZE_COMBO
-#    define ARGOS_SIZE_COMBO 13 // sizeof(argos_combo_t) - TODO fix this hardcoding
+#    define ARGOS_SIZE_COMBO 12 // sizeof(combo_t) - TODO fix this hardcoding
 #endif
 
 #ifndef ARGOS_SIZE_HAS_COPIED_QMK

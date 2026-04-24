@@ -9,24 +9,18 @@
     from argos.h, so instead we set it manually.
     TODO: fix.
 */
-#ifndef ARGOS_COMBO_ENTRIES
-#    define ARGOS_COMBO_ENTRIES 16 // this was already defined in argos.h, TODO fix this hardcoding...
-#endif
 
-// TODO: why do we have to define this again here? when it's already been done in argos.h...
-#ifndef ARGOS_SIZE_COMBO
-#    define ARGOS_SIZE_COMBO 14 // sizeof(combo_t) - TODO fix this hardcoding
-#endif
-
-#ifndef ARGOS_SIZE_HAS_COPIED_QMK
-#    define ARGOS_SIZE_HAS_COPIED_QMK sizeof(bool)
-#endif
+#define ARGOS_OFFSET_HAS_COPIED_QMK 0
+#define ARGOS_SIZE_HAS_COPIED_QMK sizeof(bool)
+#define ARGOS_OFFSET_COMBO (ARGOS_OFFSET_HAS_COPIED_QMK + ARGOS_SIZE_HAS_COPIED_QMK)
+#define ARGOS_COMBO_ENTRIES 16 // this was already defined in argos.h, TODO fix this hardcoding...
+#define ARGOS_SIZE_COMBO 12 
+#define ARGOS_SIZE_COMBOS (ARGOS_COMBO_ENTRIES * ARGOS_SIZE_COMBO)
 
 // TODO size of combo for argos_combo_entries instead of hardcoding 12
 #define ARGOS_EEPROM_SIZE_CALC (\
     ARGOS_SIZE_HAS_COPIED_QMK + \
-    ARGOS_COMBO_ENTRIES * ARGOS_SIZE_COMBO \
-    + 3 + 6)
+    ARGOS_SIZE_COMBOS)
 
 // Reduce max address for dynamic keymap to ensure we don't overlap with Argos' EEPROM storage
 // much easier than trying to set the start address.

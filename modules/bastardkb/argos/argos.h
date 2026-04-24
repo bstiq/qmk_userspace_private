@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "action.h"
+#include "util.h"
 
 // Argos protocol version
 #define ARGOS_PROTOCOL_VERSION 0x0001
@@ -46,29 +47,16 @@ enum argos_command_id {
 /*
     We define our own structure, with the keys NOT const
 */
-typedef struct {
-    uint16_t keys[ARGOS_KEYS_PER_COMBO];
-    uint16_t        keycode;
-    bool     disabled;
-    bool     active;
-    uint8_t state;
+typedef struct PACKED {
+    uint16_t keys[ARGOS_KEYS_PER_COMBO]; 
+    uint16_t keycode;
+    uint8_t  state; 
+    bool     disabled : 1;
+    bool     active : 1;
 } argos_combo_t;
+// If we modify the structure, we also need to modify its size in post_config.h
+_Static_assert(sizeof(argos_combo_t) == 12, "Invalid size for argos_combo_t");
 
-#ifndef ARGOS_SIZE_COMBO
-#    define ARGOS_SIZE_COMBO 14 // TODO fix this hardcoding
-#endif
-
-// -------------------------------
-// TODO is this really needed? maybe for a reset? do we even need
-// resets when QMK bootmagic is a thing?
-// or maybe when data is not valid, TODO later....
-#define ARGOS_OFFSET_HAS_COPIED_QMK 0
-#define ARGOS_SIZE_HAS_COPIED_QMK sizeof(bool)
-
-#define ARGOS_OFFSET_COMBO (ARGOS_OFFSET_HAS_COPIED_QMK + ARGOS_SIZE_HAS_COPIED_QMK)
-#define ARGOS_SIZE_COMBOS (ARGOS_COMBO_ENTRIES * ARGOS_SIZE_COMBO)
-#define ARGOS_SIZE_EEPROM (ARGOS_OFFSET_COMBO + ARGOS_SIZE_COMBOS)
-// TODO END
 // -------------------------------
 
 __attribute__((weak)) void argos_read_eeprom(uint16_t offset, void *buf, uint16_t size);

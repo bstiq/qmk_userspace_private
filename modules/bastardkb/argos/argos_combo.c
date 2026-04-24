@@ -31,6 +31,7 @@ static uint16_t argos_combo_keys[ARGOS_COMBO_ENTRIES][ARGOS_KEYS_PER_COMBO + 1];
 bool listening_for_combo_key = false;
 uint8_t listening_keycode_index = 0;
 uint8_t listening_combo_index = 0;
+uint32_t last_activity_time = 0;
 
 // TODO deal with disabled combos?
 // TODO deal with NULL combos?... right now we set everything to zero
@@ -137,6 +138,7 @@ void argos_combos_copy_from_QMK(void)
 
 void argos_combo_listen_for_key(uint8_t *data)
 {
+    last_activity_time = timer_read32();
     listening_combo_index = data[0];
     // 0 for result, 1.... x for combo input
     listening_keycode_index = data[1];
@@ -257,9 +259,11 @@ void argos_combo_set_keycode(uint8_t combo_index, uint16_t keycode,
     listening_for_combo_key = false;
 }
 
-// TODO: disable listening after 4 seconds of inactivity
 bool process_record_argos_combo(uint16_t keycode, keyrecord_t *record)
 {
+    // Disable listening after 3.5 seconds of inactivity
+    if (timer_read32() - last_activity_time > 3500)
+        listening_for_combo_key = false;
     if (listening_for_combo_key && record->event.pressed)
     {
         argos_combo_set_keycode(listening_combo_index, keycode,

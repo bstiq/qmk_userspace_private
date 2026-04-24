@@ -108,7 +108,6 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
         //     break;
         // }
 
-        // TODO: send keys per combo to the webapp so it knows how to unpack data
         // TODO manage custom tapping terms?
         case argos_id_get_combo: {
             uint8_t combo_index = command_data[0];
@@ -127,6 +126,16 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
                 send_data = true;
             break;
         }
+
+        // case argos_id_set_theme: {
+        //     break;
+        // }
+
+        // case argos_id_get_theme: {
+        //     break;
+        // }
+        
+
 
         case argos_id_capture_combo_key: {
             // This command is used to capture the next key press and return it in the response.

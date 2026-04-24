@@ -113,24 +113,18 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
         case argos_id_get_combo: {
             uint8_t combo_index = command_data[0];
             if(combo_index >= ARGOS_COMBO_ENTRIES) break; // invalid index
-            argos_combo_t combo;
-            argos_read_combo_eeprom(combo_index, &combo);
+            combo_t combo = argos_combo_get(combo_index);
             // TODO fix check combo exists..
-            // if (combo) { 
-                // printf("Returning combo %d: enabled=%d output=%d keys=[%d %d %d %d]\n", combo_index, combo.enabled, combo.output, combo.input[0], combo.input[1], combo.input[2], combo.input[3]);
                 command_data[1] = !combo.disabled;
                 command_data[2] = combo.keycode & 0xFF;
                 command_data[3] = (combo.keycode >> 8) & 0xFF;
                 // data 4 and 5 reserved for custom tapping term later
-                // command_data[4] = combo.custom_combo_term & 0xFF;
-                // command_data[5] = (combo.custom_combo_term >> 8) & 0xFF;
                 for (int i = 0; i < ARGOS_KEYS_PER_COMBO; i++) {
                     uint16_t key = combo.keys[i];
                     command_data[6 + i * 2] = key & 0xFF;
                     command_data[7 + i * 2] = (key >> 8) & 0xFF;
                 }
                 send_data = true;
-            // }
             break;
         }
 
@@ -143,17 +137,9 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
         }
 
         // TODO
-        case argos_id_set_combo: {
-            // uint8_t combo_index = command_data[0];
-            // combo_t* combo;
-
-            // combo->disabled = command_data[1];
-            // combo->keycode = command_data[2] | (command_data[3] << 8);
-            // for (int i = 0; i <= 2; i++) {
-            //     uint16_t key = command_data[4 + i * 2] | (command_data[5 + i * 2] << 8);
-            //     combo->keys[i] = key;
-            // }
-            
+        case argos_id_delete_combo_key: {
+            uint8_t key_index = command_data[0];
+            argos_combo_reset_capturing_combo_key_index(key_index);
             break;
         }
 

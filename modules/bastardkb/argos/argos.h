@@ -14,7 +14,7 @@
 enum argos_command_id {
     argos_id_get_protocol_version = 0x01,
     argos_id_get_combo = 0x02,
-    argos_id_set_combo = 0x03,
+    argos_id_delete_combo_key = 0x03,
     argos_id_capture_combo_key = 0x04,
     // argos_id_get_combos_count = 0x03,
     // argos_cmd_tap_dance_get     = 0x91,

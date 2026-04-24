@@ -13,12 +13,9 @@
 #    define ARGOS_COMBO_ENTRIES 16 // this was already defined in argos.h, TODO fix this hardcoding...
 #endif
 
+// TODO: why do we have to define this again here? when it's already been done in argos.h...
 #ifndef ARGOS_SIZE_COMBO
-#    define ARGOS_SIZE_COMBO 12 // sizeof(combo_t) - TODO fix this hardcoding
-#endif
-
-#ifndef ARGOS_SIZE_HAS_COPIED_QMK
-#    define ARGOS_SIZE_HAS_COPIED_QMK sizeof(bool)
+#    define ARGOS_SIZE_COMBO 14 // sizeof(combo_t) - TODO fix this hardcoding
 #endif
 
 #ifndef ARGOS_SIZE_HAS_COPIED_QMK

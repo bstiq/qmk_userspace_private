@@ -17,6 +17,8 @@ enum argos_command_id {
     argos_id_get_combo = 0x02,
     argos_id_delete_combo_key = 0x03,
     argos_id_capture_combo_key = 0x04,
+    argos_id_get_theme_id = 0x05,
+    argos_id_set_theme_id = 0x06,
     // argos_id_get_combos_count = 0x03,
     // argos_cmd_tap_dance_get     = 0x91,
     // argos_cmd_tap_dance_set     = 0x92,
@@ -44,9 +46,7 @@ enum argos_command_id {
 #define ARGOS_COMBO_ENTRIES 16
 #define ARGOS_KEYS_PER_COMBO 4
 
-/*
-    We define our own structure, with the keys NOT const
-*/
+// We define our own structure, with the keys NOT const
 typedef struct PACKED {
     uint16_t keys[ARGOS_KEYS_PER_COMBO]; 
     uint16_t keycode;
@@ -56,6 +56,13 @@ typedef struct PACKED {
 } argos_combo_t;
 // If we modify the structure, we also need to modify its size in post_config.h
 _Static_assert(sizeof(argos_combo_t) == 12, "Invalid size for argos_combo_t");
+
+typedef struct PACKED {
+    bool has_copied_qmk_config : 1;
+    uint8_t themeId;
+} argos_config_t;
+_Static_assert(sizeof(argos_config_t) == 2, "Invalid size for argos_config_t");
+
 
 // -------------------------------
 

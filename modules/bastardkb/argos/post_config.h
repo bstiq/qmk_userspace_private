@@ -10,16 +10,16 @@
     TODO: fix.
 */
 
-#define ARGOS_OFFSET_HAS_COPIED_QMK 0
-#define ARGOS_SIZE_HAS_COPIED_QMK sizeof(bool)
-#define ARGOS_OFFSET_COMBO (ARGOS_OFFSET_HAS_COPIED_QMK + ARGOS_SIZE_HAS_COPIED_QMK)
+#define ARGOS_OFFSET_CONFIG 0
+#define ARGOS_SIZE_CONFIG 3
+
+#define ARGOS_OFFSET_COMBO (ARGOS_OFFSET_CONFIG + ARGOS_SIZE_CONFIG)
 #define ARGOS_COMBO_ENTRIES 16 // this was already defined in argos.h, TODO fix this hardcoding...
 #define ARGOS_SIZE_COMBO 12 
 #define ARGOS_SIZE_COMBOS (ARGOS_COMBO_ENTRIES * ARGOS_SIZE_COMBO)
 
-// TODO size of combo for argos_combo_entries instead of hardcoding 12
 #define ARGOS_EEPROM_SIZE_CALC (\
-    ARGOS_SIZE_HAS_COPIED_QMK + \
+    ARGOS_SIZE_CONFIG + \
     ARGOS_SIZE_COMBOS)
 
 // Reduce max address for dynamic keymap to ensure we don't overlap with Argos' EEPROM storage

@@ -20,6 +20,8 @@
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
+argos_config_t argos_config;
+
 // Internal EEPROM access functions - uses eeconfig_kb_datablock
 // TODO does this mess with the dilemma screen configuration? It should not
 __attribute__((weak)) void argos_read_eeprom(uint16_t offset, void *buf, uint16_t size) {
@@ -42,12 +44,15 @@ __attribute__((weak)) void argos_write_eeprom(uint16_t offset, const void *buf, 
     TODO other things, not only combos
 */
 void keyboard_post_init_argos(void) {
-    bool has_copied_qmk_config = false;
-    argos_read_eeprom(ARGOS_OFFSET_HAS_COPIED_QMK, &has_copied_qmk_config, sizeof(has_copied_qmk_config));
-    if (!has_copied_qmk_config) {
+
+    // Read configuration from eeprom
+    argos_read_eeprom(ARGOS_OFFSET_CONFIG, &argos_config, sizeof(argos_config));
+    if (!argos_config.has_copied_qmk_config) {
+        // this is our first load ever
         argos_combos_copy_from_QMK();
-        has_copied_qmk_config = true;
-        argos_write_eeprom(ARGOS_OFFSET_HAS_COPIED_QMK, &has_copied_qmk_config, sizeof(has_copied_qmk_config));
+        argos_config.has_copied_qmk_config = true;
+        argos_config.themeId = 13; // dark
+        argos_write_eeprom(ARGOS_OFFSET_CONFIG, &argos_config, sizeof(argos_config));
     }
     argos_combos_load_eeprom();
 }
@@ -72,6 +77,22 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
             break;
         }
 
+        // TODO : with the whole config?
+        case argos_id_get_theme_id: {
+            command_data[0] = argos_config.themeId;
+            send_data = true;
+            printf("Reading theme id: %d\n", argos_config.themeId);
+            break;
+        }
+
+        // TODO : with the whole config?
+        case argos_id_set_theme_id: {
+            argos_config.themeId = command_data[0];
+            argos_write_eeprom(ARGOS_OFFSET_CONFIG, &argos_config, sizeof(argos_config));
+            send_data = true;
+            printf("set theme id to %d\n", argos_config.themeId);
+            break;
+        }
 
             /*
             process_combo.c 
@@ -126,16 +147,6 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
                 send_data = true;
             break;
         }
-
-        // case argos_id_set_theme: {
-        //     break;
-        // }
-
-        // case argos_id_get_theme: {
-        //     break;
-        // }
-        
-
 
         case argos_id_capture_combo_key: {
             // This command is used to capture the next key press and return it in the response.

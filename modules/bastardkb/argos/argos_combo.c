@@ -103,34 +103,36 @@ void argos_combos_copy_from_QMK(void)
     for (int i = 0; i < ARGOS_COMBO_ENTRIES; i++)
     {
         combo_t *combo = combo_get_raw(i);
-        if (combo == NULL)
-        {
-            // TODO test some kind of zero assignment to the keycode result maybe?
-            return; // no more combos
-        }
 
         // we need to convert from combo_t to argos_combo_t before saving to eeprom
-        argos_combo_t comboNew = {.keys = {0},
-                                  .keycode = combo->keycode,
-                                  .disabled = combo->disabled,
-                                  .active = combo->active,
-                                  .state = combo->state};
-        bool last_key = false;
-        for (int j = 0; j < ARGOS_KEYS_PER_COMBO; j++)
-        {
-            // We might have a combo that's smaller than 4 keys.
-            // Then, we need to find the first key that is a 0 and set the rest of
-            // them to 0
-            if (combo->keys[j] == 0 || last_key)
-            {
-                last_key = true;
-                comboNew.keys[j] = 0;
-            }
-            else
-            {
-                comboNew.keys[j] = combo->keys[j];
-            }
-        }
+        argos_combo_t comboNew = {
+			.keys = {0},
+			.keycode = combo->keycode,
+			.disabled = combo->disabled,
+			.active = combo->active,
+			.state = combo->state
+		};
+        
+        // Combos will always be returned, because we override the size of of the combos array in introspection.h
+		// So instead, to test if a combo exists, we test if the resulting keycode is 0
+		// If it does not exist, the keys will stay at 0
+		// We have to do this, because otherwise QMK will return garbage data for the keys
+		if(combo->keycode != 0){
+			// We might have a combo that's smaller than 4 keys.
+			// Then, we need to find the first key that is a 0 and set the rest of them to 0
+			bool last_key_reached = false;
+			for (int j = 0; j < ARGOS_KEYS_PER_COMBO; j++){
+				if(last_key_reached){
+					comboNew.keys[j] = 0;
+				}
+				else if (combo->keys[j] == 0){
+					last_key_reached = true;
+				}
+				else{
+					comboNew.keys[j] = combo->keys[j];
+				}
+			}
+		}
 
         argos_combo_write_eeprom(i, &comboNew);
     }

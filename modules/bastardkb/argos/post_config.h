@@ -15,7 +15,7 @@
 
 #define ARGOS_OFFSET_COMBO (ARGOS_OFFSET_CONFIG + ARGOS_SIZE_CONFIG)
 #define ARGOS_COMBO_ENTRIES 16 // this was already defined in argos.h, TODO fix this hardcoding...
-#define ARGOS_SIZE_COMBO 12 
+#define ARGOS_SIZE_COMBO 13
 #define ARGOS_SIZE_COMBOS (ARGOS_COMBO_ENTRIES * ARGOS_SIZE_COMBO)
 
 #define ARGOS_EEPROM_SIZE_CALC (\

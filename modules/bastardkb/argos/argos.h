@@ -21,6 +21,7 @@ enum argos_command_id {
     argos_id_set_theme_id = 0x06,
     argos_id_get_tap_dance = 0x07,
     argos_id_set_tap_dance = 0x08,
+    argos_id_capture_tap_dance_key = 0x09,
     // argos_id_get_combos_count = 0x03,
     // argos_cmd_tap_dance_get     = 0x91,
     // argos_cmd_tap_dance_set     = 0x92,
@@ -89,3 +90,5 @@ void argos_raw_hid_send_captured_key(void);
 void argos_keycode_down(uint16_t keycode);
 void argos_keycode_up(uint16_t keycode);
 void argos_keycode_tap(uint16_t keycode);
+bool argos_tap_dance_read_eeprom(uint8_t index, argos_td_entry_t *entry);
+bool argos_tap_dance_write_eeprom(uint8_t index, const argos_td_entry_t *entry);

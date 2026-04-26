@@ -4,6 +4,7 @@
 
 #include "argos.h"
 #include "argos_combo.h"
+#include "argos_tapdance.h"
 #include "quantum.h"
 #include "via.h"
 #include "raw_hid.h"
@@ -58,7 +59,7 @@ void keyboard_post_init_argos(void) {
         argos_combos_copy_from_QMK();
         argos_config.has_copied_qmk_config = true;
         argos_config.themeId = 13; // dark
-        argos_init_tap_dances();
+        argos_reload_tap_dances();
         argos_write_eeprom(ARGOS_OFFSET_CONFIG, &argos_config, sizeof(argos_config));
     }
     argos_combos_load_eeprom();
@@ -113,13 +114,16 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
         break;
      }
 
+     // TODO: I don't think we actually use this
      case argos_id_set_tap_dance: {
         uint8_t index = command_data[0];
         argos_td_entry_t entry = {0};
         memcpy(&entry, &command_data[1], sizeof(argos_td_entry_t));
         // TODO status? 
         argos_tap_dance_write_eeprom(index, &entry);
-        argos_reload_tap_dances(index, &entry);
+        // TODO reload only one tap dance
+        // TODO why is this needed?
+        argos_reload_tap_dances();
         break;
      }
 
@@ -147,6 +151,14 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
             // It is meant to be used when setting up a combo, to easily capture the keycode of each key in the combo.
             // We will also process the assignment of the captured key directly, without having to process another HID message.
             argos_combo_listen_for_key(command_data);
+            break;
+        }
+
+        case argos_id_capture_tap_dance_key: {
+            // This command is used to capture the next key press and return it in the response.
+            // It is meant to be used when setting up a tap dance, to easily capture the keycode of each key in the tap dance.
+            // We will also process the assignment of the captured key directly, without having to process another HID message.
+            argos_tap_dance_listen_for_key(command_data);
             break;
         }
 
@@ -184,7 +196,11 @@ bool via_command_kb(uint8_t* data, uint8_t length) {
 
 bool process_record_argos(uint16_t keycode, keyrecord_t *record) {
     if(record->event.pressed){
+        // process combo first
         bool captured = !process_record_argos_combo(keycode, record);
+        // then, process tap dance
+        if(!captured)
+            captured = !process_record_argos_tap_dance(keycode, record);
         if(captured) {
             return false; // we captured a combo key, no need to process further
         }

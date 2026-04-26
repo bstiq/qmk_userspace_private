@@ -2,59 +2,25 @@
 #include "quantum.h"
 #include "argos.h"
 #include "process_tap_dance.h"
+#include "argos_tapdance.h"
 
-typedef enum {
-    TD_NONE,
-    TD_UNKNOWN,
-    TD_SINGLE_TAP,
-    TD_SINGLE_HOLD,
-    TD_DOUBLE_TAP,
-    TD_DOUBLE_HOLD,
-    TD_DOUBLE_SINGLE_TAP, // Send two single taps
-    TD_TRIPLE_TAP,
-    TD_TRIPLE_HOLD
-} argos_td_state_t;
+static uint8_t dance_state[ARGOS_TAP_DANCE_ENTRIES];
+// Storage for Argos tap dances
+static tap_dance_action_t argos_td_tap_actions[ARGOS_TAP_DANCE_ENTRIES];
 
-typedef struct {
-    bool is_press_action;
-    argos_td_state_t state;
-} argos_td_tap_t;
-
-static argos_td_tap_t td_state[ARGOS_TAP_DANCE_ENTRIES];
+// TODO have this also as an array of entries?
 static argos_td_entry_t td_entry;
 
 // Check if tap dance entry is enabled (bit 15 of custom_tapping_term)
 #define TD_ENABLED(entry) ((entry).custom_tapping_term & 0x8000)
 
 
-/* Return an integer that corresponds to what kind of tap dance should be executed.
- *
- * How to figure out tap dance state: interrupted and pressed.
- *
- * Interrupted: If the state of a dance is "interrupted", that means that another key has been hit
- *  under the tapping term. This is typically indicative that you are trying to "tap" the key.
- *
- * Pressed: Whether or not the key is still being pressed. If this value is true, that means the tapping term
- *  has ended, but the key is still being pressed down. This generally means the key is being "held".
- *
- * One thing that is currently not possible with qmk software in regards to tap dance is to mimic the "permissive hold"
- *  feature. In general, advanced tap dances do not work well if they are used with commonly typed letters.
- *  For example "A". Tap dances are best used on non-letter keys that are not hit while typing letters.
- *
- * Good places to put an advanced tap dance:
- *  z,q,x,j,k,v,b, any function key, home/end, comma, semi-colon
- *
- * Criteria for "good placement" of a tap dance key:
- *  Not a key that is hit frequently in a sentence
- *  Not a key that is used frequently to double tap, for example 'tab' is often double tapped in a terminal, or
- *    in a web form. So 'tab' would be a poor choice for a tap dance.
- *  Letters used in common words as a double. For example 'p' in 'pepper'. If a tap dance function existed on the
- *    letter 'p', the word 'pepper' would be quite frustrating to type.
- *
- * For the third point, there does exist the 'TD_DOUBLE_SINGLE_TAP', however this is not fully tested
- *
- */
- argos_td_state_t cur_dance(tap_dance_state_t *state) {
+bool listening_for_tap_dance_key = false;
+uint8_t listening_tap_dance_keycode_index = 0;
+uint8_t listening_tap_dance_index = 0;
+uint32_t last_activity_time = 0;
+
+argos_td_state_t cur_dance(tap_dance_state_t *state) {
     if (state->count == 1) {
         if (state->interrupted || !state->pressed) return TD_SINGLE_TAP;
         // Key has not been interrupted, but the key is still held. Means you want to send a 'HOLD'.
@@ -77,15 +43,10 @@ static argos_td_entry_t td_entry;
     } else return TD_UNKNOWN;
 }
 
-// Create an instance of 'td_tap_t' for the 'x' tap dance.
-static argos_td_tap_t xtap_state = {
-    .is_press_action = true,
-    .state = TD_NONE
-};
-
 static void on_dance(tap_dance_state_t *state, void *user_data) {
     uint8_t index = (uintptr_t)user_data;
-    if (argos_get_tap_dance(index, &td_entry) != 0) // TODO
+    // TODO replace this with loading the array from memory, instead of an EEPROM read...
+    if (argos_tap_dance_read_eeprom(index, &td_entry) != 0) // TODO
         return;
     if (!TD_ENABLED(td_entry))
         return;
@@ -104,25 +65,26 @@ static void on_dance(tap_dance_state_t *state, void *user_data) {
 // TODO: dance reset and finished are the same??...
 void on_dance_finished(tap_dance_state_t *state, void *user_data) {
     uint8_t index = (uintptr_t)user_data;
-    if (argos_get_tap_dance(index, &td_entry) != 0) // TODO
+    // TODO replace this with loading the array from memory, instead of an EEPROM read...
+    if (argos_tap_dance_read_eeprom(index, &td_entry) != 0) // TODO
         return;
     if (!TD_ENABLED(td_entry))
         return;
-    dance_state[index] = dance_step(state);
+    dance_state[index] = cur_dance(state);
     switch (dance_state[index]) {
-        case SINGLE_TAP: {
+        case TD_SINGLE_TAP: {
             if (td_entry.on_tap)
                 argos_keycode_down(td_entry.on_tap);
             break;
         }
-        case SINGLE_HOLD: {
+        case TD_SINGLE_HOLD: {
             if (td_entry.on_hold)
                 argos_keycode_down(td_entry.on_hold);
             else if (td_entry.on_tap)
                 argos_keycode_down(td_entry.on_tap);
             break;
         }
-        case DOUBLE_TAP: {
+        case TD_DOUBLE_TAP: {
             if (td_entry.on_double_tap) {
                 argos_keycode_down(td_entry.on_double_tap);
             } else if (td_entry.on_tap) {
@@ -131,7 +93,7 @@ void on_dance_finished(tap_dance_state_t *state, void *user_data) {
             }
             break;
         }
-        case DOUBLE_HOLD: {
+        case TD_DOUBLE_HOLD: {
             if (td_entry.on_tap_hold) {
                 argos_keycode_down(td_entry.on_tap_hold);
             } else {
@@ -147,7 +109,7 @@ void on_dance_finished(tap_dance_state_t *state, void *user_data) {
             }
             break;
         }
-        case DOUBLE_SINGLE_TAP: {
+        case TD_DOUBLE_SINGLE_TAP: {
             if (td_entry.on_tap) {
                 argos_keycode_tap(td_entry.on_tap);
                 argos_keycode_down(td_entry.on_tap);
@@ -159,7 +121,7 @@ void on_dance_finished(tap_dance_state_t *state, void *user_data) {
 
 void on_dance_reset(tap_dance_state_t *state, void *user_data) {
     uint8_t index = (uintptr_t)user_data;
-    if (viable_get_tap_dance(index, &td_entry) != 0)
+    if (argos_tap_dance_read_eeprom(index, &td_entry) != 0)
         return;
     if (!TD_ENABLED(td_entry))
         return;
@@ -168,54 +130,52 @@ void on_dance_reset(tap_dance_state_t *state, void *user_data) {
     state->count = 0;
     dance_state[index] = 0;
     switch (st) {
-        case SINGLE_TAP: {
+        case TD_SINGLE_TAP: {
             if (td_entry.on_tap)
-                viable_keycode_up(td_entry.on_tap);
+                argos_keycode_up(td_entry.on_tap);
             break;
         }
-        case SINGLE_HOLD: {
+        case TD_SINGLE_HOLD: {
             if (td_entry.on_hold)
-                viable_keycode_up(td_entry.on_hold);
+                argos_keycode_up(td_entry.on_hold);
             else if (td_entry.on_tap)
-                viable_keycode_up(td_entry.on_tap);
+                argos_keycode_up(td_entry.on_tap);
             break;
         }
-        case DOUBLE_TAP: {
+        case TD_DOUBLE_TAP: {
             if (td_entry.on_double_tap) {
-                viable_keycode_up(td_entry.on_double_tap);
+                argos_keycode_up(td_entry.on_double_tap);
             } else if (td_entry.on_tap) {
-                viable_keycode_up(td_entry.on_tap);
+                argos_keycode_up(td_entry.on_tap);
             }
             break;
         }
-        case DOUBLE_HOLD: {
+        case TD_DOUBLE_HOLD: {
             if (td_entry.on_tap_hold) {
-                viable_keycode_up(td_entry.on_tap_hold);
+                argos_keycode_up(td_entry.on_tap_hold);
             } else {
                 if (td_entry.on_tap) {
                     if (td_entry.on_hold)
-                        viable_keycode_up(td_entry.on_hold);
+                        argos_keycode_up(td_entry.on_hold);
                     else
-                        viable_keycode_up(td_entry.on_tap);
+                        argos_keycode_up(td_entry.on_tap);
                 } else if (td_entry.on_hold) {
-                    viable_keycode_up(td_entry.on_hold);
+                    argos_keycode_up(td_entry.on_hold);
                 }
             }
             break;
         }
-        case DOUBLE_SINGLE_TAP: {
+        case TD_DOUBLE_SINGLE_TAP: {
             if (td_entry.on_tap) {
-                viable_keycode_up(td_entry.on_tap);
+                argos_keycode_up(td_entry.on_tap);
             }
             break;
         }
     }
 }
 
-// Storage for Argos tap dances
-static tap_dance_action_t argos_td_tap_actions[ARGOS_TAP_DANCE_ENTRIES];
-
-void argos_init_tap_dances(void) {
+// TODO function to reload one specific tap dance
+void argos_reload_tap_dances(void) {
     for (size_t i = 0; i < ARGOS_TAP_DANCE_ENTRIES; ++i) {
         argos_td_tap_actions[i].fn.on_each_tap = on_dance;
         argos_td_tap_actions[i].fn.on_dance_finished = on_dance_finished;
@@ -240,14 +200,66 @@ tap_dance_action_t* tap_dance_get(uint16_t index) {
 
 bool argos_tap_dance_read_eeprom(uint8_t index, argos_td_entry_t *entry) {
     if (index >= ARGOS_TAP_DANCE_ENTRIES) return false;
-    argos_read_eeprom(ARGOS_TAP_DANCE_OFFSET + index * sizeof(argos_td_entry_t),
+    argos_read_eeprom(ARGOS_OFFSET_TAP_DANCE + index * sizeof(argos_td_entry_t),
                        entry, sizeof(argos_td_entry_t));
     return true;
 }
 
 bool argos_tap_dance_write_eeprom(uint8_t index, const argos_td_entry_t *entry) {
     if (index >= ARGOS_TAP_DANCE_ENTRIES) return false;
-    argos_write_eeprom(ARGOS_TAP_DANCE_OFFSET + index * sizeof(argos_td_entry_t),
+    argos_write_eeprom(ARGOS_OFFSET_TAP_DANCE + index * sizeof(argos_td_entry_t),
                        entry, sizeof(argos_td_entry_t));
     return true;
+}
+
+void argos_tap_dance_listen_for_key(uint8_t *data) {
+    last_activity_time = timer_read32();
+    listening_tap_dance_index = data[0];
+    listening_tap_dance_keycode_index = data[1]; // 0... 3 
+    listening_for_tap_dance_key = true;
+}
+
+// TODO code duplication with argos_combo.c
+bool process_record_argos_tap_dance(uint16_t keycode, keyrecord_t *record) {
+    // Disable listening after 3.5 seconds of inactivity
+    if (timer_read32() - last_activity_time > 3500)
+        listening_for_tap_dance_key = false;
+    if (listening_for_tap_dance_key && record->event.pressed) {
+
+        argos_tap_dance_set_keycode(listening_tap_dance_index, keycode,
+                                listening_tap_dance_keycode_index);
+    }
+    return true;
+}
+
+void argos_tap_dance_set_keycode(uint8_t tap_dance_index, uint16_t keycode,
+                             uint8_t key_index) {
+    if (tap_dance_index >= ARGOS_TAP_DANCE_ENTRIES) return;
+    // TODO move this to a table directly instead of reading/writing every time
+    argos_td_entry_t entry = {0};
+    argos_tap_dance_read_eeprom(tap_dance_index, &entry);
+    
+    switch(key_index) {
+        case 0: {
+            entry.on_tap = keycode;
+            break;
+        }
+        case 1: {
+            entry.on_hold = keycode;
+            break;
+        }
+        case 2: {
+            entry.on_double_tap = keycode;
+            break;
+        }
+        case 3: {
+            entry.on_tap_hold = keycode;
+            break;
+        }
+    
+
+    argos_tap_dance_write_eeprom(tap_dance_index, &entry);
+    // TODO reload only one tap dance
+    // TODO why is this needed?
+    argos_reload_tap_dances();
 }

@@ -18,9 +18,15 @@
 #define ARGOS_SIZE_COMBO 13
 #define ARGOS_SIZE_COMBOS (ARGOS_COMBO_ENTRIES * ARGOS_SIZE_COMBO)
 
+#define ARGOS_OFFSET_TAP_DANCE (ARGOS_OFFSET_COMBO + ARGOS_SIZE_COMBOS)
+#define ARGOS_TAP_DANCE_ENTRIES 16
+#define ARGOS_SIZE_TAP_DANCE 10
+#define ARGOS_SIZE_TAP_DANCES (ARGOS_TAP_DANCE_ENTRIES * ARGOS_SIZE_TAP_DANCE)
+
 #define ARGOS_EEPROM_SIZE_CALC (\
     ARGOS_SIZE_CONFIG + \
-    ARGOS_SIZE_COMBOS)
+    ARGOS_SIZE_COMBOS + \
+    ARGOS_SIZE_TAP_DANCES)
 
 // Reduce max address for dynamic keymap to ensure we don't overlap with Argos' EEPROM storage
 // much easier than trying to set the start address.

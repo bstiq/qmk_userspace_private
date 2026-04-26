@@ -20,6 +20,12 @@
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
+// Magic position for keycode execution
+#define ARGOS_MATRIX_MAGIC 240
+
+// Magic keycode override
+uint16_t g_argos_magic_keycode_override = 0;
+
 argos_config_t argos_config;
 
 // Internal EEPROM access functions - uses eeconfig_kb_datablock
@@ -52,6 +58,7 @@ void keyboard_post_init_argos(void) {
         argos_combos_copy_from_QMK();
         argos_config.has_copied_qmk_config = true;
         argos_config.themeId = 13; // dark
+        argos_init_tap_dances();
         argos_write_eeprom(ARGOS_OFFSET_CONFIG, &argos_config, sizeof(argos_config));
     }
     argos_combos_load_eeprom();
@@ -93,41 +100,28 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
             printf("set theme id to %d\n", argos_config.themeId);
             break;
         }
+        
+     case argos_id_get_tap_dance: {
+        uint8_t index = command_data[0];
+        argos_td_entry_t entry = {0};
+        // TODO: is it really necessary to read from the eeprom here?
+        // can't we just have an array of tap dances?
+        argos_tap_dance_read_eeprom(index, &entry);
+        // TODO send the data back?
+        // memcpy(command_data, &entry, sizeof(argos_td_entry_t));
+        send_data = true;
+        break;
+     }
 
-            /*
-            process_combo.c 
-            keymap_introspection
-
-            #    define COMBO_ACTIVE(combo) (combo->state & 0x80)
-#    define COMBO_DISABLED(combo) (combo->state & 0x40)
-#    define COMBO_STATE(combo) (combo->state & 0x3F)
-
-            typedef struct combo_t {
-        const uint16_t *keys;
-        uint16_t        keycode;
-    #ifdef EXTRA_SHORT_COMBOS
-        uint8_t state;
-    #else
-        bool disabled;
-        bool active;
-    #    if defined(EXTRA_EXTRA_LONG_COMBOS)
-        uint32_t state;
-    #    elif defined(EXTRA_LONG_COMBOS)
-        uint16_t state;
-    #    else
-        uint8_t state;
-    #    endif
-    #endif
-    } combo_t;
-                                          */
-
-        //                                   // TODO test if combos enabled
-        // case argos_id_get_combos_count: {
-        //     uint8_t combo_size = ARRAY_SIZE(key_combos);
-            
-        //     command_data[0] = combo_size;
-        //     break;
-        // }
+     case argos_id_set_tap_dance: {
+        uint8_t index = command_data[0];
+        argos_td_entry_t entry = {0};
+        memcpy(&entry, &command_data[1], sizeof(argos_td_entry_t));
+        // TODO status? 
+        argos_tap_dance_write_eeprom(index, &entry);
+        argos_reload_tap_dances(index, &entry);
+        break;
+     }
 
         // TODO manage custom tapping terms?
         case argos_id_get_combo: {
@@ -196,4 +190,71 @@ bool process_record_argos(uint16_t keycode, keyrecord_t *record) {
         }
     }
     return true;
+}
+
+// Override keymap_key_to_keycode to handle magic position for tap dance/combo execution
+uint16_t keymap_key_to_keycode(uint8_t layer, keypos_t key) {
+    if (key.row == ARGOS_MATRIX_MAGIC && key.col == ARGOS_MATRIX_MAGIC) {
+       return g_argos_magic_keycode_override;
+   } else  if (key.row < MATRIX_ROWS && key.col < MATRIX_COLS) {
+       return keycode_at_keymap_location(layer, key.row, key.col);
+   }
+#ifdef ENCODER_MAP_ENABLE
+   else if (key.row == KEYLOC_ENCODER_CW && key.col < NUM_ENCODERS) {
+       return keycode_at_encodermap_location(layer, key.col, true);
+   } else if (key.row == KEYLOC_ENCODER_CCW && key.col < NUM_ENCODERS) {
+       return keycode_at_encodermap_location(layer, key.col, false);
+   }
+#endif // ENCODER_MAP_ENABLE
+#ifdef DIP_SWITCH_MAP_ENABLE
+   else if (key.row == KEYLOC_DIP_SWITCH_ON && key.col < NUM_DIP_SWITCHES) {
+       return keycode_at_dip_switch_map_location(key.col, true);
+   } else if (key.row == KEYLOC_DIP_SWITCH_OFF && key.col < NUM_DIP_SWITCHES) {
+       return keycode_at_dip_switch_map_location(key.col, false);
+   }
+#endif // DIP_SWITCH_MAP_ENABLE
+
+   // Use dynamic keymap for normal keys
+   return KC_NO;
+}
+
+
+// Keycode execution helpers
+// We need it for tap dance
+void argos_keycode_down(uint16_t keycode) {
+    g_argos_magic_keycode_override = keycode;
+
+    if (keycode <= QK_MODS_MAX) {
+        register_code16(keycode);
+    } else {
+        action_exec((keyevent_t){
+            .type = KEY_EVENT,
+            .key = (keypos_t){.row = ARGOS_MATRIX_MAGIC, .col = ARGOS_MATRIX_MAGIC},
+            .pressed = 1,
+            .time = (timer_read() | 1)
+        });
+    }
+}
+
+// Keycode execution helpers
+// We need it for tap dance
+void argos_keycode_up(uint16_t keycode) {
+    g_argos_magic_keycode_override = keycode;
+
+    if (keycode <= QK_MODS_MAX) {
+        unregister_code16(keycode);
+    } else {
+        action_exec((keyevent_t){
+            .type = KEY_EVENT,
+            .key = (keypos_t){.row = ARGOS_MATRIX_MAGIC, .col = ARGOS_MATRIX_MAGIC},
+            .pressed = 0,
+            .time = (timer_read() | 1)
+        });
+    }
+}
+
+void argos_keycode_tap(uint16_t keycode) {
+    argos_keycode_down(keycode);
+    wait_ms(ARGOS_TAP_CODE_DELAY);
+    argos_keycode_up(keycode);
 }

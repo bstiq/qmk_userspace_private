@@ -19,6 +19,8 @@ enum argos_command_id {
     argos_id_capture_combo_key = 0x04,
     argos_id_get_theme_id = 0x05,
     argos_id_set_theme_id = 0x06,
+    argos_id_get_tap_dance = 0x07,
+    argos_id_set_tap_dance = 0x08,
     // argos_id_get_combos_count = 0x03,
     // argos_cmd_tap_dance_get     = 0x91,
     // argos_cmd_tap_dance_set     = 0x92,
@@ -64,6 +66,18 @@ typedef struct PACKED {
 } argos_config_t;
 _Static_assert(sizeof(argos_config_t) == 2, "Invalid size for argos_config_t");
 
+#define ARGOS_TAPPING_TERM 175
+#define ARGOS_TAP_CODE_DELAY 10
+
+typedef struct __attribute__((packed)) {
+    uint16_t on_tap;
+    uint16_t on_hold;
+    uint16_t on_double_tap;
+    uint16_t on_tap_hold;
+    uint16_t custom_tapping_term;  // bit 15 = enabled, bits 0-14 = timing (ms)
+} argos_td_entry_t;
+_Static_assert(sizeof(argos_td_entry_t) == 10, "Invalid size for argos_td_entry_t");
+
 
 // -------------------------------
 
@@ -72,3 +86,6 @@ __attribute__((weak)) void argos_write_eeprom(uint16_t offset, const void *buf, 
 void keyboard_post_init_argos(void);
 bool argos_handle_command(uint8_t* data, uint8_t length);
 void argos_raw_hid_send_captured_key(void);
+void argos_keycode_down(uint16_t keycode);
+void argos_keycode_up(uint16_t keycode);
+void argos_keycode_tap(uint16_t keycode);

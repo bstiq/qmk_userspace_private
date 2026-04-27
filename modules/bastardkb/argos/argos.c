@@ -107,6 +107,26 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
         }
 
         case argos_id_get_dpi: {
+            // TODO dilemma v2
+            // TODO charybdis
+#ifdef POINTING_DEVICE_DRIVER_digitizer
+            //     dilemma_status.dpi = dilemma_get_pointer_default_dpi();
+    // dilemma_status.s_dpi = dilemma_get_pointer_sniping_dpi();
+            command_data[0] = dilemma_get_pointer_default_dpi();
+#endif
+            send_data = true;
+            break;
+        }
+
+        case argos_id_get_sniping_dpi: {
+            // TODO dilemma v2
+            // TODO charybdis
+#ifdef POINTING_DEVICE_DRIVER_digitizer
+            //     dilemma_status.dpi = dilemma_get_pointer_default_dpi();
+    // dilemma_status.s_dpi = dilemma_get_pointer_sniping_dpi();
+            command_data[0] = dilemma_get_pointer_sniping_dpi();
+#endif
+            send_data = true;
             break;
         }
 

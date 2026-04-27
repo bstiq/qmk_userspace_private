@@ -78,9 +78,16 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
     bool send_data = false; 
 
     switch (*command_id) {
-        case argos_id_get_protocol_version: {
+        case argos_id_get_kb_info: {
             command_data[0] = ARGOS_PROTOCOL_VERSION >> 8;
             command_data[1] = ARGOS_PROTOCOL_VERSION & 0xFF;
+            command_data[2] = ARGOS_TAP_DANCE_ENTRIES;
+            command_data[3] = ARGOS_COMBO_ENTRIES;
+            command_data[4] = ARGOS_KEYS_PER_COMBO;
+            command_data[5] = argos_config.themeId;
+            command_data[6] = QMK_KEYCODES_VERSION_COMPATIBLE_0;
+            command_data[7] = QMK_KEYCODES_VERSION_COMPATIBLE_1;
+            command_data[8] = QMK_KEYCODES_VERSION_COMPATIBLE_2;
             send_data = true;
             break;
         }
@@ -169,6 +176,12 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
             // It is meant to be used when setting up a tap dance, to easily capture the keycode of each key in the tap dance.
             // We will also process the assignment of the captured key directly, without having to process another HID message.
             argos_tap_dance_listen_for_key(command_data);
+            break;
+        }
+
+        case argos_id_delete_tap_dance_key: {
+            uint8_t index = command_data[0];
+            argos_tap_dance_reset_capturing_tap_dance_key_index(index);
             break;
         }
 

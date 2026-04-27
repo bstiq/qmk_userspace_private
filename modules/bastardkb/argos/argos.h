@@ -11,12 +11,15 @@
 // Argos protocol version
 #define ARGOS_PROTOCOL_VERSION 0x0001
 #define ARGOS_CMD_PREFIX 0x90 // hopefully something that won't conflict with VIA
+#define QMK_KEYCODES_VERSION_COMPATIBLE_0 0
+#define QMK_KEYCODES_VERSION_COMPATIBLE_1 0
+#define QMK_KEYCODES_VERSION_COMPATIBLE_2 8
 
 // Used to capture keys (for combos and tap dances)
 uint32_t last_activity_time;
 
 enum argos_command_id {
-    argos_id_get_protocol_version = 0x01,
+    argos_id_get_kb_info = 0x01,
     argos_id_get_combo = 0x02,
     argos_id_delete_combo_key = 0x03,
     argos_id_capture_combo_key = 0x04,
@@ -25,6 +28,8 @@ enum argos_command_id {
     argos_id_get_tap_dance = 0x07,
     argos_id_set_tap_dance = 0x08,
     argos_id_capture_tap_dance_key = 0x09,
+    argos_id_delete_tap_dance_key = 0x0A,
+    
 };
 
 #define ARGOS_COMBO_ENTRIES 16

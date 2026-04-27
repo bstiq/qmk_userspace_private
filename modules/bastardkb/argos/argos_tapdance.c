@@ -82,35 +82,18 @@ void on_dance_finished(tap_dance_state_t *state, void *user_data) {
         case TD_SINGLE_HOLD: {
             if (td_entry.on_hold)
                 argos_keycode_down(td_entry.on_hold);
-            // else if (td_entry.on_tap)
-                // argos_keycode_down(td_entry.on_tap);
             break;
         }
         case TD_DOUBLE_TAP: {
             if (td_entry.on_double_tap) {
                 argos_keycode_down(td_entry.on_double_tap);
             } 
-            // else if (td_entry.on_tap) {
-                // argos_keycode_tap(td_entry.on_tap);
-                // argos_keycode_down(td_entry.on_tap);
-            // }
             break;
         }
         case TD_DOUBLE_HOLD: {
             if (td_entry.on_tap_hold) {
                 argos_keycode_down(td_entry.on_tap_hold);
             } 
-            // else {
-            //     if (td_entry.on_tap) {
-            //         argos_keycode_tap(td_entry.on_tap);
-            //         if (td_entry.on_hold)
-            //             argos_keycode_down(td_entry.on_hold);
-            //         else
-            //             argos_keycode_down(td_entry.on_tap);
-            //     } else if (td_entry.on_hold) {
-            //         argos_keycode_down(td_entry.on_hold);
-            //     }
-            // }
             break;
         }
         case TD_DOUBLE_SINGLE_TAP: {
@@ -144,33 +127,18 @@ void on_dance_reset(tap_dance_state_t *state, void *user_data) {
         case TD_SINGLE_HOLD: {
             if (td_entry.on_hold)
                 argos_keycode_up(td_entry.on_hold);
-            // else if (td_entry.on_tap)
-            //     argos_keycode_up(td_entry.on_tap);
             break;
         }
         case TD_DOUBLE_TAP: {
             if (td_entry.on_double_tap) {
                 argos_keycode_up(td_entry.on_double_tap);
             } 
-            // else if (td_entry.on_tap) {
-            //     argos_keycode_up(td_entry.on_tap);
-            // }
             break;
         }
         case TD_DOUBLE_HOLD: {
             if (td_entry.on_tap_hold) {
                 argos_keycode_up(td_entry.on_tap_hold);
             } 
-            // else {
-            //     if (td_entry.on_tap) {
-            //         if (td_entry.on_hold)
-            //             argos_keycode_up(td_entry.on_hold);
-            //         else
-            //             argos_keycode_up(td_entry.on_tap);
-            //     } else if (td_entry.on_hold) {
-            //         argos_keycode_up(td_entry.on_hold);
-            //     }
-            // }
             break;
         }
         case TD_DOUBLE_SINGLE_TAP: {
@@ -250,6 +218,10 @@ bool process_record_argos_tap_dance(uint16_t keycode, keyrecord_t *record) {
         }
     }
     return true;
+}
+
+void argos_tap_dance_reset_capturing_tap_dance_key_index(uint8_t index) {
+    argos_tap_dance_set_keycode(listening_tap_dance_index, 0, listening_tap_dance_keycode_index);
 }
 
 // TODO resets (zero key)

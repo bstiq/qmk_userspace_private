@@ -17,3 +17,7 @@ void argos_tap_dance_listen_for_key(uint8_t *data);
 bool process_record_argos_tap_dance(uint16_t keycode, keyrecord_t *record);
 void argos_tap_dance_set_keycode(uint8_t tap_dance_index, uint16_t keycode, uint8_t key_index);
 void argos_tap_dance_reset_capturing_tap_dance_key_index(uint8_t index);
+void argos_tap_dances_load_from_eeprom(void);
+void argos_tap_dance_load_from_eeprom(uint8_t index);
+void argos_tap_dance_set(uint8_t index, argos_td_entry_t entry);
+argos_td_entry_t* argos_tap_dance_get(uint8_t index);

@@ -62,7 +62,8 @@ void keyboard_post_init_argos(void) {
         argos_reload_tap_dances();
         argos_write_eeprom(ARGOS_OFFSET_CONFIG, &argos_config, sizeof(argos_config));
     }
-    argos_combos_load_eeprom();
+    argos_combos_load_from_eeprom();
+    argos_tap_dances_load_from_eeprom();
 }
 
 bool argos_handle_command(uint8_t* data, uint8_t length) {

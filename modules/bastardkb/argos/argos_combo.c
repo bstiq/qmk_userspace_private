@@ -35,17 +35,17 @@ uint8_t listening_combo_index = 0;
 // TODO deal with disabled combos?
 // TODO deal with NULL combos?... right now we set everything to zero
 // or... just communicate them to the webapp and let it handle it
-void argos_combos_load_eeprom() {
+void argos_combos_load_from_eeprom() {
     // initialize all combos
     memset(argos_combo_keys, 0, sizeof(argos_combo_keys));
     memset(argos_combos_QMK_data, 0, sizeof(argos_combos_QMK_data));
 
     for (int i = 0; i < ARGOS_COMBO_ENTRIES; i++) {
-        argos_combo_load_eeprom(i);
+        argos_combo_load_from_eeprom(i);
     }
 }
 
-void argos_combo_load_eeprom(uint8_t index) {
+void argos_combo_load_from_eeprom(uint8_t index) {
     uint16_t *keys = argos_combo_keys[index];
     argos_combos_QMK_data[index].keys = keys;
 
@@ -263,7 +263,6 @@ bool process_record_argos_combo(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-// TODO sanity check on index?
 combo_t argos_combo_get(uint8_t index) {
     if (index < ARGOS_COMBO_ENTRIES) {
         return argos_combos_QMK_data[index];

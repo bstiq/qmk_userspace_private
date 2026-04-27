@@ -93,6 +93,23 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
             break;
         }
 
+        case argos_id_get_pointing_device_type: {
+            command_data[0] = pointing_device_type_unknown;
+            // TODO dilemma v2
+#ifdef POINTING_DEVICE_DRIVER_pmw3360 // TODO test
+                command_data[0] = pointing_device_type_trackball;
+#endif
+#ifdef POINTING_DEVICE_DRIVER_digitizer // Dilemma v3, todo test procyon?
+                command_data[0] = pointing_device_type_trackpad;
+#endif
+            send_data = true;
+            break;
+        }
+
+        case argos_id_get_dpi: {
+            break;
+        }
+
         // TODO : delete this, we already load it in argos_id_get_kb_info
         case argos_id_get_theme_id: {
             command_data[0] = argos_config.themeId;

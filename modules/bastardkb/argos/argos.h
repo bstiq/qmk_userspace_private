@@ -29,7 +29,18 @@ enum argos_command_id {
     argos_id_set_tap_dance = 0x08,
     argos_id_capture_tap_dance_key = 0x09,
     argos_id_delete_tap_dance_key = 0x0A,
-    
+    argos_id_get_dpi = 0x0B,
+    argos_id_set_dpi = 0x0C,
+    argos_id_get_sniping_dpi = 0x0D,
+    argos_id_set_sniping_dpi = 0x0E,
+    argos_id_get_pointing_device_type = 0x0F,
+};
+
+// At the moment, we only support trackpads and trackballs (for Bastard Keyboards)
+enum pointing_device_type {
+    pointing_device_type_unknown = 0,
+    pointing_device_type_trackpad = 1,
+    pointing_device_type_trackball = 2,
 };
 
 #define ARGOS_COMBO_ENTRIES 16

@@ -10,7 +10,7 @@ static uint8_t dance_state[ARGOS_TAP_DANCE_ENTRIES];
 static tap_dance_action_t argos_td_tap_actions[ARGOS_TAP_DANCE_ENTRIES];
 
 // TODO have this also as an array of entries?
-static argos_td_entry_t td_entry;
+// static argos_td_entry_t td_entry;
 
 static argos_td_entry_t argos_td_entries[ARGOS_TAP_DANCE_ENTRIES];
 
@@ -44,13 +44,14 @@ static void on_dance(tap_dance_state_t *state, void *user_data) {
     uint8_t index = (uintptr_t)user_data;
     // TODO replace this with loading the array from memory, instead of an EEPROM read...
     printf("On dance\n");
-    if (argos_tap_dance_read_eeprom(index, &td_entry) == false) // TODO
+    argos_td_entry_t *entry = argos_tap_dance_get(index);
+    if (entry == NULL)
         return;
-    if (!td_entry.enabled)
+    if (!entry->enabled)
         return;
     printf("Dance started for index %d\n", index);
     printf("State count: %d\n", state->count);
-    uint16_t kc = td_entry.on_tap;
+    uint16_t kc = entry->on_tap;
     if (kc) {
         if (state->count == 3) {
             argos_keycode_tap(kc);
@@ -67,41 +68,42 @@ void on_dance_finished(tap_dance_state_t *state, void *user_data) {
     uint8_t index = (uintptr_t)user_data;
     // TODO replace this with loading the array from memory, instead of an EEPROM read...
     printf("On dance finished\n");
-    if (argos_tap_dance_read_eeprom(index, &td_entry) == false) // TODO
+    argos_td_entry_t *entry = argos_tap_dance_get(index);   
+    if (entry == NULL)
         return;
-    printf("Read dance, TD_ENABLED: %d\n", td_entry.enabled);
-    if (!td_entry.enabled)
+    printf("Read dance, TD_ENABLED: %d\n", entry->enabled);
+    if (!entry->enabled)
         return;
     printf("Dance finished for index %d\n", index);
     dance_state[index] = cur_dance(state);
     printf("Dance state: %d\n", dance_state[index]);
     switch (dance_state[index]) {
         case TD_SINGLE_TAP: {
-            if (td_entry.on_tap)
-                argos_keycode_down(td_entry.on_tap);
+            if (entry->on_tap)
+                argos_keycode_down(entry->on_tap);
             break;
         }
         case TD_SINGLE_HOLD: {
-            if (td_entry.on_hold)
-                argos_keycode_down(td_entry.on_hold);
+            if (entry->on_hold)
+                argos_keycode_down(entry->on_hold);
             break;
         }
         case TD_DOUBLE_TAP: {
-            if (td_entry.on_double_tap) {
-                argos_keycode_down(td_entry.on_double_tap);
+            if (entry->on_double_tap) {
+                argos_keycode_down(entry->on_double_tap);
             } 
             break;
         }
         case TD_DOUBLE_HOLD: {
-            if (td_entry.on_tap_hold) {
-                argos_keycode_down(td_entry.on_tap_hold);
+            if (entry->on_tap_hold) {
+                argos_keycode_down(entry->on_tap_hold);
             } 
             break;
         }
         case TD_DOUBLE_SINGLE_TAP: {
-            if (td_entry.on_tap) {
-                argos_keycode_tap(td_entry.on_tap);
-                argos_keycode_down(td_entry.on_tap);
+            if (entry->on_tap) {
+                argos_keycode_tap(entry->on_tap);
+                argos_keycode_down(entry->on_tap);
             }
             break;
         }
@@ -111,10 +113,11 @@ void on_dance_finished(tap_dance_state_t *state, void *user_data) {
 void on_dance_reset(tap_dance_state_t *state, void *user_data) {
     uint8_t index = (uintptr_t)user_data;
     printf("On dance reset\n");
-    if (argos_tap_dance_read_eeprom(index, &td_entry) == false)
+    argos_td_entry_t *entry = argos_tap_dance_get(index);
+    if (entry == NULL)
         return;
-    printf("Read dance, TD_ENABLED: %d\n", td_entry.enabled);
-    if (!td_entry.enabled)
+    printf("Read dance, TD_ENABLED: %d\n", entry->enabled);
+    if (!entry->enabled)
         return;
     wait_ms(TAP_CODE_DELAY);
     uint8_t st = dance_state[index];
@@ -122,30 +125,30 @@ void on_dance_reset(tap_dance_state_t *state, void *user_data) {
     dance_state[index] = 0;
     switch (st) {
         case TD_SINGLE_TAP: {
-            if (td_entry.on_tap)
-                argos_keycode_up(td_entry.on_tap);
+            if (entry->on_tap)
+                argos_keycode_up(entry->on_tap);
             break;
         }
         case TD_SINGLE_HOLD: {
-            if (td_entry.on_hold)
-                argos_keycode_up(td_entry.on_hold);
+            if (entry->on_hold)
+                argos_keycode_up(entry->on_hold);
             break;
         }
         case TD_DOUBLE_TAP: {
-            if (td_entry.on_double_tap) {
-                argos_keycode_up(td_entry.on_double_tap);
+            if (entry->on_double_tap) {
+                argos_keycode_up(entry->on_double_tap);
             } 
             break;
         }
         case TD_DOUBLE_HOLD: {
-            if (td_entry.on_tap_hold) {
-                argos_keycode_up(td_entry.on_tap_hold);
+            if (entry->on_tap_hold) {
+                argos_keycode_up(entry->on_tap_hold);
             } 
             break;
         }
         case TD_DOUBLE_SINGLE_TAP: {
-            if (td_entry.on_tap) {
-                argos_keycode_up(td_entry.on_tap);
+            if (entry->on_tap) {
+                argos_keycode_up(entry->on_tap);
             }
             break;
         }

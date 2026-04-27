@@ -59,11 +59,11 @@ void keyboard_post_init_argos(void) {
         argos_combos_copy_from_QMK();
         argos_config.has_copied_qmk_config = true;
         argos_config.themeId = 13; // default to dark theme
-        argos_reload_tap_dances();
         argos_write_eeprom(ARGOS_OFFSET_CONFIG, &argos_config, sizeof(argos_config));
     }
     argos_combos_load_from_eeprom();
     argos_tap_dances_load_from_eeprom();
+    argos_reload_tap_dances();
 }
 
 bool argos_handle_command(uint8_t* data, uint8_t length) {
@@ -132,18 +132,18 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
         break;
      }
 
-     // TODO: I don't think we actually use this
-     case argos_id_set_tap_dance: {
-        uint8_t index = command_data[0];
-        argos_td_entry_t entry = {0};
-        memcpy(&entry, &command_data[1], sizeof(argos_td_entry_t));
-        // TODO status? 
-        argos_tap_dance_write_eeprom(index, &entry);
-        // TODO reload only one tap dance
-        // TODO why is this needed?
-        argos_reload_tap_dances();
-        break;
-     }
+    //  // TODO: I don't think we actually use this
+    //  case argos_id_set_tap_dance: {
+    //     uint8_t index = command_data[0];
+    //     argos_td_entry_t entry = {0};
+    //     memcpy(&entry, &command_data[1], sizeof(argos_td_entry_t));
+    //     // TODO status? 
+    //     argos_tap_dance_write_eeprom(index, &entry);
+    //     // TODO reload only one tap dance
+    //     // TODO why is this needed?
+    //     argos_reload_tap_dances();
+    //     break;
+    //  }
 
         // TODO manage custom tapping terms?
         case argos_id_get_combo: {

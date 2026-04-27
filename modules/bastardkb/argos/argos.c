@@ -109,7 +109,17 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
         // can't we just have an array of tap dances?
         argos_tap_dance_read_eeprom(index, &entry);
         // TODO send the data back?
-        memcpy(command_data, &entry, sizeof(argos_td_entry_t));
+        // memcpy(command_data, &entry, sizeof(argos_td_entry_t));
+        command_data[0] = entry.on_tap & 0xFF;
+        command_data[1] = (entry.on_tap >> 8) & 0xFF;
+        command_data[2] = entry.on_hold & 0xFF;
+        command_data[3] = (entry.on_hold >> 8) & 0xFF;
+        command_data[4] = entry.on_double_tap & 0xFF;
+        command_data[5] = (entry.on_double_tap >> 8) & 0xFF;
+        command_data[6] = entry.on_tap_hold & 0xFF;
+        command_data[7] = (entry.on_tap_hold >> 8) & 0xFF;
+        command_data[8] = entry.custom_tapping_term & 0xFF;
+        command_data[9] = (entry.custom_tapping_term >> 8) & 0xFF;
         send_data = true;
         break;
      }

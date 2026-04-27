@@ -58,8 +58,9 @@ typedef struct __attribute__((packed)) {
     uint16_t on_double_tap;
     uint16_t on_tap_hold;
     uint16_t custom_tapping_term;  // bit 15 = enabled, bits 0-14 = timing (ms)
+    bool enabled : 1;
 } argos_td_entry_t;
-_Static_assert(sizeof(argos_td_entry_t) == 10, "Invalid size for argos_td_entry_t");
+_Static_assert(sizeof(argos_td_entry_t) <= 11, "Invalid size for argos_td_entry_t");
 
 
 // -------------------------------

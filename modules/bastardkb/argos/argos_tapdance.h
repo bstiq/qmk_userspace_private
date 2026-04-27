@@ -7,8 +7,7 @@ typedef enum {
     TD_DOUBLE_TAP,
     TD_DOUBLE_HOLD,
     TD_DOUBLE_SINGLE_TAP, // Send two single taps
-    TD_TRIPLE_TAP,
-    TD_TRIPLE_HOLD
+    TD_MORE_TAPS
 } argos_td_state_t;
 
 void argos_reload_tap_dances(void);

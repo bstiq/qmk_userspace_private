@@ -192,6 +192,7 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
                 uint16_t key = command_data[3 + i * 2] | (command_data[4 + i * 2] << 8);
                 argos_combo_set_keycode(combo_index, key, i);
             }
+            send_data = true; // ack
             break;
         }
 
@@ -234,18 +235,15 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
         break;
      }
 
-    //  // TODO: I don't think we actually use this
-    //  case argos_id_set_tap_dance: {
-    //     uint8_t index = command_data[0];
-    //     argos_td_entry_t entry = {0};
-    //     memcpy(&entry, &command_data[1], sizeof(argos_td_entry_t));
-    //     // TODO status? 
-    //     argos_tap_dance_write_eeprom(index, &entry);
-    //     // TODO reload only one tap dance
-    //     // TODO why is this needed?
-    //     argos_reload_tap_dances();
-    //     break;
-    //  }
+    case argos_id_set_tap_dance: {
+        uint8_t index = command_data[0];
+        for(int i = 0; i < ARGOS_KEYS_PER_TAP_DANCE; i++) {
+            uint16_t keycode = command_data[i * 2 + 1] | (command_data[i * 2 + 2] << 8);
+            argos_tap_dance_set_keycode(index, keycode, i);
+        }
+        send_data = true; // ack
+        break;
+    }
 
         // TODO manage custom tapping terms?
         case argos_id_get_combo: {

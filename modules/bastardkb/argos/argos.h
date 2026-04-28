@@ -32,6 +32,7 @@ enum argos_command_id {
     argos_id_set_dpi = 0x0B,
     argos_id_get_pointing_device_info = 0x0C,
     argos_id_set_sniping_dpi = 0x0D,
+    argos_id_set_combo = 0x0E,
 };
 
 // At the moment, we only support trackpads and trackballs (for Bastard Keyboards)

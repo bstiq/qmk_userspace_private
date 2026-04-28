@@ -180,6 +180,21 @@ bool argos_handle_command(uint8_t* data, uint8_t length) {
             break;
         }
 
+        case argos_id_set_combo: {
+            printf("Setting combo\n");
+            printf("Combo index: %d\n", command_data[0]);
+            printf("Keycode: %d\n", command_data[1] | (command_data[2] << 8));
+            printf("Amount of keys: %d\n", ARGOS_KEYS_PER_COMBO);
+            uint8_t combo_index = command_data[0];
+            uint16_t keycode = command_data[1] | (command_data[2] << 8);
+            argos_combo_set_keycode(combo_index, keycode, 0);
+            for(int i = 1; i < ARGOS_KEYS_PER_COMBO; i++) {
+                uint16_t key = command_data[3 + i * 2] | (command_data[4 + i * 2] << 8);
+                argos_combo_set_keycode(combo_index, key, i);
+            }
+            break;
+        }
+
         // TODO : delete this, we already load it in argos_id_get_kb_info
         case argos_id_get_theme_id: {
             command_data[0] = argos_config.themeId;

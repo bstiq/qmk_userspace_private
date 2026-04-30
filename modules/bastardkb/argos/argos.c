@@ -6,7 +6,14 @@
 #include "argos.h"
 #include "argos_combo.h"
 #include "argos_tapdance.h"
+
+#ifdef POINTING_DEVICE_DRIVER_pmw3360
+#include "charybdis.h"
+#endif
+#ifdef POINTING_DEVICE_DRIVER_digitizer // TODO dilemma v2 / cirque
 #include "dilemma.h"
+#endif
+
 #include "eeconfig.h"
 #include "eeprom.h"
 #include "keymap_introspection.h"

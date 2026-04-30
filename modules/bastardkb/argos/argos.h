@@ -40,7 +40,7 @@ enum argos_command_id {
 // At the moment, we only support trackpads and trackballs (for Bastard Keyboards)
 enum pointing_device_type {
     pointing_device_type_unknown = 0,
-    pointing_device_type_trackpad = 1,
+    pointing_device_type_trackpad_procyon = 1,
     pointing_device_type_trackball = 2,
 };
 

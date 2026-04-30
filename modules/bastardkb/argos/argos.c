@@ -133,51 +133,18 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
 
     case argos_id_get_pointing_device_info: {
         build_pointing_device_info_command_data(&command_data);
-        printf("Pointing device info: %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", command_data[0], command_data[1], command_data[2], command_data[3], command_data[4], command_data[5], command_data[6], command_data[7], command_data[8], command_data[9], command_data[10], command_data[11], command_data[12], command_data[13], command_data[14]);
         send_data = true;
         break;
     }
 
     case argos_id_set_dpi: {
-        // TODO dilemma v2
-        // TODO charybdis
-#ifdef POINTING_DEVICE_DRIVER_digitizer
-        // new dpi is on 2 bytes:
-        uint16_t new_dpi = command_data[0] | (command_data[1] << 8);
-        // get the old DPI:
-        uint16_t old_dpi = dilemma_get_pointer_default_dpi();
-        // calculate the difference:
-        int16_t difference = new_dpi - old_dpi;
-        // calculate how many steps we need, it could be negative
-        int8_t new_steps = difference / ARGOS_DILEMMA_DEFAULT_DPI_CONFIG_STEP;
-        // apply the steps one by one
-        bool forward = new_steps > 0;
-        for (int i = 0; i < abs(new_steps); i++) {
-            dilemma_cycle_pointer_default_dpi(forward);
-        }
-#endif
+        argos_set_dpi(command_data);
         send_data = true;
         break;
     }
 
     case argos_id_set_sniping_dpi: {
-        // TODO dilemma v2
-        // TODO charybdis
-#ifdef POINTING_DEVICE_DRIVER_digitizer
-        // new dpi is on 2 bytes:
-        uint16_t new_dpi = command_data[0] | (command_data[1] << 8);
-        // get the old DPI:
-        uint16_t old_dpi = dilemma_get_pointer_sniping_dpi();
-        // calculate the difference:
-        int16_t difference = new_dpi - old_dpi;
-        // calculate how many steps we need, it could be negative
-        int8_t new_steps = difference / ARGOS_DILEMMA_SNIPING_DPI_CONFIG_STEP;
-        // apply the steps one by one
-        bool forward = new_steps > 0;
-        for (int i = 0; i < abs(new_steps); i++) {
-            dilemma_cycle_pointer_sniping_dpi(forward);
-        }
-#endif
+        argos_set_sniping_dpi(command_data);
         send_data = true;
         break;
     }

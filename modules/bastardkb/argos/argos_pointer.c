@@ -1,9 +1,9 @@
 #include QMK_KEYBOARD_H
 
 #include "argos_pointer.h"
-#include <stdint.h>
 #include "argos.h"
 #include "pointer_config_hardcoded.h"
+#include <stdint.h>
 
 #ifdef POINTING_DEVICE_DRIVER_pmw3360
 #include "charybdis.h"
@@ -14,8 +14,8 @@
 
 void build_pointing_device_info_command_data(uint8_t **command_data) {
     (*command_data)[0] = pointing_device_type_unknown;
-// TODO dilemma v2, TODO check charybdis working
-#ifdef POINTING_DEVICE_DRIVER_pmw3360 // TODO test
+// TODO dilemma v2
+#ifdef POINTING_DEVICE_DRIVER_pmw3360
     (*command_data)[0] = pointing_device_type_trackball;
     // pointing dpi is up to 400+16*200 = 3600, 2 bytes
     (*command_data)[1] = charybdis_get_pointer_default_dpi() & 0xFF;
@@ -48,7 +48,7 @@ void build_pointing_device_info_command_data(uint8_t **command_data) {
 #endif
 #ifdef POINTING_DEVICE_DRIVER_digitizer // Dilemma v3, todo test procyon?
     // TODO move this to other file?...
-    (*command_data)[0] = pointing_device_type_trackpad;
+    (*command_data)[0] = pointing_device_type_trackpad_procyon;
     // pointing dpi is up to 400+16*200 = 3600, 2 bytes
     (*command_data)[1] = dilemma_get_pointer_default_dpi() & 0xFF;
     (*command_data)[2] = (dilemma_get_pointer_default_dpi() >> 8) & 0xFF;
@@ -77,5 +77,73 @@ void build_pointing_device_info_command_data(uint8_t **command_data) {
     // this is hardcoded here as we can't read it from dilemma.c (private
     // config structure dilemma_config_t)
     (*command_data)[14] = 4;
+#endif
+}
+
+void argos_set_dpi(uint8_t *command_data) {
+// TODO dilemma v2
+#ifdef POINTING_DEVICE_DRIVER_pmw3360
+    // new dpi is on 2 bytes:
+    uint16_t new_dpi = command_data[0] | (command_data[1] << 8);
+    // get the old DPI:
+    uint16_t old_dpi = charybdis_get_pointer_default_dpi();
+    // calculate the difference:
+    int16_t difference = new_dpi - old_dpi;
+    // calculate how many steps we need, it could be negative
+    int8_t new_steps = difference / ARGOS_CHARYBDIS_DEFAULT_DPI_CONFIG_STEP;
+    // apply the steps one by one
+    bool forward = new_steps > 0;
+    for (int i = 0; i < abs(new_steps); i++) {
+        charybdis_cycle_pointer_default_dpi(forward);
+    }
+#endif
+#ifdef POINTING_DEVICE_DRIVER_digitizer
+    // new dpi is on 2 bytes:
+    uint16_t new_dpi = command_data[0] | (command_data[1] << 8);
+    // get the old DPI:
+    uint16_t old_dpi = dilemma_get_pointer_default_dpi();
+    // calculate the difference:
+    int16_t difference = new_dpi - old_dpi;
+    // calculate how many steps we need, it could be negative
+    int8_t new_steps = difference / ARGOS_DILEMMA_DEFAULT_DPI_CONFIG_STEP;
+    // apply the steps one by one
+    bool forward = new_steps > 0;
+    for (int i = 0; i < abs(new_steps); i++) {
+        dilemma_cycle_pointer_default_dpi(forward);
+    }
+#endif
+}
+
+void argos_set_sniping_dpi(uint8_t *command_data) {
+// TODO dilemma v2
+#ifdef POINTING_DEVICE_DRIVER_digitizer
+    // new dpi is on 2 bytes:
+    uint16_t new_dpi = command_data[0] | (command_data[1] << 8);
+    // get the old DPI:
+    uint16_t old_dpi = dilemma_get_pointer_sniping_dpi();
+    // calculate the difference:
+    int16_t difference = new_dpi - old_dpi;
+    // calculate how many steps we need, it could be negative
+    int8_t new_steps = difference / ARGOS_DILEMMA_SNIPING_DPI_CONFIG_STEP;
+    // apply the steps one by one
+    bool forward = new_steps > 0;
+    for (int i = 0; i < abs(new_steps); i++) {
+        dilemma_cycle_pointer_sniping_dpi(forward);
+    }
+#endif
+#ifdef POINTING_DEVICE_DRIVER_pmw3360
+    // new dpi is on 2 bytes:
+    uint16_t new_dpi = command_data[0] | (command_data[1] << 8);
+    // get the old DPI:
+    uint16_t old_dpi = charybdis_get_pointer_sniping_dpi();
+    // calculate the difference:
+    int16_t difference = new_dpi - old_dpi;
+    // calculate how many steps we need, it could be negative
+    int8_t new_steps = difference / ARGOS_CHARYBDIS_SNIPING_DPI_CONFIG_STEP;
+    // apply the steps one by one
+    bool forward = new_steps > 0;
+    for (int i = 0; i < abs(new_steps); i++) {
+        charybdis_cycle_pointer_sniping_dpi(forward);
+    }
 #endif
 }

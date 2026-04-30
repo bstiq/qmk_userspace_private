@@ -33,6 +33,8 @@ enum argos_command_id {
     argos_id_get_pointing_device_info = 0x0C,
     argos_id_set_sniping_dpi = 0x0D,
     argos_id_set_combo = 0x0E,
+    argos_id_capture_all_keycodes = 0x0F,
+    argos_id_set_welcome_message_displayed = 0x10,
 };
 
 // At the moment, we only support trackpads and trackballs (for Bastard Keyboards)
@@ -60,8 +62,9 @@ _Static_assert(sizeof(argos_combo_t) <= 13, "Invalid size for argos_combo_t");
 typedef struct PACKED {
     bool has_copied_qmk_config : 1;
     uint8_t themeId;
+    bool has_displayed_welcome_message : 1;
 } argos_config_t;
-_Static_assert(sizeof(argos_config_t) == 2, "Invalid size for argos_config_t");
+_Static_assert(sizeof(argos_config_t) <= 3, "Invalid size for argos_config_t");
 
 #define ARGOS_TAPPING_TERM 175
 #define ARGOS_TAP_CODE_DELAY 10
@@ -90,3 +93,4 @@ void argos_keycode_up(uint16_t keycode);
 void argos_keycode_tap(uint16_t keycode);
 bool argos_tap_dance_read_eeprom(uint8_t index, argos_td_entry_t *entry);
 bool argos_tap_dance_write_eeprom(uint8_t index, const argos_td_entry_t *entry);
+bool process_records_argos_capture_all_keycodes(uint16_t keycode, keyrecord_t *record);

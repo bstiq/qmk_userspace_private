@@ -17,3 +17,13 @@
 #ifdef EXTRA_LONG_COMBOS
 #undef EXTRA_LONG_COMBOS
 #endif
+
+// enables custom global combo term by Argos
+#ifndef COMBO_TERM_PER_COMBO
+#define COMBO_TERM_PER_COMBO
+#endif
+
+// enables custom global tapping term by Argos
+#ifndef TAPPING_TERM_PER_KEY
+#define TAPPING_TERM_PER_KEY
+#endif

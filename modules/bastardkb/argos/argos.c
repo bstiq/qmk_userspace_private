@@ -168,6 +168,8 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
                 command_data[3 + i * 2] | (command_data[4 + i * 2] << 8);
             argos_combo_set_keycode(combo_index, key, i);
         }
+        // reload combo from eeprom
+        argos_combo_load_from_eeprom(combo_index);
         send_data = true; // ack
         break;
     }

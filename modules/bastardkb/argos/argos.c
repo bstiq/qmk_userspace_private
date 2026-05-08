@@ -82,7 +82,7 @@ void keyboard_post_init_argos(void) {
         // this is our first load ever
         argos_combos_copy_from_QMK();
         argos_config.has_copied_qmk_config = true;
-        argos_config.themeId = 13; // default to dark theme
+        argos_config.themeId = 16; // default to dark theme
         argos_config.has_displayed_welcome_message = false;
         argos_config.global_tapping_term = TAPPING_TERM;
         argos_config.global_combo_term = COMBO_TERM;

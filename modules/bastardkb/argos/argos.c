@@ -315,12 +315,21 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
         printf("At position layer %d, row %d, col %d\n", layer, row, col);
 
 
-        // TODO:
+        // TODO: move all this to argos_tapdance.c?
         // read the key at the position, is it already a tap dance?
-        // if not, 
+        const uint16_t current_keycode = dynamic_keymap_get_keycode(layer, row, col);
+        // range for tap dances is 0x5700 to 0x57FF
+        bool is_tap_dance = current_keycode >= 0x5700 && current_keycode < 0x5700 + ARGOS_TAP_DANCE_ENTRIES;
+        if (is_tap_dance) {
+            printf("Position is already a tap dance, modifying it\n");
+        }
+        else{
+            printf("Position is not a tap dance, assigning a new tap dance to it\n");
+            // if it's not a tap dance yet....
             // if we are assigning something else than single tap, then store the previous keycode as the single tap action
             // go through the array of tap dances and find the next one that's empty
             // assign the tap dance (TDX) to the keymap position (layer, row, col)
+        }
         // now we're sure that we have a tap dance and that it's assigned properly. time to modify it
         // we can use the functions from argos_tapdance.c to modify them.
 

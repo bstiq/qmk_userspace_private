@@ -292,6 +292,7 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
         break;
     }
 
+    // TODO delete this
     case argos_id_capture_tap_dance_key: {
         // This command is used to capture the next key press and return it in
         // the response. It is meant to be used when setting up a tap dance, to
@@ -300,6 +301,30 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
         // to process another HID message.
         argos_tap_dance_listen_for_key(command_data);
         break;
+    }
+
+    // set a specific key in a tap dance.
+    case argos_id_set_tap_dance_keycode: {
+        send_data = true; // ack
+        const uint8_t layer  = command_data[0];
+        const uint8_t row   = command_data[1];
+        const uint8_t col   = command_data[2];
+        const uint16_t keycode = command_data[3] | (command_data[4] << 8);
+        const uint8_t tap_dance_index = command_data[5];
+        printf("Setting tap dance index %d key to keycode %d\n", tap_dance_index, keycode);
+        printf("At position layer %d, row %d, col %d\n", layer, row, col);
+
+
+        // TODO:
+        // read the key at the position, is it already a tap dance?
+        // if not, 
+            // if we are assigning something else than single tap, then store the previous keycode as the single tap action
+            // go through the array of tap dances and find the next one that's empty
+            // assign the tap dance (TDX) to the keymap position (layer, row, col)
+        // now we're sure that we have a tap dance and that it's assigned properly. time to modify it
+        // we can use the functions from argos_tapdance.c to modify them.
+
+        break:
     }
 
     case argos_id_delete_tap_dance_key: {

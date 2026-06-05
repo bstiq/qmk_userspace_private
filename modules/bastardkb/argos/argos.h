@@ -37,6 +37,7 @@ enum argos_command_id {
     argos_id_set_welcome_message_displayed = 0x10,
     argos_id_set_global_tapping_term = 0x11,
     argos_id_set_global_combo_term = 0x12,
+    argos_id_set_tap_dance_keycode = 0x13,
 };
 
 // At the moment, we only support trackpads and trackballs (for Bastard Keyboards)

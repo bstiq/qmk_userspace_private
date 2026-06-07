@@ -143,14 +143,14 @@ combo_t key_combos[] = {
  * base layer to avoid having to layer change mid edit and to enable auto-repeat.
  */
 #define LAYOUT_LAYER_NAVIGATION                                                               \
-    _______, _______, LCDPR, LCDNE, _______, _______________DEAD_HALF_ROW_______________, \
+    _______, _______, _______, _______, _______, _______________DEAD_HALF_ROW_______________, \
     ______________HOME_ROW_GACS_L______________, KC_BSPC, KC_LEFT, KC_DOWN,   KC_UP, KC_RGHT, \
     _______________DEAD_HALF_ROW_______________,  KC_DEL, KC_HOME, KC_PGDN, KC_PGUP,  KC_END, \
                       XXXXXXX, _______, XXXXXXX,  KC_ENT, KC_ENT, _______
 
 #define LAYOUT_LAYER_LCD                                                             \
     QK_REG, _______, _______, _______, QK_HELP, _______________DEAD_HALF_ROW_______________, \
-    _______, _______, LCDPR, LCDNE, _______ , _______________DEAD_HALF_ROW_______________, \
+    _______, _______, _______, _______, _______ , _______________DEAD_HALF_ROW_______________, \
     _______________DEAD_HALF_ROW_______________,  _______________DEAD_HALF_ROW_______________, \
                       XXXXXXX, _______, XXXXXXX,  _______, _______, _______
  /**

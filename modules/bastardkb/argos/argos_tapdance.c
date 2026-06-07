@@ -155,15 +155,20 @@ void on_dance_reset(tap_dance_state_t *state, void *user_data) {
     }
 }
 
+void argos_reload_tap_dance(uint8_t index) {
+    if (index >= ARGOS_TAP_DANCE_ENTRIES) return;
+    argos_td_tap_actions[index].fn.on_each_tap = on_dance;
+    argos_td_tap_actions[index].fn.on_dance_finished = on_dance_finished;
+    argos_td_tap_actions[index].fn.on_reset = on_dance_reset;
+    argos_td_tap_actions[index].fn.on_each_release = NULL;
+    argos_td_tap_actions[index].user_data = (void*)(uintptr_t)index;
+}
+
 // TODO function to reload one specific tap dance
 // TODO why does this exist?
 void argos_reload_tap_dances(void) {
     for (size_t i = 0; i < ARGOS_TAP_DANCE_ENTRIES; ++i) {
-        argos_td_tap_actions[i].fn.on_each_tap = on_dance;
-        argos_td_tap_actions[i].fn.on_dance_finished = on_dance_finished;
-        argos_td_tap_actions[i].fn.on_reset = on_dance_reset;
-        argos_td_tap_actions[i].fn.on_each_release = NULL;
-        argos_td_tap_actions[i].user_data = (void*)(uintptr_t)i;
+        argos_reload_tap_dance(i);
     }
 }
 
@@ -266,10 +271,6 @@ void argos_tap_dance_reset_capturing_tap_dance_key_index(uint8_t index) {
 // TODO resets (zero key)
 void argos_tap_dance_set_keycode(uint8_t tap_dance_index, uint16_t keycode,
                              uint8_t key_index) {
-    // Send back the data to the GUI so it knows we received the command
-    uint8_t data[32] = {0};
-    data[0] = ARGOS_CMD_PREFIX;
-    raw_hid_send(data, sizeof(data));
 
     printf("Setting tap dance index %d key %d to keycode %d\n", tap_dance_index, key_index, keycode);
 
@@ -303,7 +304,5 @@ void argos_tap_dance_set_keycode(uint8_t tap_dance_index, uint16_t keycode,
     // argos_tap_dance_set(tap_dance_index, entry);
     
     argos_tap_dance_write_eeprom(tap_dance_index, entry);
-    // TODO reload only one tap dance
-    // TODO why is this needed?
-    argos_reload_tap_dances();
+    argos_reload_tap_dance(tap_dance_index);
 }

@@ -334,10 +334,12 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
             printf("Position is not a tap dance, assigning a new tap dance to it\n");
             // if it's not a tap dance yet....
             // first we need to find an available tap dance entry. We have up to 256 available.
-            argos_td_entry_t entry;
+            argos_td_entry_t *entry;
             for(uint8_t i = 0; i < ARGOS_TAP_DANCE_ENTRIES; i++){
-                argos_tap_dance_read_eeprom(i, &entry);
-                if(entry.on_tap == 0 && entry.on_hold == 0 && entry.on_double_tap == 0 && entry.on_tap_hold == 0){
+                // argos_tap_dance_read_eeprom(i, &entry);
+                entry = argos_tap_dance_get(i);
+
+                if(entry->on_tap == 0 && entry->on_hold == 0 && entry->on_double_tap == 0 && entry->on_tap_hold == 0){
                     // this tap dance is empty, we can use it
                     td_index = i;
                     // assign tap dance keycode to the position on the keymap
@@ -364,7 +366,14 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
                 argos_tap_dance_set_keycode(td_index, keycode, tap_dance_action_index);
             }
         }
-        send_data = true; // ack
+
+        // return the tap dance index that was modified/created, so the webapp can keep track of it
+        // otherwise, the webapp might not know the number of the new tap dance created.
+        command_data[0] = td_index; 
+        command_data[1] = (new_keycode_td >> 8) & 0xFF;
+        command_data[2] = new_keycode_td & 0xFF;
+        printf("data: %d, %d, %d, %d, %d, %d, %d\n", data[0], data[1], data[2], data[3], data[4], data[5], length);
+        send_data = true; 
         break;
     }
 

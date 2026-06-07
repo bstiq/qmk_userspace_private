@@ -215,10 +215,10 @@ void argos_tap_dance_load_from_eeprom(uint8_t index) {
 // Reads a tap dance entry from EEPROM for the specified index.
 bool argos_tap_dance_read_eeprom(uint8_t index, argos_td_entry_t *entry) {
     if (index >= ARGOS_TAP_DANCE_ENTRIES) return false;
-    printf("Reading tap dance %d from eeprom\n", index);
+    // printf("Reading tap dance %d from eeprom\n", index);
     argos_read_eeprom(ARGOS_OFFSET_TAP_DANCE + index * sizeof(argos_td_entry_t),
                        entry, sizeof(argos_td_entry_t));
-    printf("Data: %d, %d, %d, %d, %d, %d\n", entry->on_tap, entry->on_hold, entry->on_double_tap, entry->on_tap_hold, entry->custom_tapping_term, entry->enabled);
+    // printf("Data: %d, %d, %d, %d, %d, %d\n", entry->on_tap, entry->on_hold, entry->on_double_tap, entry->on_tap_hold, entry->custom_tapping_term, entry->enabled);
     return true;
 }
 

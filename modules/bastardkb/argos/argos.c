@@ -304,36 +304,69 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
     }
 
     // set a specific key in a tap dance.
+    // we don't return any data to specify if we succeeded or not, because the webapp will reload the tap dance directly.
     case argos_id_set_tap_dance_keycode: {
         send_data = true; // ack
         const uint8_t layer  = command_data[0];
         const uint8_t row   = command_data[1];
         const uint8_t col   = command_data[2];
-        const uint16_t keycode = command_data[3] | (command_data[4] << 8);
-        const uint8_t tap_dance_index = command_data[5];
-        printf("Setting tap dance index %d key to keycode %d\n", tap_dance_index, keycode);
+        const uint16_t keycode = (command_data[3] << 8) | command_data[4];
+        const uint8_t tap_dance_action_index = command_data[5];
+        printf("Setting tap dance index %d key to keycode %d\n", tap_dance_action_index, keycode);
         printf("At position layer %d, row %d, col %d\n", layer, row, col);
 
 
-        // TODO: move all this to argos_tapdance.c?
+        // TODO: move all this to argos_tapdance.c
         // read the key at the position, is it already a tap dance?
         const uint16_t current_keycode = dynamic_keymap_get_keycode(layer, row, col);
         // range for tap dances is 0x5700 to 0x57FF
-        bool is_tap_dance = current_keycode >= 0x5700 && current_keycode < 0x5700 + ARGOS_TAP_DANCE_ENTRIES;
+        bool is_tap_dance = current_keycode >= QK_TAP_DANCE && current_keycode < QK_TAP_DANCE + ARGOS_TAP_DANCE_ENTRIES;
+        uint8_t td_index = 0;
         if (is_tap_dance) {
-            printf("Position is already a tap dance, modifying it\n");
+            // find the tap dance number: based on the keycode number.
+            td_index = current_keycode - QK_TAP_DANCE;
+            printf("Position is already a tap dance at index %d, modifying it\n", td_index);
+            // reassign the appropriate keycode directly
+            argos_tap_dance_set_keycode(td_index, keycode, tap_dance_action_index);
         }
         else{
             printf("Position is not a tap dance, assigning a new tap dance to it\n");
             // if it's not a tap dance yet....
-            // if we are assigning something else than single tap, then store the previous keycode as the single tap action
-            // go through the array of tap dances and find the next one that's empty
-            // assign the tap dance (TDX) to the keymap position (layer, row, col)
-        }
-        // now we're sure that we have a tap dance and that it's assigned properly. time to modify it
-        // we can use the functions from argos_tapdance.c to modify them.
+            // first we need to find an available tap dance entry. We have up to 256 available.
+            argos_td_entry_t entry;
+            for(uint8_t i = 0; i < ARGOS_TAP_DANCE_ENTRIES; i++){
+                argos_tap_dance_read_eeprom(i, &entry);
+                if(entry.on_tap == 0 && entry.on_hold == 0 && entry.on_double_tap == 0 && entry.on_tap_hold == 0){
+                    // this tap dance is empty, we can use it
+                    td_index = i;
+                    // assign tap dance keycode to the position on the keymap
+                    printf("Found empty tap dance at index %d, assigning it to the position\n", i);
+                    break;
+                }
+            }
 
-        break:
+            // modify the key in the keymap to be a tap dance with the right index
+            uint16_t new_keycode_td = QK_TAP_DANCE + td_index;
+            dynamic_keymap_set_keycode(layer, row, col, new_keycode_td);
+
+            // now we're sure that we have a tap dance and that it's assigned properly. time to modify it        
+            // if we are assigning a single tap, we can directly modify it
+            if(tap_dance_action_index == 0){
+                argos_tap_dance_set_keycode(td_index, keycode, tap_dance_action_index);
+            }
+            // if we are assigning something else than single tap, then store the previous keycode as the single tap action
+            else{
+                printf("Assigning non-single-tap action, setting single tap action to previous keycode at this position\n");
+                printf("Previous key at this position is %d\n", current_keycode);
+                // assign keycode and save in eeprom
+                argos_tap_dance_set_keycode(td_index, current_keycode, 0);
+                argos_tap_dance_set_keycode(td_index, keycode, tap_dance_action_index);
+            }
+
+        }
+
+
+        break;
     }
 
     case argos_id_delete_tap_dance_key: {

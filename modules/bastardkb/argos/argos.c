@@ -306,7 +306,6 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
     // set a specific key in a tap dance.
     // we don't return any data to specify if we succeeded or not, because the webapp will reload the tap dance directly.
     case argos_id_set_tap_dance_keycode: {
-        send_data = true; // ack
         const uint8_t layer  = command_data[0];
         const uint8_t row   = command_data[1];
         const uint8_t col   = command_data[2];
@@ -322,12 +321,14 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
         // range for tap dances is 0x5700 to 0x57FF
         bool is_tap_dance = current_keycode >= QK_TAP_DANCE && current_keycode < QK_TAP_DANCE + ARGOS_TAP_DANCE_ENTRIES;
         uint8_t td_index = 0;
+        uint16_t new_keycode_td = 0;
         if (is_tap_dance) {
             // find the tap dance number: based on the keycode number.
             td_index = current_keycode - QK_TAP_DANCE;
             printf("Position is already a tap dance at index %d, modifying it\n", td_index);
             // reassign the appropriate keycode directly
             argos_tap_dance_set_keycode(td_index, keycode, tap_dance_action_index);
+            new_keycode_td = current_keycode; // no need to change the keycode, it's already a tap dance
         }
         else{
             printf("Position is not a tap dance, assigning a new tap dance to it\n");
@@ -346,7 +347,7 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
             }
 
             // modify the key in the keymap to be a tap dance with the right index
-            uint16_t new_keycode_td = QK_TAP_DANCE + td_index;
+            new_keycode_td = QK_TAP_DANCE + td_index;
             dynamic_keymap_set_keycode(layer, row, col, new_keycode_td);
 
             // now we're sure that we have a tap dance and that it's assigned properly. time to modify it        
@@ -362,10 +363,8 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
                 argos_tap_dance_set_keycode(td_index, current_keycode, 0);
                 argos_tap_dance_set_keycode(td_index, keycode, tap_dance_action_index);
             }
-
         }
-
-
+        send_data = true; // ack
         break;
     }
 

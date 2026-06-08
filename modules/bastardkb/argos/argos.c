@@ -386,12 +386,6 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
         break;
     }
 
-    case argos_id_delete_tap_dance_key: {
-        uint8_t index = command_data[0];
-        argos_tap_dance_reset_capturing_tap_dance_key_index(index);
-        break;
-    }
-
     // TODO
     case argos_id_delete_combo_key: {
         uint8_t key_index = command_data[0];

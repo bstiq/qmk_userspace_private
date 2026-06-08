@@ -369,9 +369,18 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
 
         // return the tap dance index that was modified/created, so the webapp can keep track of it
         // otherwise, the webapp might not know the number of the new tap dance created.
+        argos_td_entry_t *updated_entry = argos_tap_dance_get(td_index);
         command_data[0] = td_index; 
         command_data[1] = (new_keycode_td >> 8) & 0xFF;
         command_data[2] = new_keycode_td & 0xFF;
+        command_data[3] = (updated_entry->on_tap >> 8) & 0xFF;
+        command_data[4] = updated_entry->on_tap & 0xFF;
+        command_data[5] = (updated_entry->on_hold >> 8) & 0xFF;
+        command_data[6] = updated_entry->on_hold & 0xFF;
+        command_data[7] = (updated_entry->on_double_tap >> 8) & 0xFF;
+        command_data[8] = updated_entry->on_double_tap & 0xFF;
+        command_data[9] = (updated_entry->on_tap_hold >> 8) & 0xFF;
+        command_data[10] = updated_entry->on_tap_hold & 0xFF;
         printf("data: %d, %d, %d, %d, %d, %d, %d\n", data[0], data[1], data[2], data[3], data[4], data[5], length);
         send_data = true; 
         break;

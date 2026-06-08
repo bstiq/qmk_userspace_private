@@ -367,9 +367,23 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
             }
         }
 
+        // now, we need to test for a specific case: we might have had a deletion.
+        argos_td_entry_t* updated_entry = argos_tap_dance_get(td_index);
+        if(keycode == 0){
+            // that's fine, we set everything up already for the tap dance.
+            // however, if we deleted everything except the singe tap then we need to turn it back to a normal keycode.
+            if(updated_entry->on_hold == 0 && updated_entry->on_double_tap == 0 && updated_entry->on_tap_hold == 0){
+                printf("Only single tap action left and it's deleted, turning tap dance back to normal keycode\n");
+                dynamic_keymap_set_keycode(layer, row, col, updated_entry->on_tap);
+                // return the keycode to the webapp
+                new_keycode_td = updated_entry->on_tap;
+                // clear the tap dance single tap entry as it's no longer used
+                argos_tap_dance_set_keycode(td_index, 0, 0);
+            }
+        }
+
         // return the tap dance index that was modified/created, so the webapp can keep track of it
         // otherwise, the webapp might not know the number of the new tap dance created.
-        argos_td_entry_t *updated_entry = argos_tap_dance_get(td_index);
         command_data[0] = td_index; 
         command_data[1] = (new_keycode_td >> 8) & 0xFF;
         command_data[2] = new_keycode_td & 0xFF;

@@ -38,6 +38,8 @@ enum argos_command_id {
     argos_id_set_global_tapping_term = 0x11,
     argos_id_set_global_combo_term = 0x12,
     argos_id_set_tap_dance_keycode = 0x13,
+    argos_id_get_rgb_matrix_led_at_position = 0x14,
+    argos_id_set_rgb_matrix_led_at_position = 0x15,
 };
 
 // At the moment, we only support trackpads and trackballs (for Bastard Keyboards)
@@ -71,6 +73,16 @@ typedef struct PACKED {
     uint16_t global_combo_term; // in ms
 } argos_config_t;
 _Static_assert(sizeof(argos_config_t) <= 7, "Invalid size for argos_config_t");
+
+typedef struct PACKED {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    bool transparent : 1;
+    bool on: 1;
+    bool custom: 1;
+} argos_rgb_t;
+_Static_assert(sizeof(argos_rgb_t) <= 4, "Invalid size for argos_rgb_t");
 
 #define ARGOS_TAPPING_TERM 175
 #define ARGOS_TAP_CODE_DELAY 10

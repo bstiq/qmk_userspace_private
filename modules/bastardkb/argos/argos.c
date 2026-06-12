@@ -6,6 +6,7 @@
 #include "argos.h"
 #include "argos_combo.h"
 #include "argos_tapdance.h"
+#include "argos_rgb.h"
 
 #ifdef POINTING_DEVICE_DRIVER_pmw3360
 #include "charybdis.h"
@@ -88,10 +89,12 @@ void keyboard_post_init_argos(void) {
         argos_config.global_combo_term = COMBO_TERM;
         argos_write_eeprom(ARGOS_OFFSET_CONFIG, &argos_config,
                            sizeof(argos_config));
+        argos_rgb_init();
     }
     argos_combos_load_from_eeprom();
     argos_tap_dances_load_from_eeprom();
     argos_reload_tap_dances();
+    argos_rgb_load_from_eeprom();
 }
 
 bool argos_handle_command(uint8_t *data, uint8_t length) {
@@ -404,6 +407,29 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
     case argos_id_delete_combo_key: {
         uint8_t key_index = command_data[0];
         argos_combo_reset_capturing_combo_key_index(key_index);
+        break;
+    }
+
+    case argos_id_get_rgb_matrix_led_at_position: {
+        send_data = true; // ack
+        uint8_t led_layer = command_data[0];
+        uint8_t led_row = command_data[1];
+        uint8_t led_col = command_data[2];
+        uint8_t r = command_data[3];
+        uint8_t g = command_data[4];
+        uint8_t b = command_data[5];
+        bool transparent = command_data[6];
+        bool on = command_data[7];
+        bool custom = command_data[8];
+        printf("Setting RGB matrix LED at position layer %d, row %d, col %d to r %d, g %d, b %d, transparent %d, on %d, custom %d\n", led_layer, led_row, led_col, r, g, b, transparent, on, custom);
+        argos_rgb_set_led_at_position(led_layer, led_row, led_col, r, g, b, transparent, on, custom);
+        break;
+    }
+
+    case argos_id_set_rgb_matrix_led_at_position: {
+        // uint8_t led_layer = command_data[0];
+        // uint8_t led_row = command_data[1];
+        // uint8_t led_col = command_data[2];
         break;
     }
 

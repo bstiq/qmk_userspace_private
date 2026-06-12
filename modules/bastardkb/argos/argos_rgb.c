@@ -39,10 +39,6 @@ void argos_rgb_load_from_eeprom(void) {
 // Layer state indicator
 // for now... just a test
 bool rgb_matrix_indicators_advanced_argos(uint8_t led_min, uint8_t led_max) {
-    if (!rgb_matrix_indicators_advanced_user(led_min, led_max)) {
-        return false;
-    }
-
     // Set all LEDs to a solid color for highest active layer apart from the base layer.
     // const uint8_t layer = get_highest_layer(layer_state);
     // if (layer > 0) {
@@ -68,22 +64,34 @@ bool rgb_matrix_indicators_advanced_argos(uint8_t led_min, uint8_t led_max) {
     // }
 
     // we want to go through all the keys of the current layer, and isolate those that are set (custom = false)
+    // TODO: for now we manually/ugly ignore the underglow RGB (dilemma), later we need a way to handle it
+    // TODO: how to handle led_min, led_max?
+    // issue: the module rgb code is called BEFORE the KB code....... so the kb code will override this.
     const uint8_t layer = get_highest_layer(layer_state);
-    uint16_t min_index = layer * MATRIX_COLS * MATRIX_ROWS;
-    for(int i = min_index; i < min_index + MATRIX_COLS * MATRIX_ROWS; i++) {
-        if(argos_rgb_entries[i].custom) {
-            if(argos_rgb_entries[i].on) {
-                if(argos_rgb_entries[i].transparent == false) {
-                    rgb_matrix_set_color(i, argos_rgb_entries[i].r, argos_rgb_entries[i].g, argos_rgb_entries[i].b);
+    const uint16_t min_index = layer * MATRIX_COLS * MATRIX_ROWS;
+    
+    for(int i = led_min; i < led_max; i++) {
+        const uint16_t index = min_index + i;
+        if(argos_rgb_entries[index].custom) {
+            if(argos_rgb_entries[index].on) {
+                if(argos_rgb_entries[index].transparent == false) {
+                    printf("Processing color for index %d, LED %d", index, i);
+                    rgb_matrix_set_color(i, argos_rgb_entries[index].r, argos_rgb_entries[index].g, argos_rgb_entries[index].b);
                 }
             } else {
                 rgb_matrix_set_color(i, 0, 0, 0);
             }
         }
     }
-
+    
     return true;
-};
+}
+
+// The rgb module code is called BEFORE the KB code, so we need to override the KB code.
+// We can't do that, so instead we override the user code, so that the keyboard code detects it and does not execute.
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    return false;
+}
 
 void argos_rgb_set_led_at_position(uint8_t layer, uint8_t row, uint8_t col, uint8_t r, uint8_t g, uint8_t b, bool transparent, bool on, bool custom) {
     uint16_t index = layer * MATRIX_COLS * MATRIX_ROWS + row * MATRIX_COLS + col;

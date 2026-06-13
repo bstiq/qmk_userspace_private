@@ -63,13 +63,6 @@ bool rgb_matrix_indicators_advanced_argos(uint8_t led_min, uint8_t led_max) {
     //     }
     // }
 
-    // we want to go through all the keys of the current layer, and isolate those that are set (custom = false)
-    // TODO: for now we manually/ugly ignore the underglow RGB (dilemma), later we need a way to handle it
-    // TODO: how to handle led_min, led_max?
-    // issue: the module rgb code is called BEFORE the KB code....... so the kb code will override this.
-
-    // the MIN will be the first led of the currently connected side.
-    // so if the right side is connected on the dilemma 35, led_min will start at 36 and go in batches of 15 all the way to 72
     const uint8_t layer = get_highest_layer(layer_state);
     const uint16_t min_index = layer * MATRIX_COLS * MATRIX_ROWS;
 
@@ -81,8 +74,6 @@ bool rgb_matrix_indicators_advanced_argos(uint8_t led_min, uint8_t led_max) {
         if(argos_rgb_entries[index].custom) {
             if(argos_rgb_entries[index].on) {
                 if(argos_rgb_entries[index].transparent == false) {
-                    // printf("Processing color for index %d, LED %d\n", index, i);
-                    // TODO FIX CHEAT
                     rgb_matrix_set_color(i, argos_rgb_entries[index].r, argos_rgb_entries[index].g, argos_rgb_entries[index].b);
                 }
             } else {
@@ -101,16 +92,14 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 }
 
 /*
-    TODO: we do a little bit of cheating here.
-    The dilemma has underglow, so we hardcoded the index offset to 36.
-    Later, the web interface needs to also be able to handle underglow.
+    TODO: we don't need row and col here.
 */
-void argos_rgb_set_led_at_position(uint8_t layer, uint8_t row, uint8_t col, uint8_t r, uint8_t g, uint8_t b, bool transparent, bool on, bool custom, uint8_t offset) {
-    uint16_t index = layer * MATRIX_COLS * MATRIX_ROWS + row * MATRIX_COLS + col;
-    printf("Setting RGB matrix LED at position index %d, layer %d, row %d, col %d to r %d, g %d, b %d, transparent %d, on %d, custom %d, offset %d\n", index, layer, row, col, r, g, b, transparent, on, custom, offset);
-    argos_rgb_entries[index + offset] = (argos_rgb_t){r, g, b, transparent, on, custom};
-    // TODO this is a lot of writes
-    argos_write_eeprom(ARGOS_OFFSET_RGB_MATRIX + index * sizeof(argos_rgb_t), &argos_rgb_entries[index], sizeof(argos_rgb_t));
+void argos_rgb_set_led_at_position(uint8_t layer, uint8_t row, uint8_t col, uint8_t r, uint8_t g, uint8_t b, bool transparent, bool on, bool custom, uint8_t offset, uint8_t index) {
+    uint16_t baseIndex = layer * MATRIX_COLS * MATRIX_ROWS;
+    printf("Setting RGB matrix LED at position %d\n", baseIndex + index + offset);
+    argos_rgb_entries[baseIndex + index + offset] = (argos_rgb_t){r, g, b, transparent, on, custom};
+    // TODO this is a lot of writes potentially
+    argos_write_eeprom(ARGOS_OFFSET_RGB_MATRIX + (baseIndex + index + offset) * sizeof(argos_rgb_t), &argos_rgb_entries[index], sizeof(argos_rgb_t));
 }
 
 // TODO function that reads the whole LED "keymap", just like the regular keymap. It means buffering etc :( my favourite

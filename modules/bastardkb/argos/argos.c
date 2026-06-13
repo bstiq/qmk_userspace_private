@@ -417,16 +417,17 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
     case argos_id_set_rgb_matrix_led_at_position: {
         send_data = true; // ack
         uint8_t led_layer = command_data[0];
-        uint8_t led_row = command_data[1];
-        uint8_t led_col = command_data[2];
-        uint8_t r = command_data[3];
+        uint8_t led_row = command_data[1]; // legacy
+        uint8_t led_col = command_data[2]; // legacy
+        uint8_t r = command_data[3]; 
         uint8_t g = command_data[4];
         uint8_t b = command_data[5];
         bool transparent = command_data[6];
         bool on = command_data[7];
         bool custom = command_data[8];
         uint8_t offset = command_data[9];
-        argos_rgb_set_led_at_position(led_layer, led_row, led_col, r, g, b, transparent, on, custom, offset);
+        uint8_t index = command_data[10];
+        argos_rgb_set_led_at_position(led_layer, led_row, led_col, r, g, b, transparent, on, custom, offset, index);
         break;
     }
 

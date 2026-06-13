@@ -27,3 +27,6 @@
 #ifndef TAPPING_TERM_PER_KEY
 #define TAPPING_TERM_PER_KEY
 #endif
+
+// More available live storage! Useful for tap dances and RGB
+#define WEAR_LEVELING_BACKING_SIZE 131072

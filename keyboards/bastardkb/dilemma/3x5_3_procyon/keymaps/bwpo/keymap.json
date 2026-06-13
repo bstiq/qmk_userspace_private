@@ -6,5 +6,10 @@
         [
             "Hello world!\n"
         ]
-    ]
+    ],
+    "eeprom": {
+        "wear_leveling": {
+            "backing_size": 131072
+        }
+    }
 }

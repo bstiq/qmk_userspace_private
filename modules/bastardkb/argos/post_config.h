@@ -27,8 +27,8 @@
 #if defined(POINTING_DEVICE_DRIVER_digitizer) || defined(CIRQUE_PINNACLE_DIAMETER_MM)
 // dilemma, with underglow
 // dilemma 36 -> 10 layers * 36 keys * 2 (underglow + per key) = 720
-// dilemma 58 -> 7 layers * 58 keys * 2 (underglow + per key) = 812
-#define ARGOS_RGB_MATRIX_ENTRIES 500
+// dilemma 58 -> 10 layers * 58 keys * 2 (underglow + per key) = 1160
+#define ARGOS_RGB_MATRIX_ENTRIES 1160
 #else
 // others, no underglow
 #define ARGOS_RGB_MATRIX_ENTRIES MATRIX_COLS*MATRIX_ROWS*10 // up to 58 keys, up to 10 layers

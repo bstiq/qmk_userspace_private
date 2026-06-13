@@ -425,8 +425,8 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
         bool transparent = command_data[6];
         bool on = command_data[7];
         bool custom = command_data[8];
-        printf("Setting RGB matrix LED at position layer %d, row %d, col %d to r %d, g %d, b %d, transparent %d, on %d, custom %d\n", led_layer, led_row, led_col, r, g, b, transparent, on, custom);
-        argos_rgb_set_led_at_position(led_layer, led_row, led_col, r, g, b, transparent, on, custom);
+        uint8_t offset = command_data[9];
+        argos_rgb_set_led_at_position(led_layer, led_row, led_col, r, g, b, transparent, on, custom, offset);
         break;
     }
 

@@ -411,6 +411,18 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
     }
 
     case argos_id_get_rgb_matrix_led_at_position: {
+        send_data = true;
+        uint8_t layer = command_data[0];
+        uint8_t index = command_data[1];
+        uint8_t offset = command_data[2];
+        argos_rgb_t entry = {0};
+        argos_rgb_get_led_at_position(&entry, layer, index, offset);
+        command_data[0] = entry.r;
+        command_data[1] = entry.g;
+        command_data[2] = entry.b;
+        command_data[3] = entry.passthrough;
+        command_data[4] = entry.on;
+        command_data[5] = entry.custom;
         break;
     }
 
@@ -422,12 +434,12 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
         uint8_t r = command_data[3]; 
         uint8_t g = command_data[4];
         uint8_t b = command_data[5];
-        bool transparent = command_data[6];
+        bool passthrough = command_data[6];
         bool on = command_data[7];
         bool custom = command_data[8];
         uint8_t offset = command_data[9];
         uint8_t index = command_data[10];
-        argos_rgb_set_led_at_position(led_layer, led_row, led_col, r, g, b, transparent, on, custom, offset, index);
+        argos_rgb_set_led_at_position(led_layer, led_row, led_col, r, g, b, passthrough, on, custom, offset, index);
         break;
     }
 

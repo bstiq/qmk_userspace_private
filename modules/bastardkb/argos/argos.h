@@ -78,7 +78,7 @@ typedef struct PACKED {
     uint8_t r;
     uint8_t g;
     uint8_t b;
-    bool transparent : 1;
+    bool passthrough : 1;
     bool on: 1;
     bool custom: 1;
 } argos_rgb_t;

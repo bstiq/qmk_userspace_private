@@ -26,13 +26,12 @@
 #define ARGOS_OFFSET_RGB_MATRIX (ARGOS_OFFSET_TAP_DANCE + ARGOS_SIZE_TAP_DANCES)
 #if defined(POINTING_DEVICE_DRIVER_digitizer) || defined(CIRQUE_PINNACLE_DIAMETER_MM)
 // dilemma, with underglow
-// dilemma 36 -> 10 layers * 36 keys * 2 (underglow + per key) = 720
-// dilemma 58 -> 10 layers * 58 keys * 2 (underglow + per key) = 1160
-#define ARGOS_RGB_MATRIX_ENTRIES 1160
+#define RGB_ENTRIES_PER_LAYER MATRIX_COLS*MATRIX_ROWS*2
 #else
 // others, no underglow
-#define ARGOS_RGB_MATRIX_ENTRIES MATRIX_COLS*MATRIX_ROWS*10 // up to 58 keys, up to 10 layers
+#define RGB_ENTRIES_PER_LAYER MATRIX_COLS*MATRIX_ROWS
 #endif
+#define ARGOS_RGB_MATRIX_ENTRIES RGB_ENTRIES_PER_LAYER*10 // up to 10 layers supported
 #define ARGOS_SIZE_RGB_MATRIX_KEY_DATA 5
 #define ARGOS_SIZE_RGB_MATRIX_ENTRIES (ARGOS_RGB_MATRIX_ENTRIES * ARGOS_SIZE_RGB_MATRIX_KEY_DATA)
 

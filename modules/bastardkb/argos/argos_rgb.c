@@ -1,5 +1,6 @@
 #include "argos_rgb.h"
 #include "argos.h"
+#include "transactions.h"
 
 static argos_rgb_t argos_rgb_entries[ARGOS_RGB_MATRIX_ENTRIES];
 
@@ -95,13 +96,44 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     TODO: we don't need row and col here.
 */
 void argos_rgb_set_led_at_position(uint8_t layer, uint8_t row, uint8_t col, uint8_t r, uint8_t g, uint8_t b, bool passthrough, bool on, bool custom, uint8_t offset, uint8_t index) {
-    uint16_t baseIndex = layer * RGB_ENTRIES_PER_LAYER;
-    uint16_t keyIndex = baseIndex + index + offset;
-    printf("Setting RGB matrix LED at position %d\n", keyIndex);
-    printf("Rows: %d, Cols: %d, Offset: %d, Index: %d\n", MATRIX_ROWS, MATRIX_COLS, offset, index);
+    if (is_keyboard_master()) {
+        uint16_t baseIndex = layer * RGB_ENTRIES_PER_LAYER;
+        uint16_t keyIndex = baseIndex + index + offset;
+        argos_rgb_handle_set_led_at_position(keyIndex, r, g, b, passthrough, on, custom);
+        // we need to send over: keyindex, r, g, b, passthrough, on, custom. uint16 + uint8, we'll send everything as uint16t to make it more simple.
+        uint16_t data[] = {keyIndex, r, g, b, passthrough, on, custom};
+
+        transaction_rpc_send(RPC_ID_RGB_SYNC, sizeof(data), data);
+    }
+}
+
+void argos_rgb_handle_set_led_at_position(uint16_t keyIndex, uint8_t r, uint8_t g, uint8_t b, bool passthrough, bool on, bool custom) {
+    // printf("Setting RGB matrix LED at position %d\n", keyIndex);
+    // printf("Rows: %d, Cols: %d, Offset: %d, Index: %d\n", MATRIX_ROWS, MATRIX_COLS, offset, index);
     argos_rgb_entries[keyIndex] = (argos_rgb_t){r, g, b, passthrough, on, custom};
     // TODO this is a lot of writes potentially
     argos_write_eeprom(ARGOS_OFFSET_RGB_MATRIX + keyIndex * sizeof(argos_rgb_t), &argos_rgb_entries[keyIndex], sizeof(argos_rgb_t));
+}
+
+// secondary side
+void rgb_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
+    // if (!is_keyboard_master()) {
+    //     if (initiator2target_buffer_size == sizeof(dilemma_status_t)) {
+    //         dilemma_status = *(const dilemma_status_t*)initiator2target_buffer;
+    //     }
+    // }
+    if(!is_keyboard_master()) {
+        // TODO check data size
+        uint16_t *data = (uint16_t*)initiator2target_buffer;
+        uint16_t keyIndex = data[0];
+        uint8_t r = data[1];
+        uint8_t g = data[2];
+        uint8_t b = data[3];
+        bool passthrough = data[4];
+        bool on = data[5];
+        bool custom = data[6];
+        argos_rgb_handle_set_led_at_position(keyIndex, r, g, b, passthrough, on, custom);
+    }
 }
 
 // TODO function that reads the whole LED "keymap", just like the regular keymap. It means buffering etc :( my favourite

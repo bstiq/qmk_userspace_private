@@ -95,6 +95,9 @@ void keyboard_post_init_argos(void) {
     argos_tap_dances_load_from_eeprom();
     argos_reload_tap_dances();
     argos_rgb_load_from_eeprom();
+
+    // for rgb sync, needed for propagating changes
+    transaction_register_rpc(RPC_ID_RGB_SYNC, rgb_sync_handler);
 }
 
 bool argos_handle_command(uint8_t *data, uint8_t length) {

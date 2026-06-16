@@ -5,12 +5,12 @@
 static argos_rgb_t argos_rgb_entries[ARGOS_RGB_MATRIX_ENTRIES];
 
 void argos_rgb_init(void) {
-    // layer 0 is transparent
+    // // layer 0 is transparent
     for(int i = 0; i < RGB_ENTRIES_PER_LAYER; i++) {
         argos_rgb_entries[i] = (argos_rgb_t){0, 0, 0, false, false, false};
     }
     // default: per-layer rgb
-// TODO remove hardcoded 10 layers max value
+    // TODO remove hardcoded 10 layers max value
     for(int layer = 1; layer < 10; layer++) {
         // pick 10 different colors, easier to do in HSV
         HSV hsv = (HSV){layer * 360 / 10, 255, 255};
@@ -19,7 +19,13 @@ void argos_rgb_init(void) {
             argos_rgb_entries[layer * RGB_ENTRIES_PER_LAYER + i] = (argos_rgb_t){rgb.r, rgb.g, rgb.b, false, true, true};
         }
     }
-    // save in eeprom
+    // for(int layer = 0; layer < 10; layer++) {
+    //     // pick 10 different colors, easier to do in HSV
+    //     RGB rgb = (RGB){0, 0, 0};
+    //     for(int i = 0; i < RGB_ENTRIES_PER_LAYER; i++) {
+    //         argos_rgb_entries[layer * RGB_ENTRIES_PER_LAYER + i] = (argos_rgb_t){rgb.r, rgb.g, rgb.b, false, true, false};
+    //     }
+    // }
     argos_write_eeprom(ARGOS_OFFSET_RGB_MATRIX, argos_rgb_entries, sizeof(argos_rgb_entries));
 }
 
@@ -51,34 +57,8 @@ void argos_rgb_load_from_eeprom(void) {
 // Layer state indicator
 // for now... just a test
 bool rgb_matrix_indicators_advanced_argos(uint8_t led_min, uint8_t led_max) {
-    // Set all LEDs to a solid color for highest active layer apart from the base layer.
-    // const uint8_t layer = get_highest_layer(layer_state);
-    // if (layer > 0) {
-    //     HSV hsv = _get_hsv_for_layer_index(layer);
-
-    //     // Set brightness to the configured interval brighter than current brightness, clamped to 255 (ie. uint8_t max value). This compensates for the dimmer appearance of the underglow LEDs.
-    //     hsv.v         = MIN(rgb_matrix_get_val(), 255);
-    //     const RGB rgb = hsv_to_rgb(hsv);
-
-    //     for (int i = led_min; i < led_max; i++) {
-    //         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
-    //     }
-    // }
-
-    // // Set underglow LEDs to red if caps lock is enabled
-    // if (host_keyboard_led_state().caps_lock) {
-    //     for (int i = led_min; i <= led_max; i++) {
-    //         if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
-    //             // set modifier-flagged LEDs to a pure a configured interval brighter than the current brightness, clamped to 255 (ie. uint8_t max value).
-    //             rgb_matrix_set_color(i, MIN(rgb_matrix_get_val(), 255), 0, 0);
-    //         }
-    //     }
-    // }
-
     const uint8_t layer = get_highest_layer(layer_state);
     const uint16_t min_index = layer * RGB_ENTRIES_PER_LAYER;
-
-    // printf("min: %d, max: %d\n", led_min, led_max);
     
     for(int i = led_min; i < led_max; i++) {
         const uint16_t index = min_index + i;
@@ -86,7 +66,15 @@ bool rgb_matrix_indicators_advanced_argos(uint8_t led_min, uint8_t led_max) {
         if(argos_rgb_entries[index].custom) {
             if(argos_rgb_entries[index].on) {
                 if(argos_rgb_entries[index].passthrough == false) {
-                    rgb_matrix_set_color(i, argos_rgb_entries[index].r, argos_rgb_entries[index].g, argos_rgb_entries[index].b);
+                    // manually convert RGB to HSV
+                    hsv_t hsv = rgb_to_hsv(argos_rgb_entries[index].r, argos_rgb_entries[index].g, argos_rgb_entries[index].b);
+
+                    // set to current brightness
+                    hsv.v = rgb_matrix_get_val();
+
+                    // convert back to rgb
+                    rgb_t rgb = hsv_to_rgb(hsv);
+                    rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
                 }
             } else {
                 rgb_matrix_set_color(i, 0, 0, 0);
@@ -153,3 +141,53 @@ void argos_rgb_get_led_at_position(argos_rgb_t *entry, uint8_t layer, uint8_t in
     uint16_t baseIndex = layer * RGB_ENTRIES_PER_LAYER;
     *entry = argos_rgb_entries[baseIndex + index + offset];
 }
+
+hsv_t rgb_to_hsv(uint8_t red, uint8_t green, uint8_t blue)
+{
+    double h, s, v;
+    double      min, max, delta;
+
+    min = red < green ? red : green;
+    min = min  < blue ? min  : blue;
+
+    max = red > green ? red : green;
+    max = max  > blue ? max  : blue;
+
+    v = max;                                // v
+    delta = max - min;
+    if (delta < 0.00001)
+    {
+        s = 0;
+        h = 0; // undefined, maybe nan?
+        return (hsv_t){h, s, v};
+    }
+    if( max > 0.0 ) { // NOTE: if Max is == 0, this divide would cause a crash
+        s = (delta / max);                  // s
+    } else {
+        // if max is 0, then r = g = b = 0              
+        // s = 0, h is undefined
+        s = 0;
+        h = 0;                            // its now undefined
+        return (hsv_t){h, s, v};
+    }
+    if( red >= max )                           // > is bogus, just keeps compilor happy
+        h = ( green - blue ) / delta;        // between yellow & magenta
+    else if( green >= max )
+        h = 2.0 + ( blue - red ) / delta;  // between cyan & yellow
+    else
+        h = 4.0 + ( red - green ) / delta;  // between magenta & cyan
+
+    h *= 60.0;                              // degrees
+
+    if( h < 0.0 )
+        h += 360.0;
+
+    // align with QMK (expects values between 0 and 255)
+    hsv_t out = (hsv_t){0, 0, 0};
+    out.s = (uint8_t)(s * 255); // align with QMK
+    out.v = (uint8_t)(v * 255); // align with QMK
+    out.h = (uint8_t)(h/360 * 255); // align with QMK
+
+    return out;
+}
+

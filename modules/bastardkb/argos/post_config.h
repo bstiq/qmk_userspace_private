@@ -10,6 +10,9 @@
     TODO: fix.
 */
 
+// for rgb mostly
+#define SPLIT_LAYER_STATE_ENABLE
+
 #define ARGOS_OFFSET_CONFIG 0
 #define ARGOS_SIZE_CONFIG 7
 

@@ -5,10 +5,20 @@
 static argos_rgb_t argos_rgb_entries[ARGOS_RGB_MATRIX_ENTRIES];
 
 void argos_rgb_init(void) {
-    for(int i = 0; i < ARGOS_RGB_MATRIX_ENTRIES; i++) {
+    // layer 0 is transparent
+    for(int i = 0; i < RGB_ENTRIES_PER_LAYER; i++) {
         argos_rgb_entries[i] = (argos_rgb_t){0, 0, 0, false, false, false};
     }
-    // save zeros in eeprom
+    // default: per-layer rgb
+    for(int layer = 1; layer < 10; layer++) {
+        // pick 10 different colors, easier to do in HSV
+        HSV hsv = (HSV){layer * 360 / 10, 255, 255};
+        RGB rgb = hsv_to_rgb(hsv);
+        for(int i = 0; i < RGB_ENTRIES_PER_LAYER; i++) {
+            argos_rgb_entries[layer * RGB_ENTRIES_PER_LAYER + i] = (argos_rgb_t){rgb.r, rgb.g, rgb.b, false, true, true};
+        }
+    }
+    // save in eeprom
     argos_write_eeprom(ARGOS_OFFSET_RGB_MATRIX, argos_rgb_entries, sizeof(argos_rgb_entries));
 }
 

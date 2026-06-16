@@ -10,6 +10,7 @@ void argos_rgb_init(void) {
         argos_rgb_entries[i] = (argos_rgb_t){0, 0, 0, false, false, false};
     }
     // default: per-layer rgb
+// TODO remove hardcoded 10 layers max value
     for(int layer = 1; layer < 10; layer++) {
         // pick 10 different colors, easier to do in HSV
         HSV hsv = (HSV){layer * 360 / 10, 255, 255};

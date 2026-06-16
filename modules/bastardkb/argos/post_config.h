@@ -31,6 +31,7 @@
 // others, no underglow
 #define RGB_ENTRIES_PER_LAYER MATRIX_COLS*MATRIX_ROWS
 #endif
+// TODO remove hardcoded 10 layers max value
 #define ARGOS_RGB_MATRIX_ENTRIES RGB_ENTRIES_PER_LAYER*10 // up to 10 layers supported
 #define ARGOS_SIZE_RGB_MATRIX_KEY_DATA 5
 #define ARGOS_SIZE_RGB_MATRIX_ENTRIES (ARGOS_RGB_MATRIX_ENTRIES * ARGOS_SIZE_RGB_MATRIX_KEY_DATA)

@@ -101,8 +101,6 @@ void argos_rgb_set_led_at_position(uint8_t layer, uint8_t row, uint8_t col, uint
 }
 
 void argos_rgb_handle_set_led_at_position(uint16_t keyIndex, uint8_t r, uint8_t g, uint8_t b, bool passthrough, bool on, bool custom) {
-    // printf("Setting RGB matrix LED at position %d\n", keyIndex);
-    // printf("Rows: %d, Cols: %d, Offset: %d, Index: %d\n", MATRIX_ROWS, MATRIX_COLS, offset, index);
     argos_rgb_entries[keyIndex] = (argos_rgb_t){r, g, b, passthrough, on, custom};
     // TODO this is a lot of writes potentially
     argos_write_eeprom(ARGOS_OFFSET_RGB_MATRIX + keyIndex * sizeof(argos_rgb_t), &argos_rgb_entries[keyIndex], sizeof(argos_rgb_t));
@@ -110,11 +108,6 @@ void argos_rgb_handle_set_led_at_position(uint16_t keyIndex, uint8_t r, uint8_t 
 
 // secondary side
 void rgb_sync_handler(uint8_t initiator2target_buffer_size, const void* initiator2target_buffer, uint8_t target2initiator_buffer_size, void* target2initiator_buffer) {
-    // if (!is_keyboard_master()) {
-    //     if (initiator2target_buffer_size == sizeof(dilemma_status_t)) {
-    //         dilemma_status = *(const dilemma_status_t*)initiator2target_buffer;
-    //     }
-    // }
     if(!is_keyboard_master()) {
         // TODO check data size
         uint16_t *data = (uint16_t*)initiator2target_buffer;
@@ -135,60 +128,3 @@ void argos_rgb_get_led_at_position(argos_rgb_t *entry, uint8_t layer, uint8_t in
     uint16_t baseIndex = layer * RGB_ENTRIES_PER_LAYER;
     *entry = argos_rgb_entries[baseIndex + index + offset];
 }
-
-// rgb_t key_with_max_brightness(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
-//     hsv_t hsv = rgb_to_hsv(r, g, b);
-//     hsv.v = brightness;
-//     return hsv_to_rgb(hsv);
-// }
-
-// // Here we don't care about V, since we will set it to the global brightness later
-// hsv_t rgb_to_hsv(uint8_t red, uint8_t green, uint8_t blue)
-// {
-//     double h, s, v;
-//     double      min, max, delta;
-
-//     min = red < green ? red : green;
-//     min = min  < blue ? min  : blue;
-
-//     max = red > green ? red : green;
-//     max = max  > blue ? max  : blue;
-
-//     v = max;                                // v
-//     delta = max - min;
-//     if (delta < 0.00001)
-//     {
-//         s = 0;
-//         h = 0; // undefined, maybe nan?
-//         return (hsv_t){h, s, v};
-//     }
-//     if( max > 0.0 ) { // NOTE: if Max is == 0, this divide would cause a crash
-//         s = (delta / max);                  // s
-//     } else {
-//         // if max is 0, then r = g = b = 0              
-//         // s = 0, h is undefined
-//         s = 0;
-//         h = 0;                            // its now undefined
-//         return (hsv_t){h, s, v};
-//     }
-//     if( red >= max )                           // > is bogus, just keeps compilor happy
-//         h = ( green - blue ) / delta;        // between yellow & magenta
-//     else if( green >= max )
-//         h = 2.0 + ( blue - red ) / delta;  // between cyan & yellow
-//     else
-//         h = 4.0 + ( red - green ) / delta;  // between magenta & cyan
-
-//     h *= 60.0;                              // degrees
-
-//     if( h < 0.0 )
-//         h += 360.0;
-
-//     // align with QMK (expects values between 0 and 255)
-//     hsv_t out = (hsv_t){0, 0, 0};
-//     out.s = (uint8_t)(s * 255); // align with QMK
-//     out.v = (uint8_t)(v * 255); // align with QMK
-//     out.h = (uint8_t)(h/360 * 255); // align with QMK
-
-//     return out;
-// }
-

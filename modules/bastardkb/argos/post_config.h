@@ -13,6 +13,12 @@
 // for rgb mostly
 #define SPLIT_LAYER_STATE_ENABLE
 
+// increase layer amount
+#ifdef DYNAMIC_KEYMAP_LAYER_COUNT
+#undef DYNAMIC_KEYMAP_LAYER_COUNT
+#endif
+#define DYNAMIC_KEYMAP_LAYER_COUNT 7
+
 #define ARGOS_OFFSET_CONFIG 0
 #define ARGOS_SIZE_CONFIG 7
 

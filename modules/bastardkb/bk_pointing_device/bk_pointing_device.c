@@ -161,7 +161,24 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
      g_bk_pointing_device_config.is_dragscroll_enabled = enable;
      maybe_update_bk_pointing_device_cpi(&g_bk_pointing_device_config);
  }
- 
+
+  /**
+  * \brief Augment the pointing device behavior.
+  *
+  * Corrects for sensor angle on Dilemma
+  */
+//   #ifdef DILEMMA_TRACKBALL
+  static void bk_pointing_device_task_pointing_device_dilemma(report_mouse_t* mouse_report) {
+    const int16_t dx = mouse_report->x;
+    const int16_t dy = mouse_report->y;
+    float x = (0.214*dx + 0.581*dy);
+    float y = (-0.329*dx  + 0.377*dy);
+
+    mouse_report->x = (int16_t)(x);
+    mouse_report->y = (int16_t)(y);
+}
+// #endif
+
  /**
   * \brief Augment the pointing device behavior.
   *
@@ -196,6 +213,9 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
  
  report_mouse_t bk_pointing_device_task_kb(report_mouse_t mouse_report) {
      if (is_keyboard_master()) {
+// #ifdef DILEMMA_TRACKBALL
+        bk_pointing_device_task_pointing_device_dilemma(&mouse_report);
+// #endif
          bk_pointing_device_task_pointing_device(&mouse_report);
          mouse_report = pointing_device_task_user(mouse_report);
      }

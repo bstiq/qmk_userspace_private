@@ -1,6 +1,6 @@
 {
     "modules": [
-        "bastardkb/pointing_device"
+        "bastardkb/argos"
     ],
     "macros": [
         [

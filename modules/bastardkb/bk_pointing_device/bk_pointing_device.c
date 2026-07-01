@@ -21,6 +21,7 @@
  #include "bk_pointing_device.h"
  #include "transactions.h"
  #include <string.h>
+ #include "math.h"
  
  #ifdef CONSOLE_ENABLE
  #    include "print.h"
@@ -169,13 +170,28 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
   */
 //   #ifdef DILEMMA_TRACKBALL
   static void bk_pointing_device_task_pointing_device_dilemma(report_mouse_t* mouse_report) {
-    const int16_t dx = mouse_report->x;
-    const int16_t dy = mouse_report->y;
-    float x = (0.214*dx + 0.581*dy);
-    float y = (-0.329*dx  + 0.377*dy);
+    // const int16_t dx = mouse_report->x;
+    // const int16_t dy = mouse_report->y;
+    // float x = (0.214*dx + 0.581*dy);
+    // float y = (-0.329*dx  + 0.377*dy);
 
-    mouse_report->x = (int16_t)(x);
-    mouse_report->y = (int16_t)(y);
+    // mouse_report->x = (int16_t)(x);
+    // mouse_report->y = (int16_t)(y);
+
+// 33 degrees
+// cos = 0.838671
+// sin = 0.544639
+
+const int16_t dx = mouse_report->x;
+const int16_t dy = mouse_report->y;
+const float yaw_deg = 33.0f;
+const float yaw_rad = yaw_deg * (3.14159265358979323846f / 180.0f);
+const float c = cosf(yaw_rad);
+const float s = sinf(yaw_rad);
+const float out_x = dx * c + dy * s;
+const float out_y = -dx * s + dy * c;
+mouse_report->x = (int16_t)out_x;
+mouse_report->y = (int16_t)out_y;
 }
 // #endif
 

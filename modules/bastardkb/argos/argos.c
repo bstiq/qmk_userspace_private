@@ -8,6 +8,7 @@
 #include "argos_tapdance.h"
 #include "argos_rgb.h"
 
+// TODO manage dilemma + trackball....
 #ifdef POINTING_DEVICE_DRIVER_pmw3360
 #include "charybdis.h"
 #endif

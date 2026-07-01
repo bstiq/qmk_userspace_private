@@ -1,6 +1,6 @@
 {
     "modules": [
-        "bastardkb/trackball"
+        "bastardkb/pointing_device"
     ],
     "macros": [
         [

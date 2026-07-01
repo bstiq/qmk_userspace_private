@@ -8,13 +8,14 @@
 #include "argos_tapdance.h"
 #include "argos_rgb.h"
 
-// TODO manage dilemma + trackball....
-#ifdef POINTING_DEVICE_DRIVER_pmw3360
-#include "charybdis.h"
-#endif
-#ifdef POINTING_DEVICE_DRIVER_digitizer // TODO dilemma v2 / cirque
-#include "dilemma.h"
-#endif
+// TODO manage charybdis, and dilemma cirque
+// should not be needed anymore since we use the bk_pointing_device module
+// #ifdef POINTING_DEVICE_DRIVER_pmw3360
+// #include "charybdis.h"
+// #endif
+// #ifdef POINTING_DEVICE_DRIVER_digitizer // TODO dilemma v2 / cirque
+// #include "dilemma.h"
+// #endif
 
 #include "eeconfig.h"
 #include "eeprom.h"

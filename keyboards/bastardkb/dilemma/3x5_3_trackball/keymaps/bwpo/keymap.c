@@ -17,6 +17,7 @@
  */
 
 #include "config.h"
+#include "bk_pointing_device.h"
 #include QMK_KEYBOARD_H
 
 enum dilemma_keymap_layers {

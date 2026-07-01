@@ -170,36 +170,15 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
   */
 //   #ifdef DILEMMA_TRACKBALL
   static void bk_pointing_device_task_pointing_device_dilemma(report_mouse_t* mouse_report) {
-    // const int16_t dx = mouse_report->x;
-    // const int16_t dy = mouse_report->y;
-    // float x = (0.214*dx + 0.581*dy);
-    // float y = (-0.329*dx  + 0.377*dy);
-
-    // mouse_report->x = (int16_t)(x);
-    // mouse_report->y = (int16_t)(y);
-
-// 33 degrees
-// cos = 0.838671
-// sin = 0.544639
-
-const int16_t dx = mouse_report->x;
-const int16_t dy = mouse_report->y;
-const float yaw_deg = 33.0f;
-const float pitch_deg = 23.1f;
-const float deg_to_rad = 3.14159265358979323846f / 180.0f;
-const float yaw_rad = yaw_deg * deg_to_rad;
-const float pitch_rad = pitch_deg * deg_to_rad;
-const float c = cosf(yaw_rad);
-const float s = sinf(yaw_rad);
-const float pitch_scale = 1.0f / cosf(pitch_rad);
-// Pitch correction first.
-const float px = dx;
-const float py = dy * pitch_scale;
-// Yaw rotation second.
-const float out_x = px * c + py * s;
-const float out_y = -px * s + py * c;
-mouse_report->x = (int16_t)out_x*3;
-mouse_report->y = (int16_t)out_y;
+    float dx = (float)mouse_report->x;
+    float dy = (float)mouse_report->y;
+    float k = 1 / cos(66.9);
+    float x = dx * k;
+    float y = dy;
+    float out_x = x * cos(33) + y * sin(33);
+    float out_y = -x * sin(33) + y * cos(33);
+    mouse_report->x = (int16_t)out_x;
+    mouse_report->y = (int16_t)out_y;
 }
 // #endif
 
@@ -235,8 +214,9 @@ mouse_report->y = (int16_t)out_y;
      }
  }
  
- report_mouse_t bk_pointing_device_task_kb(report_mouse_t mouse_report) {
+ report_mouse_t pointing_device_task_bk_pointing_device(report_mouse_t mouse_report) {
      if (is_keyboard_master()) {
+        // printf("mouse_report: x=%d, y=%d\n", mouse_report.x, mouse_report.y);
 // #ifdef DILEMMA_TRACKBALL
         bk_pointing_device_task_pointing_device_dilemma(&mouse_report);
 // #endif
@@ -284,7 +264,7 @@ mouse_report->y = (int16_t)out_y;
  #    endif // CONSOLE_ENABLE
  }
  
- bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
+ bool process_record_bk_pointing_device(uint16_t keycode, keyrecord_t* record) {
      if (!process_record_user(keycode, record)) {
          debug_bk_pointing_device_config_to_console(&g_bk_pointing_device_config);
          return false;
@@ -341,6 +321,7 @@ mouse_report->y = (int16_t)out_y;
      return true;
  }
  
+ // TODO manage this like with argos, in a separate memory zone
  void eeconfig_init_kb(void) {
      g_bk_pointing_device_config.raw = 0;
      write_bk_pointing_device_config_to_eeprom(&g_bk_pointing_device_config);
@@ -348,6 +329,7 @@ mouse_report->y = (int16_t)out_y;
      eeconfig_init_user();
  }
  
+ // TODO manage this like with argos, in a separate memory zone
  void matrix_init_kb(void) {
      read_bk_pointing_device_config_from_eeprom(&g_bk_pointing_device_config);
      matrix_init_user();

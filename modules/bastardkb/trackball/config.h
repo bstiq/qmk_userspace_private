@@ -10,4 +10,9 @@
 #define SPI_SCK_PIN GP22
 #define SPI_MISO_PIN GP20
 #define SPI_MOSI_PIN GP23
-#define POINTING_DEVICE_CS_PIN GP11
+#define POINTING_DEVICE_CS_PIN GP21
+
+// this is also dilemma specific. On the charybdis it's -25
+#define ROTATIONAL_TRANSFORM_ANGLE 5
+#define POINTING_DEVICE_INVERT_Y
+#define POINTING_DEVICE_INVERT_X

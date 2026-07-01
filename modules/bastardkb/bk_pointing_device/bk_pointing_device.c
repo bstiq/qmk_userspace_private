@@ -185,12 +185,20 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
 const int16_t dx = mouse_report->x;
 const int16_t dy = mouse_report->y;
 const float yaw_deg = 33.0f;
-const float yaw_rad = yaw_deg * (3.14159265358979323846f / 180.0f);
+const float pitch_deg = 23.1f;
+const float deg_to_rad = 3.14159265358979323846f / 180.0f;
+const float yaw_rad = yaw_deg * deg_to_rad;
+const float pitch_rad = pitch_deg * deg_to_rad;
 const float c = cosf(yaw_rad);
 const float s = sinf(yaw_rad);
-const float out_x = dx * c + dy * s;
-const float out_y = -dx * s + dy * c;
-mouse_report->x = (int16_t)out_x;
+const float pitch_scale = 1.0f / cosf(pitch_rad);
+// Pitch correction first.
+const float px = dx;
+const float py = dy * pitch_scale;
+// Yaw rotation second.
+const float out_x = px * c + py * s;
+const float out_y = -px * s + py * c;
+mouse_report->x = (int16_t)out_x*3;
 mouse_report->y = (int16_t)out_y;
 }
 // #endif

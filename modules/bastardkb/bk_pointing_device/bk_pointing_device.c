@@ -248,42 +248,42 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
  #    ifdef BK_POINTING_DEVICE_ENABLE
  #        ifndef NO_BK_POINTING_DEVICE_KEYCODES
      switch (keycode) {
-         case BK_POINTING_DEVICE_DEFAULT_DPI_FORWARD:
+         case DPI_MOD:
              if (record->event.pressed) {
                  // Step backward if shifted, forward otherwise.
                  bk_pointing_device_cycle_pointer_default_dpi(/* forward= */ !has_shift_mod());
              }
              break;
-         case BK_POINTING_DEVICE_DEFAULT_DPI_REVERSE:
+         case DPI_RMOD:
              if (record->event.pressed) {
                  // Step forward if shifted, backward otherwise.
                  bk_pointing_device_cycle_pointer_default_dpi(/* forward= */ has_shift_mod());
              }
              break;
-         case BK_POINTING_DEVICE_SNIPING_DPI_FORWARD:
+         case S_D_MOD:
              if (record->event.pressed) {
                  // Step backward if shifted, forward otherwise.
                  bk_pointing_device_cycle_pointer_sniping_dpi(/* forward= */ !has_shift_mod());
              }
              break;
-         case BK_POINTING_DEVICE_SNIPING_DPI_REVERSE:
+         case S_D_RMOD:
              if (record->event.pressed) {
                  // Step forward if shifted, backward otherwise.
                  bk_pointing_device_cycle_pointer_sniping_dpi(/* forward= */ has_shift_mod());
              }
              break;
-         case BK_POINTING_DEVICE_SNIPING:
+         case SNIPING:
              bk_pointing_device_set_pointer_sniping_enabled(record->event.pressed);
              break;
-         case BK_POINTING_DEVICE_SNIPING_TOGGLE:
+         case SNP_TOG:
              if (record->event.pressed) {
                  bk_pointing_device_set_pointer_sniping_enabled(!bk_pointing_device_get_pointer_sniping_enabled());
              }
              break;
-         case BK_POINTING_DEVICE_DRAGSCROLL_MODE:
+         case DRGSCRL:
              bk_pointing_device_set_pointer_dragscroll_enabled(record->event.pressed);
              break;
-         case BK_POINTING_DEVICE_DRAGSCROLL_MODE_TOGGLE:
+         case DRG_TOG:
              if (record->event.pressed) {
                  bk_pointing_device_set_pointer_dragscroll_enabled(!bk_pointing_device_get_pointer_dragscroll_enabled());
              }

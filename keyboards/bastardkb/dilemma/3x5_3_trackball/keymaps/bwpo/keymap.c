@@ -17,7 +17,7 @@
  */
 
 #include "config.h"
-#include "bk_pointing_device.h"
+// #include "bk_pointing_device.h" // TODO remove this, should be included from the module
 #include QMK_KEYBOARD_H
 
 enum dilemma_keymap_layers {

@@ -1,5 +1,31 @@
 {
     "module_name": "Pointing Device",
     "maintainer": "BastardKB",
-    "license": "GPL-2.0-or-later"
+    "license": "GPL-2.0-or-later",
+    "keycodes": [
+        {
+            "key": "DPI_MOD"
+        },
+        {
+            "key": "DPI_RMOD"
+        },
+        {
+            "key": "S_D_MOD"
+        },
+        {
+            "key": "S_D_RMOD"
+        },
+        {
+            "key": "SNIPING"
+        },
+        {
+            "key": "SNP_TOG"
+        },
+        {
+            "key": "DRGSCRL"
+        },
+        {
+            "key": "DRG_TOG"
+        }
+    ]
 }

@@ -373,6 +373,12 @@ void keyboard_post_init_bk_pointing_device(void) {
 #else
     eeconfig_init_user();
 #endif
-} 
-
+// #ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
+// not actually enabled by default, managed by argos
+    set_auto_mouse_enable(true);
+// #endif
+}
+// TODO dinamically manage BK_POINTING_DEVICE_AUTO_POINTER_LAYER_TRIGGER_ENABLE (in mem)
+// TODO dinamically manage CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD (in mem)
+// TODO dinamically manage CHARYBDIS_AUTO_SNIPING_ON_LAYER (in mem)
 // TODO: for dilemma, missing keyboard_pre_init_kb?  gpio_init?

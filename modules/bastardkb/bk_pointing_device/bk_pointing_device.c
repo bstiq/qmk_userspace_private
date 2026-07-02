@@ -237,7 +237,7 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
  }
  
  // TODO missing && !NO_DILEMMA_KEYCODES?
- #    if defined(BK_POINTING_DEVICE_ENABLE) && !defined(NO_BK_POINTING_DEVICE_KEYCODES)
+//  #    if defined(BK_POINTING_DEVICE_ENABLE) && !defined(NO_BK_POINTING_DEVICE_KEYCODES)
  /** \brief Whether SHIFT mod is enabled. */
  static bool has_shift_mod(void) {
  #        ifdef NO_ACTION_ONESHOT
@@ -246,7 +246,7 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
      return mod_config(get_mods() | get_oneshot_mods()) & MOD_MASK_SHIFT;
  #        endif // NO_ACTION_ONESHOT
  }
- #    endif // BK_POINTING_DEVICE_ENABLE && !NO_BK_POINTING_DEVICE_KEYCODES
+//  #    endif // BK_POINTING_DEVICE_ENABLE && !NO_BK_POINTING_DEVICE_KEYCODES
  
  /**
   * \brief Outputs the Pointing device configuration to console.
@@ -279,8 +279,8 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
          debug_bk_pointing_device_config_to_console(&g_bk_pointing_device_config);
          return false;
      }
- #    ifdef BK_POINTING_DEVICE_ENABLE
- #        ifndef NO_BK_POINTING_DEVICE_KEYCODES
+//  #    ifdef BK_POINTING_DEVICE_ENABLE
+//  #        ifndef NO_BK_POINTING_DEVICE_KEYCODES
      switch (keycode) {
          case DPI_MOD:
              if (record->event.pressed) {
@@ -307,6 +307,7 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
              }
              break;
          case SNIPING:
+         printf("SNIPING\n");
              bk_pointing_device_set_pointer_sniping_enabled(record->event.pressed);
              break;
          case SNP_TOG:
@@ -323,8 +324,8 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
              }
              break;
      }
- #        endif // !NO_BK_POINTING_DEVICE_KEYCODES
- #    endif     // BK_POINTING_DEVICE_ENABLE
+//  #        endif // !NO_BK_POINTING_DEVICE_KEYCODES
+//  #    endif     // BK_POINTING_DEVICE_ENABLE
      if (IS_QK_KB(keycode) || IS_MOUSEKEY(keycode)) {
          debug_bk_pointing_device_config_to_console(&g_bk_pointing_device_config);
      }

@@ -10,5 +10,6 @@ void bk_pointing_device_set_pointer_sniping_enabled(bool enable);
 bool bk_pointing_device_get_pointer_dragscroll_enabled(void);
 void bk_pointing_device_set_pointer_dragscroll_enabled(bool enable);
 uint16_t bk_pointing_device_get_pointer_sniping_dpi(void);
+void keyboard_post_init_bk_pointing_device(void);
 
 // NOTE: made to work on branch bkb-pointing-device

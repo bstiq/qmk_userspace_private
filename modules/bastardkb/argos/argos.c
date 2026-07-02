@@ -79,6 +79,7 @@ __attribute__((weak)) void argos_write_eeprom(uint16_t offset, const void *buf,
 */
 void keyboard_post_init_argos(void) {
 
+    printf("Post init argos\n");
     // Read configuration from eeprom
     argos_read_eeprom(ARGOS_OFFSET_CONFIG, &argos_config, sizeof(argos_config));
     if (!argos_config.has_copied_qmk_config) {

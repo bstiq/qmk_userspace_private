@@ -68,9 +68,12 @@ static bk_pointing_device_config_t g_bk_pointing_device_config = {0};
 */
 static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config_t* config) {
 // TODO: replace with per-module memory management
+    printf("Reading from EEPROM.... \n");
 #ifdef COMMUNITY_MODULE_ARGOS_ENABLE
+printf("Reading from Argos\n");
 argos_read_eeprom(ARGOS_OFFSET_POINTER_CONFIG, config, sizeof(bk_pointing_device_config_t));
 #else
+    printf("No argos, reading directly from kb EEPROM.... \n");
     config->raw                   = eeconfig_read_kb() & 0xff;
 #endif
     config->is_dragscroll_enabled = false;
@@ -92,6 +95,7 @@ printf("Writing DPI: %d\n", config->pointer_default_dpi);
 printf("Writing SNIPING DPI: %d\n", config->pointer_sniping_dpi);
 // TODO: replace with per-module memory management
 #ifdef ARGOS_OFFSET_POINTER_CONFIG
+printf("Writing to Argos memory space\n");
 argos_write_eeprom(ARGOS_OFFSET_POINTER_CONFIG, config, sizeof(bk_pointing_device_config_t));
 #else
 eeconfig_update_kb(config->raw);
@@ -358,20 +362,17 @@ bool process_record_bk_pointing_device(uint16_t keycode, keyrecord_t* record) {
     return true;
 }
 
-void eeconfig_init_kb(void) {
-    g_bk_pointing_device_config.raw = 0;
-    write_bk_pointing_device_config_to_eeprom(&g_bk_pointing_device_config);
+void keyboard_post_init_bk_pointing_device(void) {
+    printf("Post init bk_pointing_device\n");
+    read_bk_pointing_device_config_from_eeprom(&g_bk_pointing_device_config);
+    // g_bk_pointing_device_config.raw = 0; // TODO why do we need this?
+    // write_bk_pointing_device_config_to_eeprom(&g_bk_pointing_device_config);
     maybe_update_bk_pointing_device_cpi(&g_bk_pointing_device_config);
     // TODO: replace with per-module memory management
 #ifdef COMMUNITY_MODULE_ARGOS_ENABLE
 #else
     eeconfig_init_user();
 #endif
-}
-
-void keyboard_post_init_bk_pointing_device(void) {
-    read_bk_pointing_device_config_from_eeprom(&g_bk_pointing_device_config);
-//  matrix_init_user(); // TODO we removed this
 } 
 
 // TODO: for dilemma, missing keyboard_pre_init_kb?  gpio_init?

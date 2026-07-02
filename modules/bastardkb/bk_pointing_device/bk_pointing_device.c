@@ -17,6 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+ /*
+    Generic pointing device configuration and features.
+ */
+
 #include QMK_KEYBOARD_H
  #include "bk_pointing_device.h"
  #include "transactions.h"
@@ -26,6 +30,10 @@
  #ifdef CONSOLE_ENABLE
  #    include "print.h"
  #endif // CONSOLE_ENABLE
+
+ #ifdef COMMUNITY_MODULE_ARGOS_ENABLE
+ #include "argos.h"
+ #endif
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
  
@@ -59,9 +67,16 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
   * explicitly set them to `false` in this function.
   */
 static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config_t* config) {
+    // TODO: replace with per-module memory management
+#ifdef COMMUNITY_MODULE_ARGOS_ENABLE
+    argos_read_eeprom(ARGOS_OFFSET_POINTER_CONFIG, config, sizeof(bk_pointing_device_config_t));
+#else
      config->raw                   = eeconfig_read_kb() & 0xff;
+#endif
      config->is_dragscroll_enabled = false;
      config->is_sniping_enabled    = false;
+     printf("Read DPI: %d\n", config->pointer_default_dpi);
+     printf("ReadSNIPING DPI: %d\n", config->pointer_sniping_dpi);
  }
  
  /**
@@ -73,7 +88,14 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
   * these across reboots of the board.
   */
  static void write_bk_pointing_device_config_to_eeprom(bk_pointing_device_config_t* config) {
-     eeconfig_update_kb(config->raw);
+    printf("Writing DPI: %d\n", config->pointer_default_dpi);
+    printf("Writing SNIPING DPI: %d\n", config->pointer_sniping_dpi);
+    // TODO: replace with per-module memory management
+#ifdef ARGOS_OFFSET_POINTER_CONFIG
+    argos_write_eeprom(ARGOS_OFFSET_POINTER_CONFIG, config, sizeof(bk_pointing_device_config_t));
+#else
+    eeconfig_update_kb(config->raw);
+#endif
  }
  
  /** \brief Return the current value of the pointer's default DPI. */
@@ -89,10 +111,13 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
  /** \brief Set the appropriate DPI for the input config. */
  static void maybe_update_bk_pointing_device_cpi(bk_pointing_device_config_t* config) {
      if (config->is_dragscroll_enabled) {
+        printf("Set Dragscroll DPI: %d\n", BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_DPI);
          pointing_device_set_cpi(BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_DPI);
      } else if (config->is_sniping_enabled) {
+        printf("Set Sniping DPI: %d\n", get_pointer_sniping_dpi(config));
          pointing_device_set_cpi(get_pointer_sniping_dpi(config));
      } else {
+         printf("Set Default DPI: %d\n", get_pointer_default_dpi(config));
          pointing_device_set_cpi(get_pointer_default_dpi(config));
      }
  }
@@ -105,6 +130,7 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
   */
  static void step_pointer_default_dpi(bk_pointing_device_config_t* config, bool forward) {
      config->pointer_default_dpi += forward ? 1 : -1;
+     printf("Set DPI: %d\n", config->pointer_default_dpi);
      maybe_update_bk_pointing_device_cpi(config);
  }
  
@@ -332,35 +358,20 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
      return true;
  }
  
- // TODO manage this like with argos, in a separate memory zone
  void eeconfig_init_kb(void) {
      g_bk_pointing_device_config.raw = 0;
      write_bk_pointing_device_config_to_eeprom(&g_bk_pointing_device_config);
      maybe_update_bk_pointing_device_cpi(&g_bk_pointing_device_config);
+     // TODO: replace with per-module memory management
+#ifdef COMMUNITY_MODULE_ARGOS_ENABLE
+#else
      eeconfig_init_user();
+#endif
  }
  
- // TODO manage this like with argos, in a separate memory zone
- void matrix_init_kb(void) {
+ void keyboard_post_init_bk_pointing_device(void) {
      read_bk_pointing_device_config_from_eeprom(&g_bk_pointing_device_config);
-     matrix_init_user();
- }
-
- bool shutdown_kb(bool jump_to_bootloader) {
-     if (!shutdown_user(jump_to_bootloader)) {
-         return false;
-     }
- #ifdef RGBLIGHT_ENABLE
-     rgblight_enable_noeeprom();
-     rgblight_mode_noeeprom(RGBLIGHT_MODE_STATIC_LIGHT);
-     rgblight_setrgb(RGB_RED);
- #endif // RGBLIGHT_ENABLE
- #ifdef RGB_MATRIX_ENABLE
-     rgb_matrix_set_color_all(RGB_RED);
-     rgb_matrix_update_pwm_buffers();
- #endif // RGB_MATRIX_ENABLE
-     return true;
- }
- 
+    //  matrix_init_user(); // TODO we removed this
+ } 
 
  // TODO: for dilemma, missing keyboard_pre_init_kb?  gpio_init?

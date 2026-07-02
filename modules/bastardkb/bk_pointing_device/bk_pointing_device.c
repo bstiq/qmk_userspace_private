@@ -172,23 +172,23 @@ static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config
   static void bk_pointing_device_task_pointing_device_dilemma(report_mouse_t* mouse_report) {
     // first: move the sensor to the back of the keyboard
     // x stays the same
-    static int16_t prev_x = 0;
-    static int16_t prev_y = 0;
-    if (prev_x != mouse_report->x || prev_y != mouse_report->y) {
-        printf("mouse_report->x: %d, mouse_report->y: %d\n", mouse_report->x, mouse_report->y);
-    }
+    // static int16_t prev_x = 0;
+    // static int16_t prev_y = 0;
+    // if (prev_x != mouse_report->x || prev_y != mouse_report->y) {
+    //     printf("mouse_report->x: %d, mouse_report->y: %d\n", mouse_report->x, mouse_report->y);
+    // }
 
-    // float dy_world = 0.029345f * (float)(mouse_report->x) - 0.027695f * (float)(mouse_report->y);
-    // float dx_world = 0.111018f * (float)(mouse_report->x) + 0.027752f * (float)(mouse_report->y);
-    // // if (prev_x != mouse_report->x || prev_y != mouse_report->y) {
-    // // printf("NEW mouse_report->x: %f, mouse_report->y: %f\n", dx_world, dy_world);
-    // // }
-    float dx_world =  0.098246f * (float)(mouse_report->x) - 0.026167f * (float)(mouse_report->y);
-    float dy_world =  0.036666f * (float)(mouse_report->x) + 0.019220f * (float)(mouse_report->y);
-    mouse_report->x = (int16_t)dx_world * 3;
-    mouse_report->y = (int16_t)dy_world * 3;
-    prev_x = mouse_report->x;
-    prev_y = mouse_report->y;
+    // // float dy_world = 0.029345f * (float)(mouse_report->x) - 0.027695f * (float)(mouse_report->y);
+    // // float dx_world = 0.111018f * (float)(mouse_report->x) + 0.027752f * (float)(mouse_report->y);
+    // // // if (prev_x != mouse_report->x || prev_y != mouse_report->y) {
+    // // // printf("NEW mouse_report->x: %f, mouse_report->y: %f\n", dx_world, dy_world);
+    // // // }
+    // float dx_world =  0.098246f * (float)(mouse_report->x) - 0.026167f * (float)(mouse_report->y);
+    // float dy_world =  0.036666f * (float)(mouse_report->x) + 0.019220f * (float)(mouse_report->y);
+    // mouse_report->x = (int16_t)dx_world * 3;
+    // mouse_report->y = (int16_t)dy_world * 3;
+    // prev_x = mouse_report->x;
+    // prev_y = mouse_report->y;
 }
 // #endif
 

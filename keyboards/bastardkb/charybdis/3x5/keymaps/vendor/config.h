@@ -26,6 +26,11 @@
 #    define NO_ACTION_ONESHOT
 #endif // __arm__
 
+#ifdef AUTO_MOUSE_DEFAULT_LAYER
+#undef AUTO_MOUSE_DEFAULT_LAYER
+#endif
+#define AUTO_MOUSE_DEFAULT_LAYER 4
+
 /* Charybdis-specific features. */
 
 #ifdef POINTING_DEVICE_ENABLE

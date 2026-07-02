@@ -375,6 +375,7 @@ void keyboard_post_init_bk_pointing_device(void) {
 #endif
 // #ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
 // not actually enabled by default, managed by argos
+    set_auto_mouse_layer(AUTO_MOUSE_DEFAULT_LAYER );
     set_auto_mouse_enable(true);
 // #endif
 }

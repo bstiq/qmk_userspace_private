@@ -31,11 +31,6 @@ enum dilemma_keymap_layers {
     LAYER_LCD,
 };
 
-#ifdef AUTO_MOUSE_DEFAULT_LAYER
-#undef AUTO_MOUSE_DEFAULT_LAYER
-#endif
-#define AUTO_MOUSE_DEFAULT_LAYER LAYER_POINTER
-
 enum custom_keycodes {
     QK_REG = SAFE_RANGE,
     QK_HELP

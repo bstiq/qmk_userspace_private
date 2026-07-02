@@ -28,11 +28,6 @@ enum dilemma_keymap_layers {
     LAYER_SYMBOLS,
 };
 
-#ifdef AUTO_MOUSE_DEFAULT_LAYER
-#undef AUTO_MOUSE_DEFAULT_LAYER
-#endif
-#define AUTO_MOUSE_DEFAULT_LAYER LAYER_POINTER
-
 // Automatically enable sniping-mode on the pointer layer.
 // #define DILEMMA_AUTO_SNIPING_ON_LAYER LAYER_POINTER
 

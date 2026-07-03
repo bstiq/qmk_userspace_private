@@ -449,6 +449,9 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
         break;
     }
 
+    // TODO: auto mouse layer
+    // TODO: auto precision on layer
+
     default:
         return false;
     }

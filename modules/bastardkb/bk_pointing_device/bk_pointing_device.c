@@ -53,6 +53,8 @@ typedef union {
         uint8_t pointer_sniping_dpi : 2; // 4 steps available.
         bool    is_dragscroll_enabled : 1;
         bool    is_sniping_enabled : 1;
+        bool auto_mouse_layer_enabled : 1;
+        bool auto_precision_on_mouse_layer_enabled : 1;
     } __attribute__((packed));
 } bk_pointing_device_config_t;
 
@@ -181,6 +183,18 @@ bool bk_pointing_device_get_pointer_sniping_enabled(void) {
 
 void bk_pointing_device_set_pointer_sniping_enabled(bool enable) {
     g_bk_pointing_device_config.is_sniping_enabled = enable;
+    maybe_update_bk_pointing_device_cpi(&g_bk_pointing_device_config);
+}
+
+
+void bk_pointing_device_set_auto_mouse_layer_enabled(bool enabled) {
+    g_bk_pointing_device_config.auto_mouse_layer_enabled = enabled;
+    maybe_update_bk_pointing_device_cpi(&g_bk_pointing_device_config);
+
+}
+
+void bk_pointing_device_set_auto_precision_on_mouse_layer_enabled(bool enabled) {
+    g_bk_pointing_device_config.auto_precision_on_mouse_layer_enabled = enabled;
     maybe_update_bk_pointing_device_cpi(&g_bk_pointing_device_config);
 }
 
@@ -365,20 +379,32 @@ bool process_record_bk_pointing_device(uint16_t keycode, keyrecord_t* record) {
 void keyboard_post_init_bk_pointing_device(void) {
     printf("Post init bk_pointing_device\n");
     read_bk_pointing_device_config_from_eeprom(&g_bk_pointing_device_config);
-    // g_bk_pointing_device_config.raw = 0; // TODO why do we need this?
-    // write_bk_pointing_device_config_to_eeprom(&g_bk_pointing_device_config);
     maybe_update_bk_pointing_device_cpi(&g_bk_pointing_device_config);
     // TODO: replace with per-module memory management
 #ifdef COMMUNITY_MODULE_ARGOS_ENABLE
 #else
     eeconfig_init_user();
 #endif
-// #ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
-// not actually enabled by default, managed by argos
     set_auto_mouse_layer(AUTO_MOUSE_DEFAULT_LAYER );
-    set_auto_mouse_enable(true);
-// #endif
+    if(g_bk_pointing_device_config.auto_mouse_layer_enabled) {
+        set_auto_mouse_enable(true);
+    } else {
+        set_auto_mouse_enable(false);
+    }
+
+    // test
+    // bk_pointing_device_set_auto_precision_on_mouse_layer_enabled(true);
 }
+
+// TODO: manage this in Argos, store in config
+layer_state_t layer_state_set_bk_pointing_device(layer_state_t state) {
+    if(g_bk_pointing_device_config.auto_precision_on_mouse_layer_enabled) {
+        bk_pointing_device_set_pointer_sniping_enabled(layer_state_cmp(state, AUTO_MOUSE_DEFAULT_LAYER));
+    }
+    return state;
+}
+
+
 // TODO dinamically manage BK_POINTING_DEVICE_AUTO_POINTER_LAYER_TRIGGER_ENABLE (in mem)
 // TODO dinamically manage CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD (in mem)
 // TODO dinamically manage CHARYBDIS_AUTO_SNIPING_ON_LAYER (in mem)

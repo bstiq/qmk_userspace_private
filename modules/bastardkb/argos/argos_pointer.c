@@ -16,7 +16,7 @@
 // #include "dilemma.h"
 // #endif
 
-#if defined(POINTING_DEVICE_DRIVER_digitizer) || defined(POINTING_DEVICE_DRIVER_pmw3360)
+#if BK_HAS_POINTING_DEVICE
 #include "bk_pointing_device.h"
 #endif
 
@@ -63,39 +63,37 @@ void build_pointing_device_info_command_data(uint8_t **command_data) {
 }
 
 void argos_set_dpi(uint8_t *command_data) {
-// TODO dilemma v2 (|| defined(CIRQUE_PINNACLE_DIAMETER_MM))
-#if defined(POINTING_DEVICE_DRIVER_pmw3360) || defined(POINTING_DEVICE_DRIVER_digitizer) 
-    // new dpi is on 2 bytes:
-    uint16_t new_dpi = command_data[0] | (command_data[1] << 8);
-    // get the old DPI:
-    uint16_t old_dpi = bk_pointing_device_get_pointer_default_dpi();
-    // calculate the difference:
-    int16_t difference = new_dpi - old_dpi;
-    // calculate how many steps we need, it could be negative
-    int8_t new_steps = difference / ARGOS_DEFAULT_DPI_CONFIG_STEP;
-    // apply the steps one by one
-    bool forward = new_steps > 0;
-    for (int i = 0; i < abs(new_steps); i++) {
-        bk_pointing_device_cycle_pointer_default_dpi(forward);
+    if(BK_HAS_POINTING_DEVICE) {
+        // new dpi is on 2 bytes:
+        uint16_t new_dpi = command_data[0] | (command_data[1] << 8);
+        // get the old DPI:
+        uint16_t old_dpi = bk_pointing_device_get_pointer_default_dpi();
+        // calculate the difference:
+        int16_t difference = new_dpi - old_dpi;
+        // calculate how many steps we need, it could be negative
+        int8_t new_steps = difference / ARGOS_DEFAULT_DPI_CONFIG_STEP;
+        // apply the steps one by one
+        bool forward = new_steps > 0;
+        for (int i = 0; i < abs(new_steps); i++) {
+            bk_pointing_device_cycle_pointer_default_dpi(forward);
+        }
     }
-#endif
 }
 
 void argos_set_sniping_dpi(uint8_t *command_data) {
-// TODO dilemma v2
-#if defined(POINTING_DEVICE_DRIVER_digitizer) || defined(POINTING_DEVICE_DRIVER_pmw3360)
-    // new dpi is on 2 bytes:
-    uint16_t new_dpi = command_data[0] | (command_data[1] << 8);
-    // get the old DPI:
-    uint16_t old_dpi = bk_pointing_device_get_pointer_sniping_dpi();
-    // calculate the difference:
-    int16_t difference = new_dpi - old_dpi;
-    // calculate how many steps we need, it could be negative
-    int8_t new_steps = difference / ARGOS_SNIPING_DPI_CONFIG_STEP;
-    // apply the steps one by one
-    bool forward = new_steps > 0;
-    for (int i = 0; i < abs(new_steps); i++) {
-        bk_pointing_device_cycle_pointer_sniping_dpi(forward);
+    if(BK_HAS_POINTING_DEVICE) {
+        // new dpi is on 2 bytes:
+        uint16_t new_dpi = command_data[0] | (command_data[1] << 8);
+        // get the old DPI:
+        uint16_t old_dpi = bk_pointing_device_get_pointer_sniping_dpi();
+        // calculate the difference:
+        int16_t difference = new_dpi - old_dpi;
+        // calculate how many steps we need, it could be negative
+        int8_t new_steps = difference / ARGOS_SNIPING_DPI_CONFIG_STEP;
+        // apply the steps one by one
+        bool forward = new_steps > 0;
+        for (int i = 0; i < abs(new_steps); i++) {
+            bk_pointing_device_cycle_pointer_sniping_dpi(forward);
+        }
     }
-#endif
 }

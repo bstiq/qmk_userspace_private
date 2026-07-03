@@ -186,9 +186,9 @@ void bk_pointing_device_set_pointer_sniping_enabled(bool enable) {
     maybe_update_bk_pointing_device_cpi(&g_bk_pointing_device_config);
 }
 
-
 void bk_pointing_device_set_auto_mouse_layer_enabled(bool enabled) {
     g_bk_pointing_device_config.auto_mouse_layer_enabled = enabled;
+    set_auto_mouse_enable(enabled);
     maybe_update_bk_pointing_device_cpi(&g_bk_pointing_device_config);
 
 }
@@ -196,6 +196,14 @@ void bk_pointing_device_set_auto_mouse_layer_enabled(bool enabled) {
 void bk_pointing_device_set_auto_precision_on_mouse_layer_enabled(bool enabled) {
     g_bk_pointing_device_config.auto_precision_on_mouse_layer_enabled = enabled;
     maybe_update_bk_pointing_device_cpi(&g_bk_pointing_device_config);
+}
+
+bool bk_pointing_device_get_auto_mouse_layer_enabled(void) {
+    return g_bk_pointing_device_config.auto_mouse_layer_enabled;
+}
+
+bool bk_pointing_device_get_auto_precision_on_mouse_layer_enabled(void) {
+    return g_bk_pointing_device_config.auto_precision_on_mouse_layer_enabled;
 }
 
 bool bk_pointing_device_get_pointer_dragscroll_enabled(void) {
@@ -229,8 +237,8 @@ static void bk_pointing_device_task_pointing_device_dilemma(report_mouse_t* mous
 // // // }
 // float dx_world =  0.098246f * (float)(mouse_report->x) - 0.026167f * (float)(mouse_report->y);
 // float dy_world =  0.036666f * (float)(mouse_report->x) + 0.019220f * (float)(mouse_report->y);
-// mouse_report->x = (int16_t)dx_world * 3;
-// mouse_report->y = (int16_t)dy_world * 3;
+// mouse_report->x = (int16_t)dx_world;
+// mouse_report->y = (int16_t)dy_world;
 // prev_x = mouse_report->x;
 // prev_y = mouse_report->y;
 }
@@ -399,6 +407,9 @@ void keyboard_post_init_bk_pointing_device(void) {
 // TODO: manage this in Argos, store in config
 layer_state_t layer_state_set_bk_pointing_device(layer_state_t state) {
     if(g_bk_pointing_device_config.auto_precision_on_mouse_layer_enabled) {
+        printf("Auto precision on mouse layer enabled\n");
+        printf("state: %d\n", state);
+        printf("AUTO_MOUSE_DEFAULT_LAYER: %d\n", AUTO_MOUSE_DEFAULT_LAYER);
         bk_pointing_device_set_pointer_sniping_enabled(layer_state_cmp(state, AUTO_MOUSE_DEFAULT_LAYER));
     }
     return state;

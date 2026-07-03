@@ -34,6 +34,10 @@
 
 #include "argos_pointer.h"
 
+#if BK_HAS_POINTING_DEVICE
+#include "bk_pointing_device.h"
+#endif
+
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
 // Magic position for keycode execution
@@ -137,6 +141,10 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
         command_data[14] = 1; // pointing device on left
 #else
         command_data[14] = 0; // pointing device on right
+#endif
+#if BK_HAS_POINTING_DEVICE
+        command_data[15] = bk_pointing_device_get_auto_mouse_layer_enabled();
+        command_data[16] = bk_pointing_device_get_auto_precision_on_mouse_layer_enabled();
 #endif
         send_data = true;
         break;
@@ -451,6 +459,20 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
 
     // TODO: auto mouse layer
     // TODO: auto precision on layer
+    case argos_id_set_auto_mouse_layer_enabled: {
+        if(BK_HAS_POINTING_DEVICE) {
+            bk_pointing_device_set_auto_mouse_layer_enabled(command_data[0]);
+            printf("Auto mouse layer enabled: %d\n", command_data[0]);
+        }
+        break;
+    }
+    case argos_id_set_auto_precision_on_mouse_layer_enabled: {
+        if(BK_HAS_POINTING_DEVICE) {
+            bk_pointing_device_set_auto_precision_on_mouse_layer_enabled(command_data[0]);
+            printf("Auto precision on mouse layer enabled: %d\n", command_data[0]);
+        }
+        break;
+    }
 
     default:
         return false;

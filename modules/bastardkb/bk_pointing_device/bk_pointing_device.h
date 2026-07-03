@@ -13,5 +13,7 @@ uint16_t bk_pointing_device_get_pointer_sniping_dpi(void);
 void keyboard_post_init_bk_pointing_device(void);
 void bk_pointing_device_set_auto_mouse_layer_enabled(bool enabled);
 void bk_pointing_device_set_auto_precision_on_mouse_layer_enabled(bool enabled);
+bool bk_pointing_device_get_auto_mouse_layer_enabled(void);
+bool bk_pointing_device_get_auto_precision_on_mouse_layer_enabled(void);
 
 // NOTE: made to work on branch bkb-pointing-device

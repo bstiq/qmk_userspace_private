@@ -8,15 +8,6 @@
 #include "argos_tapdance.h"
 #include "argos_rgb.h"
 
-// TODO manage charybdis, and dilemma cirque
-// should not be needed anymore since we use the bk_pointing_device module
-// #ifdef POINTING_DEVICE_DRIVER_pmw3360
-// #include "charybdis.h"
-// #endif
-// #ifdef POINTING_DEVICE_DRIVER_digitizer // TODO dilemma v2 / cirque
-// #include "dilemma.h"
-// #endif
-
 #include "eeconfig.h"
 #include "eeprom.h"
 #include "keymap_introspection.h"
@@ -139,13 +130,6 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
         command_data[14] = 1; // pointing device on left
 #else
         command_data[14] = 0; // pointing device on right
-#endif
-#if BK_HAS_POINTING_DEVICE
-        command_data[15] = bk_pointing_device_get_auto_mouse_layer_enabled();
-        command_data[16] = bk_pointing_device_get_auto_precision_on_mouse_layer_enabled();
-        command_data[17] = bk_pointing_device_get_dragscroll_axis_invert_x();
-        command_data[18] = bk_pointing_device_get_dragscroll_axis_invert_y();
-        command_data[19] = bk_pointing_device_get_dragscroll_dpi(); // TODO
 #endif
         send_data = true;
         break;
@@ -462,6 +446,7 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
     // TODO: auto precision on layer
     case argos_id_set_auto_mouse_layer_enabled: {
         if(BK_HAS_POINTING_DEVICE) {
+            send_data = true; // ack
             bk_pointing_device_set_auto_mouse_layer_enabled(command_data[0]);
             printf("Auto mouse layer enabled: %d\n", command_data[0]);
         }
@@ -469,6 +454,7 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
     }
     case argos_id_set_auto_precision_on_mouse_layer_enabled: {
         if(BK_HAS_POINTING_DEVICE) {
+            send_data = true; // ack
             bk_pointing_device_set_auto_precision_on_mouse_layer_enabled(command_data[0]);
             printf("Auto precision on mouse layer enabled: %d\n", command_data[0]);
         }
@@ -477,6 +463,7 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
 
     case argos_id_set_axis_invert: {
         if(BK_HAS_POINTING_DEVICE) {
+            send_data = true; // ack
             const uint8_t axis_index = command_data[0];
             const bool invert = command_data[1];
             if(axis_index == 0 ) {
@@ -491,6 +478,7 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
 
     case argos_id_set_dragscroll_dpi: {
         if(BK_HAS_POINTING_DEVICE) {
+            send_data = true; // ack
             bk_pointing_device_set_dragscroll_dpi(command_data[0]);
         }
         break;

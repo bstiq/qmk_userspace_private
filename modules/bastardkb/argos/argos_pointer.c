@@ -6,16 +6,6 @@
 #include <stdint.h>
 
 // TODO dilemma v2 / cirque
-
-
-// legacy
-// #ifdef POINTING_DEVICE_DRIVER_pmw3360
-// #include "charybdis.h"
-// #endif
-// #ifdef POINTING_DEVICE_DRIVER_digitizer 
-// #include "dilemma.h"
-// #endif
-
 #if BK_HAS_POINTING_DEVICE
 #include "bk_pointing_device.h"
 #endif
@@ -59,6 +49,11 @@ void build_pointing_device_info_command_data(uint8_t **command_data) {
         // this is hardcoded here as we can't read it from dilemma.c (private
         // config structure dilemma_config_t)
         (*command_data)[14] = 4;
+        (*command_data)[15] = bk_pointing_device_get_auto_mouse_layer_enabled();
+        (*command_data)[16] = bk_pointing_device_get_auto_precision_on_mouse_layer_enabled();
+        (*command_data)[17] = bk_pointing_device_get_dragscroll_axis_invert_x();
+        (*command_data)[18] = bk_pointing_device_get_dragscroll_axis_invert_y();
+        // TODO dragscroll DPI
     }
 }
 

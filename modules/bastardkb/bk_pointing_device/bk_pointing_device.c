@@ -26,6 +26,7 @@
 #include "transactions.h"
 #include <string.h>
 #include "math.h"
+#include "introspection.h"
 
 #ifdef CONSOLE_ENABLE
 #    include "print.h"
@@ -505,12 +506,12 @@ bool digitizer_task_kb(digitizer_t *const digitizer_state) {
         /*
             TODO send a mouse report instead?
             Example: 
-                mouse_report_t report = pointing_device_get_report();
-            //  code
+            //  code to create a mouse report based on h/v we calculated
             pointing_device_set_report(report);
             pointing_device_send();
 
             TODO other option: fake a dual-finger touch
+
             */
         if (report.v > 0) {
             tap_code(MS_WHLU);
@@ -518,13 +519,11 @@ bool digitizer_task_kb(digitizer_t *const digitizer_state) {
             tap_code(MS_WHLD);
         }
         // TODO right/left scroll
-        // if (report.v > 0) {
-        //     tap_code(MS_WHLR);
-        // scrolling = true;
-        // } else if (report.v < 0) {
-        //     tap_code(MS_WHLL);
-        // scrolling = true;
-        // }
+        if (report.v > 0) {
+            tap_code(MS_WHLR);
+        } else if (report.v < 0) {
+            tap_code(MS_WHLL);
+        }
 
         // if we are scrolling, cancel out cursor movement
         for (int i = 0; i < DIGITIZER_CONTACT_COUNT; i++) {

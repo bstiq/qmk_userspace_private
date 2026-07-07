@@ -6,20 +6,21 @@
 #include <stdint.h>
 
 // TODO dilemma v2 / cirque
-#if BK_HAS_POINTING_DEVICE
+#ifdef BK_HAS_POINTING_DEVICE
 #include "bk_pointing_device.h"
 #endif
 
 void build_pointing_device_info_command_data(uint8_t **command_data) {
     (*command_data)[0] = pointing_device_type_unknown;
-#ifdef POINTING_DEVICE_DRIVER_pmw3360 // Charybdis / Dilemma trackball
+
+#ifdef BK_HAS_POINTING_DEVICE
+#if defined(POINTING_DEVICE_DRIVER_pmw3360) // Charybdis / Dilemma trackball
     (*command_data)[0] = pointing_device_type_trackball;
 #elif defined(POINTING_DEVICE_DRIVER_digitizer) // Dilemma v3 / procyon
     (*command_data)[0] = pointing_device_type_trackpad_procyon;
 #elif defined(CIRQUE_PINNACLE_DIAMETER_MM) // Dilemma v2 / cirque
     (*command_data)[0] = pointing_device_type_trackpad_cirque;
 #endif
-
     if((*command_data)[0] != pointing_device_type_unknown) {
         // pointing dpi is up to 400+16*200 = 3600, 2 bytes
         (*command_data)[1] = bk_pointing_device_get_pointer_default_dpi() & 0xFF;
@@ -55,10 +56,11 @@ void build_pointing_device_info_command_data(uint8_t **command_data) {
         (*command_data)[18] = bk_pointing_device_get_dragscroll_axis_invert_y();
         // TODO dragscroll DPI
     }
+#endif
 }
 
 void argos_set_dpi(uint8_t *command_data) {
-    if(BK_HAS_POINTING_DEVICE) {
+#ifdef BK_HAS_POINTING_DEVICE
         // new dpi is on 2 bytes:
         uint16_t new_dpi = command_data[0] | (command_data[1] << 8);
         // get the old DPI:
@@ -72,11 +74,11 @@ void argos_set_dpi(uint8_t *command_data) {
         for (int i = 0; i < abs(new_steps); i++) {
             bk_pointing_device_cycle_pointer_default_dpi(forward);
         }
-    }
+#endif
 }
 
 void argos_set_sniping_dpi(uint8_t *command_data) {
-    if(BK_HAS_POINTING_DEVICE) {
+#ifdef BK_HAS_POINTING_DEVICE
         // new dpi is on 2 bytes:
         uint16_t new_dpi = command_data[0] | (command_data[1] << 8);
         // get the old DPI:
@@ -90,5 +92,5 @@ void argos_set_sniping_dpi(uint8_t *command_data) {
         for (int i = 0; i < abs(new_steps); i++) {
             bk_pointing_device_cycle_pointer_sniping_dpi(forward);
         }
-    }
+#endif
 }

@@ -35,6 +35,4 @@
 
 #if defined(POINTING_DEVICE_DRIVER_pmw3360) || defined(POINTING_DEVICE_DRIVER_digitizer) || defined(CIRQUE_PINNACLE_DIAMETER_MM)
     #define BK_HAS_POINTING_DEVICE 1
-#else
-    #define BK_HAS_POINTING_DEVICE 0
 #endif

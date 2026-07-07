@@ -186,8 +186,7 @@ void bk_pointing_device_set_pointer_sniping_enabled(bool enable) {
 void bk_pointing_device_set_auto_mouse_layer_enabled(bool enabled) {
     g_bk_pointing_device_config.auto_mouse_layer_enabled = enabled;
     set_auto_mouse_enable(enabled);
-    maybe_update_bk_pointing_device_cpi(&g_bk_pointing_device_config);
-
+    write_bk_pointing_device_config_to_eeprom(&g_bk_pointing_device_config);
 }
 
 void bk_pointing_device_set_auto_precision_on_mouse_layer_enabled(bool enabled) {
@@ -249,6 +248,7 @@ static void bk_pointing_device_task_pointing_device_dilemma(report_mouse_t* mous
 static void bk_pointing_device_task_pointing_device(report_mouse_t* mouse_report) {
     static int16_t scroll_buffer_x = 0;
     static int16_t scroll_buffer_y = 0;
+    printf("1 mouse_report: x=%d, y=%d\n", mouse_report->x, mouse_report->y);
     if (g_bk_pointing_device_config.is_dragscroll_enabled) {
         scroll_buffer_x += (g_bk_pointing_device_config.dragscroll_axis_invert_x ? -1 : 1) * mouse_report->x;
         scroll_buffer_y += (g_bk_pointing_device_config.dragscroll_axis_invert_y ? -1 : 1) * mouse_report->y;
@@ -263,6 +263,7 @@ static void bk_pointing_device_task_pointing_device(report_mouse_t* mouse_report
             scroll_buffer_y = 0;
         }
     }
+    printf("2 mouse_report: x=%d, y=%d\n", mouse_report->x, mouse_report->y);
 }
 
 report_mouse_t pointing_device_task_bk_pointing_device(report_mouse_t mouse_report) {
@@ -407,9 +408,6 @@ void keyboard_post_init_bk_pointing_device(void) {
 // TODO: manage this in Argos, store in config
 layer_state_t layer_state_set_bk_pointing_device(layer_state_t state) {
     if(g_bk_pointing_device_config.auto_precision_on_mouse_layer_enabled) {
-        printf("Auto precision on mouse layer enabled\n");
-        printf("state: %d\n", state);
-        printf("AUTO_MOUSE_DEFAULT_LAYER: %d\n", AUTO_MOUSE_DEFAULT_LAYER);
         bk_pointing_device_set_pointer_sniping_enabled(layer_state_cmp(state, AUTO_MOUSE_DEFAULT_LAYER));
     }
     return state;

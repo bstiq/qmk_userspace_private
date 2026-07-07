@@ -502,13 +502,20 @@ bool digitizer_task_kb(digitizer_t *const digitizer_state) {
         }
         // manually trigger scroll
         // we just press the mouse wheel up / mouse wheel down keycodes...
-        bool scrolling = false;
+        /*
+            TODO send a mouse report instead?
+            Example: 
+                mouse_report_t report = pointing_device_get_report();
+            //  code
+            pointing_device_set_report(report);
+            pointing_device_send();
+
+            TODO other option: fake a dual-finger touch
+            */
         if (report.v > 0) {
             tap_code(MS_WHLU);
-            scrolling = true;
         } else if (report.v < 0) {
             tap_code(MS_WHLD);
-            scrolling = true;
         }
         // TODO right/left scroll
         // if (report.v > 0) {
@@ -520,7 +527,13 @@ bool digitizer_task_kb(digitizer_t *const digitizer_state) {
         // }
 
         // if we are scrolling, cancel out cursor movement
-        if(scrolling) {
+        for (int i = 0; i < DIGITIZER_CONTACT_COUNT; i++) {
+#if DIGITIZER_FINGER_COUNT > 0
+            if (i < DIGITIZER_FINGER_COUNT) {
+                digitizer_state->contacts[i].x = 0;
+                digitizer_state->contacts[i].y = 0;
+            }
+#endif
         }
     } 
     // else{

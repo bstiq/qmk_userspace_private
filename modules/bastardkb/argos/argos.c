@@ -82,8 +82,6 @@ __attribute__((weak)) void argos_write_eeprom(uint16_t offset, const void *buf,
     TODO other things, not only combos
 */
 void keyboard_post_init_argos(void) {
-
-    printf("Post init argos\n");
     // Read configuration from eeprom
     argos_read_eeprom(ARGOS_OFFSET_CONFIG, &argos_config, sizeof(argos_config));
     if (!argos_config.has_copied_qmk_config) {
@@ -145,6 +143,9 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
 #if BK_HAS_POINTING_DEVICE
         command_data[15] = bk_pointing_device_get_auto_mouse_layer_enabled();
         command_data[16] = bk_pointing_device_get_auto_precision_on_mouse_layer_enabled();
+        command_data[17] = bk_pointing_device_get_dragscroll_axis_invert_x();
+        command_data[18] = bk_pointing_device_get_dragscroll_axis_invert_y();
+        command_data[19] = bk_pointing_device_get_dragscroll_dpi(); // TODO
 #endif
         send_data = true;
         break;
@@ -470,6 +471,27 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
         if(BK_HAS_POINTING_DEVICE) {
             bk_pointing_device_set_auto_precision_on_mouse_layer_enabled(command_data[0]);
             printf("Auto precision on mouse layer enabled: %d\n", command_data[0]);
+        }
+        break;
+    }
+
+    case argos_id_set_axis_invert: {
+        if(BK_HAS_POINTING_DEVICE) {
+            const uint8_t axis_index = command_data[0];
+            const bool invert = command_data[1];
+            if(axis_index == 0 ) {
+                bk_pointing_device_set_dragscroll_axis_invert_x(invert);
+            }
+            else if(axis_index == 1) {
+                bk_pointing_device_set_dragscroll_axis_invert_y(invert);
+            }
+        }
+        break;
+    }
+
+    case argos_id_set_dragscroll_dpi: {
+        if(BK_HAS_POINTING_DEVICE) {
+            bk_pointing_device_set_dragscroll_dpi(command_data[0]);
         }
         break;
     }

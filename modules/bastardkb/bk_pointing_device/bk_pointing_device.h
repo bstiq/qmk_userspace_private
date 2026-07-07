@@ -15,5 +15,11 @@ void bk_pointing_device_set_auto_mouse_layer_enabled(bool enabled);
 void bk_pointing_device_set_auto_precision_on_mouse_layer_enabled(bool enabled);
 bool bk_pointing_device_get_auto_mouse_layer_enabled(void);
 bool bk_pointing_device_get_auto_precision_on_mouse_layer_enabled(void);
+void bk_pointing_device_set_dragscroll_axis_invert_x(bool invert);
+void bk_pointing_device_set_dragscroll_axis_invert_y(bool invert);
+void bk_pointing_device_set_dragscroll_dpi(uint16_t dpi);
+bool bk_pointing_device_get_dragscroll_axis_invert_x(void);
+bool bk_pointing_device_get_dragscroll_axis_invert_y(void);
+uint16_t bk_pointing_device_get_dragscroll_dpi(void);
 
 // NOTE: made to work on branch bkb-pointing-device

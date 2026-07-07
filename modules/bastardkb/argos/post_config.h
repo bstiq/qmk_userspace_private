@@ -23,7 +23,7 @@
 // TODO cirque configuration
 // TODO later switch to per-module eeprom management
 #if defined(POINTING_DEVICE_DRIVER_digitizer) || defined(POINTING_DEVICE_DRIVER_pmw3360)
-#define ARGOS_SIZE_POINTER_CONFIG 8
+#define ARGOS_SIZE_POINTER_CONFIG 12 // a bit extra just in case
 #define ARGOS_OFFSET_POINTER_CONFIG 0
 #define ARGOS_OFFSET_CONFIG (ARGOS_OFFSET_POINTER_CONFIG + ARGOS_SIZE_POINTER_CONFIG)
 #else

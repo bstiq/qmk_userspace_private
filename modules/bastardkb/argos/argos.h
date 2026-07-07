@@ -42,6 +42,8 @@ enum argos_command_id {
     argos_id_set_rgb_matrix_led_at_position = 0x15,
     argos_id_set_auto_mouse_layer_enabled = 0x16,
     argos_id_set_auto_precision_on_mouse_layer_enabled = 0x17,
+    argos_id_set_axis_invert = 0x18,
+    argos_id_set_dragscroll_dpi = 0x19,
 };
 
 // At the moment, we only support trackpads and trackballs (for Bastard Keyboards)

@@ -55,6 +55,10 @@ typedef union {
         bool    is_sniping_enabled : 1;
         bool auto_mouse_layer_enabled : 1;
         bool auto_precision_on_mouse_layer_enabled : 1;
+        bool dragscroll_axis_invert_x : 1;
+        bool dragscroll_axis_invert_y : 1;
+        bool has_copied_qmk_config : 1;
+        // TODO for dpi: init at #define value
     } __attribute__((packed));
 } bk_pointing_device_config_t;
 
@@ -93,14 +97,11 @@ argos_read_eeprom(ARGOS_OFFSET_POINTER_CONFIG, config, sizeof(bk_pointing_device
 * these across reboots of the board.
 */
 static void write_bk_pointing_device_config_to_eeprom(bk_pointing_device_config_t* config) {
-printf("Writing DPI: %d\n", config->pointer_default_dpi);
-printf("Writing SNIPING DPI: %d\n", config->pointer_sniping_dpi);
 // TODO: replace with per-module memory management
 #ifdef ARGOS_OFFSET_POINTER_CONFIG
-printf("Writing to Argos memory space\n");
-argos_write_eeprom(ARGOS_OFFSET_POINTER_CONFIG, config, sizeof(bk_pointing_device_config_t));
+    argos_write_eeprom(ARGOS_OFFSET_POINTER_CONFIG, config, sizeof(bk_pointing_device_config_t));
 #else
-eeconfig_update_kb(config->raw);
+    eeconfig_update_kb(config->raw);
 #endif
 }
 
@@ -117,13 +118,10 @@ static uint16_t get_pointer_sniping_dpi(bk_pointing_device_config_t* config) {
 /** \brief Set the appropriate DPI for the input config. */
 static void maybe_update_bk_pointing_device_cpi(bk_pointing_device_config_t* config) {
     if (config->is_dragscroll_enabled) {
-    printf("Set Dragscroll DPI: %d\n", BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_DPI);
         pointing_device_set_cpi(BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_DPI);
     } else if (config->is_sniping_enabled) {
-    printf("Set Sniping DPI: %d\n", get_pointer_sniping_dpi(config));
         pointing_device_set_cpi(get_pointer_sniping_dpi(config));
     } else {
-        printf("Set Default DPI: %d\n", get_pointer_default_dpi(config));
         pointing_device_set_cpi(get_pointer_default_dpi(config));
     }
 }
@@ -136,7 +134,6 @@ static void maybe_update_bk_pointing_device_cpi(bk_pointing_device_config_t* con
 */
 static void step_pointer_default_dpi(bk_pointing_device_config_t* config, bool forward) {
     config->pointer_default_dpi += forward ? 1 : -1;
-    printf("Set DPI: %d\n", config->pointer_default_dpi);
     maybe_update_bk_pointing_device_cpi(config);
 }
 
@@ -253,16 +250,8 @@ static void bk_pointing_device_task_pointing_device(report_mouse_t* mouse_report
     static int16_t scroll_buffer_x = 0;
     static int16_t scroll_buffer_y = 0;
     if (g_bk_pointing_device_config.is_dragscroll_enabled) {
-#    ifdef BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_REVERSE_X
-        scroll_buffer_x -= mouse_report->x;
-#    else
-        scroll_buffer_x += mouse_report->x;
-#    endif // BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_REVERSE_X
-#    ifdef BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_REVERSE_Y
-        scroll_buffer_y -= mouse_report->y;
-#    else
-        scroll_buffer_y += mouse_report->y;
-#    endif // BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_REVERSE_Y
+        scroll_buffer_x += (g_bk_pointing_device_config.dragscroll_axis_invert_x ? -1 : 1) * mouse_report->x;
+        scroll_buffer_y += (g_bk_pointing_device_config.dragscroll_axis_invert_y ? -1 : 1) * mouse_report->y;
         mouse_report->x = 0;
         mouse_report->y = 0;
         if (abs(scroll_buffer_x) > BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE) {
@@ -385,7 +374,6 @@ bool process_record_bk_pointing_device(uint16_t keycode, keyrecord_t* record) {
 }
 
 void keyboard_post_init_bk_pointing_device(void) {
-    printf("Post init bk_pointing_device\n");
     read_bk_pointing_device_config_from_eeprom(&g_bk_pointing_device_config);
     maybe_update_bk_pointing_device_cpi(&g_bk_pointing_device_config);
     // TODO: replace with per-module memory management
@@ -398,6 +386,18 @@ void keyboard_post_init_bk_pointing_device(void) {
         set_auto_mouse_enable(true);
     } else {
         set_auto_mouse_enable(false);
+    }
+
+    
+    if(!g_bk_pointing_device_config.has_copied_qmk_config) {
+        g_bk_pointing_device_config.has_copied_qmk_config = true;
+#ifdef BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_REVERSE_X
+        g_bk_pointing_device_config.dragscroll_axis_invert_x = true;
+#endif
+#ifdef BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_REVERSE_Y
+        g_bk_pointing_device_config.dragscroll_axis_invert_y = true;
+#endif
+        write_bk_pointing_device_config_to_eeprom(&g_bk_pointing_device_config);
     }
 
     // test
@@ -415,6 +415,34 @@ layer_state_t layer_state_set_bk_pointing_device(layer_state_t state) {
     return state;
 }
 
+void bk_pointing_device_set_dragscroll_axis_invert_x(bool invert) {
+    g_bk_pointing_device_config.dragscroll_axis_invert_x = invert;
+    write_bk_pointing_device_config_to_eeprom(&g_bk_pointing_device_config);
+}
+
+void bk_pointing_device_set_dragscroll_axis_invert_y(bool invert) {
+    g_bk_pointing_device_config.dragscroll_axis_invert_y = invert;
+    write_bk_pointing_device_config_to_eeprom(&g_bk_pointing_device_config);
+}
+
+void bk_pointing_device_set_dragscroll_dpi(uint16_t dpi) {
+    // TODO
+    // g_bk_pointing_device_config.dragscroll_dpi = dpi;
+    // write_bk_pointing_device_config_to_eeprom(&g_bk_pointing_device_config);
+}
+
+bool bk_pointing_device_get_dragscroll_axis_invert_x(void) {
+    return g_bk_pointing_device_config.dragscroll_axis_invert_x;
+}
+
+bool bk_pointing_device_get_dragscroll_axis_invert_y(void) {
+    return g_bk_pointing_device_config.dragscroll_axis_invert_y;
+}   
+
+uint16_t bk_pointing_device_get_dragscroll_dpi(void) {
+    // TODO
+    return 0;
+}
 
 // TODO dinamically manage BK_POINTING_DEVICE_AUTO_POINTER_LAYER_TRIGGER_ENABLE (in mem)
 // TODO dinamically manage CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD (in mem)

@@ -74,18 +74,13 @@ static bk_pointing_device_config_t g_bk_pointing_device_config = {0};
 */
 static void read_bk_pointing_device_config_from_eeprom(bk_pointing_device_config_t* config) {
 // TODO: replace with per-module memory management
-    printf("Reading from EEPROM.... \n");
 #ifdef COMMUNITY_MODULE_ARGOS_ENABLE
-printf("Reading from Argos\n");
 argos_read_eeprom(ARGOS_OFFSET_POINTER_CONFIG, config, sizeof(bk_pointing_device_config_t));
 #else
-    printf("No argos, reading directly from kb EEPROM.... \n");
     config->raw                   = eeconfig_read_kb() & 0xff;
 #endif
     config->is_dragscroll_enabled = false;
     config->is_sniping_enabled    = false;
-    printf("Read DPI: %d\n", config->pointer_default_dpi);
-    printf("ReadSNIPING DPI: %d\n", config->pointer_sniping_dpi);
 }
 
 /**
@@ -248,7 +243,6 @@ static void bk_pointing_device_task_pointing_device_dilemma(report_mouse_t* mous
 static void bk_pointing_device_task_pointing_device(report_mouse_t* mouse_report) {
     static int16_t scroll_buffer_x = 0;
     static int16_t scroll_buffer_y = 0;
-    printf("1 mouse_report: x=%d, y=%d\n", mouse_report->x, mouse_report->y);
     if (g_bk_pointing_device_config.is_dragscroll_enabled) {
         scroll_buffer_x += (g_bk_pointing_device_config.dragscroll_axis_invert_x ? -1 : 1) * mouse_report->x;
         scroll_buffer_y += (g_bk_pointing_device_config.dragscroll_axis_invert_y ? -1 : 1) * mouse_report->y;
@@ -263,7 +257,6 @@ static void bk_pointing_device_task_pointing_device(report_mouse_t* mouse_report
             scroll_buffer_y = 0;
         }
     }
-    printf("2 mouse_report: x=%d, y=%d\n", mouse_report->x, mouse_report->y);
 }
 
 report_mouse_t pointing_device_task_bk_pointing_device(report_mouse_t mouse_report) {
@@ -349,7 +342,6 @@ bool process_record_bk_pointing_device(uint16_t keycode, keyrecord_t* record) {
             }
             break;
         case SNIPING:
-        printf("SNIPING\n");
             bk_pointing_device_set_pointer_sniping_enabled(record->event.pressed);
             break;
         case SNP_TOG:

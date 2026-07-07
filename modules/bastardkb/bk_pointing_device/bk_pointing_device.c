@@ -50,6 +50,10 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 #define BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_DPI 100
 #define BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE 6
 
+#ifdef POINTING_DEVICE_DRIVER_digitizer
+#define BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE_DIGITIZER 600
+#endif
+
 typedef union {
     uint8_t raw;
     struct {
@@ -442,16 +446,12 @@ uint16_t bk_pointing_device_get_dragscroll_dpi(void) {
 // TODO dinamically manage CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD (in mem)
 // TODO: for dilemma, missing keyboard_pre_init_kb?  gpio_init?
 
-
 #ifdef POINTING_DEVICE_DRIVER_digitizer
 /*
-    Here we need to be a silly goose.
-    QMK's auto mouse layer is not designed to work with digitizer.
-    So what we do instead is we manually copy over the x+y values of the digitizer 
-    And then manually call the auto mouse layer code.
+    We override the kb task, because QMK does not provide (as of coding this) a module-level override.
 */
 bool digitizer_task_kb(digitizer_t *const digitizer_state) {
-    printf("digitizer task kb\n");
+    // Auto mouse layer implementation for trackpads
     report_mouse_t report = {0};
     static digitizer_t last_report    = {0};
     uint16_t delta_x = 0;
@@ -472,6 +472,62 @@ bool digitizer_task_kb(digitizer_t *const digitizer_state) {
     pointing_device_task_auto_mouse(report);
 
     last_report = *digitizer_state; // copy the state to the last report
+
+    // Dragscroll implementation for trackpads
+    static int16_t scroll_buffer_x = 0;
+    static int16_t scroll_buffer_y = 0;
+    if (g_bk_pointing_device_config.is_dragscroll_enabled) {
+        scroll_buffer_x += (g_bk_pointing_device_config.dragscroll_axis_invert_x ? -1 : 1) * report.x;
+        scroll_buffer_y += (g_bk_pointing_device_config.dragscroll_axis_invert_y ? -1 : 1) * report.y;
+        report.x = 0;
+        report.y = 0;
+        // prevent bounceback issues
+        if(abs(scroll_buffer_x) > BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE_DIGITIZER+200) {
+            scroll_buffer_x = 0;
+        }
+        if(abs(scroll_buffer_y) > BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE_DIGITIZER+200) {
+            scroll_buffer_y = 0;
+        }
+        if (abs(scroll_buffer_x) > BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE_DIGITIZER) {
+            report.h = scroll_buffer_x > 0 ? 1 : -1;
+            // printf("TRIGGER, h: %d\n", report.h);
+            // printf("scroll_buffer_x: %d\n", scroll_buffer_x);
+            scroll_buffer_x = 0;
+        }
+        if (abs(scroll_buffer_y) > BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE_DIGITIZER) {
+            report.v = scroll_buffer_y > 0 ? 1 : -1;
+            printf("TRIGGER, v: %d\n", report.v);
+            printf("scroll_buffer_y: %d\n", scroll_buffer_y);
+            scroll_buffer_y = 0;
+        }
+        // manually trigger scroll
+        // we just press the mouse wheel up / mouse wheel down keycodes...
+        bool scrolling = false;
+        if (report.v > 0) {
+            tap_code(MS_WHLU);
+            scrolling = true;
+        } else if (report.v < 0) {
+            tap_code(MS_WHLD);
+            scrolling = true;
+        }
+        // TODO right/left scroll
+        // if (report.v > 0) {
+        //     tap_code(MS_WHLR);
+        // scrolling = true;
+        // } else if (report.v < 0) {
+        //     tap_code(MS_WHLL);
+        // scrolling = true;
+        // }
+
+        // if we are scrolling, cancel out cursor movement
+        if(scrolling) {
+        }
+    } 
+    // else{
+    //     // reset
+    //     scroll_buffer_x = 0;
+    //     scroll_buffer_y = 0;
+    // }
 
     // trigger a button state changed in master
     return true;

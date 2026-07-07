@@ -35,6 +35,10 @@
 #include "argos.h"
 #endif
 
+#ifdef POINTING_DEVICE_DRIVER_digitizer
+#include "digitizer.h"
+#endif
+
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
 // ........................... imported from charybdis.c
@@ -436,5 +440,41 @@ uint16_t bk_pointing_device_get_dragscroll_dpi(void) {
 
 // TODO dinamically manage BK_POINTING_DEVICE_AUTO_POINTER_LAYER_TRIGGER_ENABLE (in mem)
 // TODO dinamically manage CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_THRESHOLD (in mem)
-// TODO dinamically manage CHARYBDIS_AUTO_SNIPING_ON_LAYER (in mem)
 // TODO: for dilemma, missing keyboard_pre_init_kb?  gpio_init?
+
+
+#ifdef POINTING_DEVICE_DRIVER_digitizer
+/*
+    Here we need to be a silly goose.
+    QMK's auto mouse layer is not designed to work with digitizer.
+    So what we do instead is we manually copy over the x+y values of the digitizer 
+    And then manually call the auto mouse layer code.
+*/
+bool digitizer_task_kb(digitizer_t *const digitizer_state) {
+    printf("digitizer task kb\n");
+    report_mouse_t report = {0};
+    static digitizer_t last_report    = {0};
+    uint16_t delta_x = 0;
+    uint16_t delta_y = 0;
+
+    for (int i = 0; i < DIGITIZER_CONTACT_COUNT; i++) {
+#if DIGITIZER_FINGER_COUNT > 0
+        if (i < DIGITIZER_FINGER_COUNT) {
+            delta_x += digitizer_state->contacts[i].x - last_report.contacts[i].x;
+            delta_y += digitizer_state->contacts[i].y - last_report.contacts[i].y;
+        }
+#endif
+    }
+
+    // "fake copy" it into the mouse report so that the auto mouse layer may trigger if needed
+    report.x = delta_x;
+    report.y = delta_y;
+    pointing_device_task_auto_mouse(report);
+
+    last_report = *digitizer_state; // copy the state to the last report
+
+    // trigger a button state changed in master
+    return true;
+}
+
+#endif

@@ -447,7 +447,7 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
     case argos_id_set_auto_mouse_layer_enabled: {
 #ifdef BK_HAS_POINTING_DEVICE
             send_data = true; // ack
-            bk_pointing_device_set_auto_mouse_layer_enabled(command_data[0]);
+            bkpd_set_auto_mouse_layer_enabled(command_data[0]);
             printf("Auto mouse layer enabled: %d\n", command_data[0]);
 #endif
         break;
@@ -455,7 +455,7 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
     case argos_id_set_auto_precision_on_mouse_layer_enabled: {
 #ifdef BK_HAS_POINTING_DEVICE
             send_data = true; // ack
-            bk_pointing_device_set_auto_precision_on_mouse_layer_enabled(command_data[0]);
+            bkpd_set_auto_precision_on_mouse_layer_enabled(command_data[0]);
             printf("Auto precision on mouse layer enabled: %d\n", command_data[0]);
 #endif
         break;
@@ -467,10 +467,10 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
             const uint8_t axis_index = command_data[0];
             const bool invert = command_data[1];
             if(axis_index == 0 ) {
-                bk_pointing_device_set_dragscroll_axis_invert_x(invert);
+                bkpd_set_dragscroll_axis_invert_x(invert);
             }
             else if(axis_index == 1) {
-                bk_pointing_device_set_dragscroll_axis_invert_y(invert);
+                bkpd_set_dragscroll_axis_invert_y(invert);
             }
 #endif
         break;
@@ -479,7 +479,7 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
     case argos_id_set_dragscroll_dpi: {
 #ifdef BK_HAS_POINTING_DEVICE
             send_data = true; // ack
-            bk_pointing_device_set_dragscroll_dpi(command_data[0]);
+            bkpd_set_dragscroll_dpi(command_data[0]);
 #endif
         break;
     }

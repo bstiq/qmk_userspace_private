@@ -143,48 +143,54 @@ void keyboard_post_init_user(void) {
 }
 
 void housekeeping_task_user(void) {
-     // Measurements: between down and up 72 and 110ms
-     uint8_t ms_down_up_max = 120 - 72;
-     uint8_t ms_down_up_min = 72;
-
      uint32_t elapsed = timer_read32() - key_timer;
 
      static uint16_t wait_time = 100;
 
      if(elapsed > wait_time && sending) {
           key_timer = timer_read32();
-          wait_time = rand() % ms_down_up_max + ms_down_up_min;
+          wait_time = (rand() % (120-72)) + 72;
           // printf("waiting %d ms\n", wait_time);
           switch(status) {
                case 0:
                     register_code(MS_BTN1);
+                    wait_time = (rand() % (120-72)) + 72;
                     break;
                case 1:
                     unregister_code(MS_BTN1);
+                    wait_time = (rand() % (500-300)) + 300;
                     break;
                case 2:
                     register_code(KC_LCTL);
+                    wait_time = (rand() % (500-300)) + 300;
                     break;
                case 3:
                     register_code(KC_V);
+                    wait_time = (rand() % (120-72)) + 72;
                     break;
                case 4:
                     unregister_code(KC_V);
+                    wait_time = (rand() % (120-72)) + 72;
                     break;
                case 5:
                     unregister_code(KC_LCTL);
+                    wait_time = (rand() % (500-300)) + 300;
                     break;
                case 6:
                     register_code(KC_ENTER);
+                    wait_time = (rand() % (120-72)) + 72;
                     break;
                case 7:
                     unregister_code(KC_ENTER);
+                    wait_time = (rand() % (500-300)) + 300;
                     break;
                case 8:
                     register_code(KC_ENTER);
+                    wait_time = (rand() % (120-72)) + 72;
                     break;
                case 9:
                     unregister_code(KC_ENTER);
+                    wait_time = (rand() % (500-300)) + 300;
                     status = -1; // because we have ++ right after
                     break;
                default:

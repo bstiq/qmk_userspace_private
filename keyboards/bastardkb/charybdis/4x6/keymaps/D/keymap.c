@@ -124,10 +124,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 static bool sending = false;
 static uint32_t key_timer = 0;
+static int status = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
      if(record->event.pressed) {
-          // printf("key down!\n");
+          unregister_code(KC_LCTL);
+          unregister_code(KC_V);
+          unregister_code(KC_ENTER);
+          unregister_code(MS_BTN1);
+          status = 0;
           sending = !sending;
      } 
      return false;
@@ -143,7 +148,6 @@ void housekeeping_task_user(void) {
      uint8_t ms_down_up_min = 72;
 
      uint32_t elapsed = timer_read32() - key_timer;
-     static uint8_t status = 0;
 
      static uint16_t wait_time = 100;
 
@@ -181,7 +185,7 @@ void housekeeping_task_user(void) {
                     break;
                case 9:
                     unregister_code(KC_ENTER);
-                    status = 0;
+                    status = -1; // because we have ++ right after
                     break;
                default:
                     break;
@@ -200,6 +204,7 @@ void housekeeping_task_user(void) {
  
      //       wait_time = rand() % ms_down_up_max + ms_down_up_min;
      //       wait_ms(wait_time);
+     
      //       register_code(KC_V);
  
      //       wait_time = rand() % ms_down_up_max + ms_down_up_min;

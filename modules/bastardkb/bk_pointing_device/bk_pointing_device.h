@@ -25,6 +25,9 @@ void bk_pointing_device_set_dragscroll_dpi(uint16_t dpi);
 bool bk_pointing_device_get_dragscroll_axis_invert_x(void);
 bool bk_pointing_device_get_dragscroll_axis_invert_y(void);
 uint16_t bk_pointing_device_get_dragscroll_dpi(void);
+
+#ifdef POINTING_DEVICE_DRIVER_digitizer
 bool digitizer_task_kb(digitizer_t *const digitizer_state);
+#endif
 
 // NOTE: made to work on branch bkb-pointing-device

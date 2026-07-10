@@ -123,9 +123,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 static bool sending = false;
+// static uint32_t key_timer = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-     sending = true;
+     if(record->event.pressed) {
+          printf("key down!\n");
+          sending = !sending;
+     } 
      return false;
 }
 
@@ -134,46 +138,38 @@ void keyboard_post_init_user(void) {
 }
 
 void housekeeping_task_user(void) {
+     /*
+          Measurements: between down and up 72 and 110ms
+     */
+     uint8_t ms_down_up_max = 120 - 72;
+     uint8_t ms_down_up_min = 72;
      if(sending) {
-           // wait 0.1 to 0.8 seconds, TODO also print how long we wait (rand...)
-           uint16_t wait_time = rand() % 1000 + 500;
-          //  printf("Waiting %d ms\n", wait_time);
+          // wait a bunch of time to start cycle again
+           uint16_t wait_time = rand() % ms_down_up_max + ms_down_up_min;
            wait_ms(wait_time);
            tap_code(MS_BTN1);
  
-           // wait 0.1 to 0.8 seconds, TODO also print how long we wait (rand...)
-           wait_time = rand() % 800 + 100;
-          //  printf("Waiting %d ms\n", wait_time);
+           wait_time = rand() % ms_down_up_max + ms_down_up_min;
            wait_ms(wait_time);
            register_code(KC_LCTL);
  
-           // wait 0.1 to 0.8 seconds
-           wait_time = rand() % 800 + 100;
-          //  printf("Waiting %d ms\n", wait_time);
+           wait_time = rand() % ms_down_up_max + ms_down_up_min;
            wait_ms(wait_time);
            register_code(KC_V);
  
-           // wait 0.1 to 0.4 seconds
-           wait_time = rand() % 400 + 100;
-          //  printf("Waiting %d ms\n", wait_time);
+           wait_time = rand() % ms_down_up_max + ms_down_up_min;
            wait_ms(wait_time);
            unregister_code(KC_V);
  
-           // wait 0.1 to 0.8 seconds
-           wait_time = rand() % 800 + 100;
-          //  printf("Waiting %d ms\n", wait_time);
+           wait_time = rand() % ms_down_up_max + ms_down_up_min;
            wait_ms(wait_time);
            unregister_code(KC_LCTL);
  
-           // wait 0.1 to 0.8 seconds
-           wait_time = rand() % 800 + 100;
-          //  printf("Waiting %d ms\n", wait_time);
+           wait_time = rand() % ms_down_up_max + ms_down_up_min;
            wait_ms(wait_time);
            tap_code(KC_ENTER);
  
-           // wait 0.1 to 0.8 seconds
-           wait_time = rand() % 800 + 100;
-          //  printf("Waiting %d ms\n", wait_time);
+           wait_time = rand() % ms_down_up_max + ms_down_up_min;
            wait_ms(wait_time);
            tap_code(KC_ENTER);
      }

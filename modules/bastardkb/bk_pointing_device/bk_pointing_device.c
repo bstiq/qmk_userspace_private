@@ -243,7 +243,6 @@ static bool has_shift_mod(void) {
 */
 bool process_record_bk_pointing_device(uint16_t keycode, keyrecord_t* record) {
     if (!process_record_user(keycode, record)) {
-        // printf("bkpd_config: %d\n", g_bkpd_config.raw);
         return false;
     }
 
@@ -364,8 +363,6 @@ uint16_t bkpd_get_dragscroll_dpi(void) {
     return 0;
 }
 
-// TODO: for dilemma, missing keyboard_pre_init_kb?  gpio_init?
-
 /**
 * \brief Auto mouse layer implementation for trackpads
 * We override the kb task, because QMK does not provide (as of coding this) a module-level override.
@@ -410,8 +407,6 @@ bool digitizer_task_kb(digitizer_t *const digitizer_state) {
         }
         if (abs(scroll_buffer_x) > BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE_DIGITIZER) {
             report.h = scroll_buffer_x > 0 ? 1 : -1;
-            // printf("TRIGGER, h: %d\n", report.h);
-            // printf("scroll_buffer_x: %d\n", scroll_buffer_x);
             scroll_buffer_x = 0;
         }
         if (abs(scroll_buffer_y) > BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE_DIGITIZER) {

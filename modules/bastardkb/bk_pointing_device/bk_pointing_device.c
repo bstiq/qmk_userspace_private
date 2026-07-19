@@ -338,7 +338,7 @@ bool bpkd_is_changing_dpi_settings(void) {
 /*
 *   \brief Manage a visual indicator of the DPI/Sniping DPI that's being changed.
 */
-// TODO handle other side?.....
+// TODO handle secondary side? ....
 bool rgb_matrix_indicators_advanced_bk_pointing_device(uint8_t led_min, uint8_t led_max) {
     // printf("rgb_matrix_indicators_advanced_bk_pointing_device: %d\n", led_min);
     const uint8_t layer = get_highest_layer(layer_state);
@@ -372,8 +372,8 @@ bool rgb_matrix_indicators_advanced_bk_pointing_device(uint8_t led_min, uint8_t 
             // we want to light up both sides, symmetrically
             // TODO handle non-argos? (not really possible right now)
             uint8_t index_symmetric = i;
-            if(i > RGB_ENTRIES_PER_LAYER / 2) {
-                index_symmetric = i - RGB_ENTRIES_PER_LAYER / 2;
+            if(i > 18*2) {
+                index_symmetric = i - 18*2; // TODO hardcoded
             }
             if( index_symmetric >= min_index && index_symmetric < min_index + max_steps) {
                 // TODO brightness (RGB_MATRIX_MAXIMUM_BRIGHTNESS)

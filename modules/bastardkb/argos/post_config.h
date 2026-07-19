@@ -46,6 +46,7 @@
 #if defined(POINTING_DEVICE_DRIVER_digitizer) || defined(CIRQUE_PINNACLE_DIAMETER_MM)
 // TODO manage dilemma trackball
 // dilemma, with underglow
+// TODO: we use too many LEDs, as the thumb cluster row is usually not fully used.
 #define RGB_ENTRIES_PER_LAYER MATRIX_COLS*MATRIX_ROWS*2
 #else
 // others, no underglow

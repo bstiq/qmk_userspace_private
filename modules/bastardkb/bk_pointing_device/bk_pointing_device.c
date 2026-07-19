@@ -34,6 +34,7 @@
 
 #ifdef COMMUNITY_MODULE_ARGOS_ENABLE
 #include "argos.h"
+#include "argos_rgb.h"
 #endif
 
 #ifdef POINTING_DEVICE_DRIVER_digitizer
@@ -50,6 +51,9 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 #define BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_DPI 100
 #define BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE 6
 
+#define BK_POINTING_DEVICE_MAX_DPI_BYTES 4
+#define BK_POINTING_DEVICE_MAX_SNIPING_DPI_BYTES 2
+
 #ifdef POINTING_DEVICE_DRIVER_digitizer
 #define BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE_DIGITIZER 600
 #endif
@@ -57,8 +61,8 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 typedef union {
     uint8_t raw;
     struct {
-        uint8_t pointer_default_dpi : 4; // 16 steps available.
-        uint8_t pointer_sniping_dpi : 2; // 4 steps available.
+        uint8_t pointer_default_dpi : BK_POINTING_DEVICE_MAX_DPI_BYTES; // 16 steps available.
+        uint8_t pointer_sniping_dpi : BK_POINTING_DEVICE_MAX_SNIPING_DPI_BYTES; // 4 steps available.
         bool    is_dragscroll_enabled : 1;
         bool    is_sniping_enabled : 1;
         bool auto_mouse_layer_enabled : 1;
@@ -71,6 +75,8 @@ typedef union {
 } bkpd_config_t;
 
 static bkpd_config_t g_bkpd_config = {0};
+static bool changing_dpi_settings = false;
+static bool changing_sniping_dpi_settings = false;
 
 /**
 * \brief Set the value of `config` from EEPROM.
@@ -266,24 +272,36 @@ bool process_record_bk_pointing_device(uint16_t keycode, keyrecord_t* record) {
             if (record->event.pressed) {
                 // Step backward if shifted, forward otherwise.
                 bkpd_cycle_pointer_default_dpi(/* forward= */ !has_shift_mod());
+                changing_dpi_settings = true;
+                changing_sniping_dpi_settings = false;
+                printf("DPI_MOD: %d\n", g_bkpd_config.pointer_default_dpi);
             }
             break;
         case DPI_RMOD:
             if (record->event.pressed) {
                 // Step forward if shifted, backward otherwise.
                 bkpd_cycle_pointer_default_dpi(/* forward= */ has_shift_mod());
+                changing_dpi_settings = true;
+                changing_sniping_dpi_settings = false;
+                printf("DPI_RMOD: %d\n", g_bkpd_config.pointer_default_dpi);
             }
             break;
         case S_D_MOD:
             if (record->event.pressed) {
                 // Step backward if shifted, forward otherwise.
                 bkpd_cycle_pointer_sniping_dpi(/* forward= */ !has_shift_mod());
+                changing_sniping_dpi_settings = true;
+                changing_dpi_settings = false;
+                printf("S_D_MOD: %d\n", g_bkpd_config.pointer_sniping_dpi);
             }
             break;
         case S_D_RMOD:
             if (record->event.pressed) {
                 // Step forward if shifted, backward otherwise.
                 bkpd_cycle_pointer_sniping_dpi(/* forward= */ has_shift_mod());
+                changing_sniping_dpi_settings = true;
+                changing_dpi_settings = false;
+                printf("S_D_RMOD: %d\n", g_bkpd_config.pointer_sniping_dpi);
             }
             break;
         case SNIPING:
@@ -302,6 +320,86 @@ bool process_record_bk_pointing_device(uint16_t keycode, keyrecord_t* record) {
                 bkpd_set_pointer_dragscroll_enabled(!bkpd_get_pointer_dragscroll_enabled());
             }
             break;
+        default:
+            changing_dpi_settings = false;
+            changing_sniping_dpi_settings = false;
+            break;
+    }
+    printf("changing_dpi_settings: %d\n", changing_dpi_settings);
+    printf("changing_sniping_dpi_settings: %d\n", changing_sniping_dpi_settings);
+    printf("--------------------------------\n");
+    return true;
+}
+
+bool bpkd_is_changing_dpi_settings(void) {
+    return changing_dpi_settings || changing_sniping_dpi_settings;
+}
+
+/*
+*   \brief Manage a visual indicator of the DPI/Sniping DPI that's being changed.
+*/
+// TODO handle other side?.....
+bool rgb_matrix_indicators_advanced_bk_pointing_device(uint8_t led_min, uint8_t led_max) {
+    // printf("rgb_matrix_indicators_advanced_bk_pointing_device: %d\n", led_min);
+    const uint8_t layer = get_highest_layer(layer_state);
+
+    if(layer != AUTO_MOUSE_DEFAULT_LAYER) {
+        changing_dpi_settings = false;
+        changing_sniping_dpi_settings = false;
+        return false; // process further in parent function
+    }
+
+    uint8_t steps_per_led = 1;
+    uint8_t max_steps = 0;
+    uint8_t current_step = 0;
+    uint16_t min_index = 7; // TODO this is currently hardcoded for Dilemma V3_procyont
+    RGB color = {0, 0, 0};
+    argos_rgb_get_layer_color(layer, &color); // TODO if argos not enabled, use green or sth like tha
+
+    if(changing_dpi_settings) {
+        steps_per_led = 2;
+        max_steps = pow(2, BK_POINTING_DEVICE_MAX_DPI_BYTES) / steps_per_led;
+        current_step = g_bkpd_config.pointer_default_dpi;
+    } else if(changing_sniping_dpi_settings) {
+        steps_per_led = 1;
+        max_steps = pow(2, BK_POINTING_DEVICE_MAX_SNIPING_DPI_BYTES) / steps_per_led;
+        current_step = g_bkpd_config.pointer_sniping_dpi;
+    }
+
+    if(changing_dpi_settings || changing_sniping_dpi_settings) {
+        // max leds we will light, we divide by 2 otherwise it's a lot of LEDs
+        for(int i = led_min; i < led_max; i++) {
+            // we want to light up both sides, symmetrically
+            // TODO handle non-argos? (not really possible right now)
+            uint8_t index_symmetric = i;
+            if(i > RGB_ENTRIES_PER_LAYER / 2) {
+                index_symmetric = i - RGB_ENTRIES_PER_LAYER / 2;
+            }
+            if( index_symmetric >= min_index && index_symmetric < min_index + max_steps) {
+                // TODO brightness (RGB_MATRIX_MAXIMUM_BRIGHTNESS)
+                // default color is red (complete gauge)
+                if(index_symmetric == min_index + current_step/steps_per_led) {
+                    if(steps_per_led == 1) {
+                        rgb_matrix_set_color(i, color.r, color.g, color.b);
+                    }
+                    else if(current_step % steps_per_led == 0) {
+                        rgb_matrix_set_color(i, (color.r+255)/2, color.g/2, color.b/2);
+                    }
+                    else{
+                        rgb_matrix_set_color(i, color.r, color.g, color.b);
+                    }
+                }
+                else if(index_symmetric < min_index + current_step/steps_per_led) {
+                    rgb_matrix_set_color(i, color.r, color.g, color.b);
+                }
+                else{
+                    rgb_matrix_set_color(i, 255, 0, 0);
+                }
+            }
+            else{
+                rgb_matrix_set_color(i, 0, 0, 0);
+            }
+        }
     }
     return true;
 }

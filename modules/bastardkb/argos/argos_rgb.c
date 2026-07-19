@@ -2,6 +2,10 @@
 #include "argos.h"
 #include "transactions.h"
 
+#ifdef COMMUNITY_MODULE_BK_POINTING_DEVICE_ENABLE
+#include "bk_pointing_device.h"
+#endif
+
 static argos_rgb_t argos_rgb_entries[ARGOS_RGB_MATRIX_ENTRIES];
 
 void argos_rgb_init(void) {
@@ -10,7 +14,7 @@ void argos_rgb_init(void) {
         argos_rgb_entries[i] = (argos_rgb_t){0, 0, 0, false, false, false};
     }
     // default: per-layer rgb
-    // TODO remove hardcoded 10 layers max value
+    // hardcoded 10 layers max value
     for(int layer = 1; layer < 10; layer++) {
         const uint8_t brightness = rgb_matrix_get_val();
         // pick 10 different colors, easier to do in HSV
@@ -32,14 +36,18 @@ void argos_rgb_load_from_eeprom(void) {
 }
 
 // Layer state indicator
-// for now... just a test
 bool rgb_matrix_indicators_advanced_argos(uint8_t led_min, uint8_t led_max) {
+#ifdef COMMUNITY_MODULE_BK_POINTING_DEVICE_ENABLE
+    // if the pointing module is already changing the DPI settings, it will handle custom RGB indicators 
+    if(bpkd_is_changing_dpi_settings()) {
+        return true;
+    }
+#endif
     const uint8_t layer = get_highest_layer(layer_state);
     const uint16_t min_index = layer * RGB_ENTRIES_PER_LAYER;
     
     for(int i = led_min; i < led_max; i++) {
         const uint16_t index = min_index + i;
-        // printf("Testing rgb entry index %d\n", index);
         if(argos_rgb_entries[index].custom) {
             if(argos_rgb_entries[index].on) {
                 if(argos_rgb_entries[index].passthrough == false) {
@@ -56,6 +64,13 @@ bool rgb_matrix_indicators_advanced_argos(uint8_t led_min, uint8_t led_max) {
     }
     
     return true;
+}
+
+void argos_rgb_get_layer_color(uint8_t layer, RGB *rgb) {
+    // grab the first underglow LED of the layer
+    const uint16_t index = layer * RGB_ENTRIES_PER_LAYER;
+    const argos_rgb_t *entry = &argos_rgb_entries[index];
+    *rgb = (RGB){entry->r, entry->g, entry->b};
 }
 
 // The rgb module code is called BEFORE the KB code, so we need to override the KB code.

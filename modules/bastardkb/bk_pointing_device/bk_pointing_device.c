@@ -110,12 +110,12 @@ static void write_bkpd_config_to_eeprom(void) {
 
 /** \brief Return the current value of the pointer's default DPI. */
 uint16_t bkpd_get_pointer_default_dpi(void) {
-    return (uint16_t)g_bkpd_config.pointer_default_dpi * BK_POINTING_DEVICE_DEFAULT_DPI_CONFIG_STEP + BK_POINTING_DEVICE_MINIMUM_DEFAULT_DPI;
+    return (uint16_t)g_bkpd_config.pointer_default_dpi * bkpd_get_default_dpi_config_step() + bkpd_get_minimum_default_dpi();
 }
 
 /** \brief Return the current value of the pointer's sniper-mode DPI. */
 uint16_t bkpd_get_pointer_sniping_dpi(void) {
-    return (uint16_t)g_bkpd_config.pointer_sniping_dpi * BK_POINTING_DEVICE_SNIPING_DPI_CONFIG_STEP + BK_POINTING_DEVICE_MINIMUM_SNIPING_DPI;
+    return (uint16_t)g_bkpd_config.pointer_sniping_dpi * bkpd_get_sniping_dpi_config_step() + bkpd_get_minimum_sniping_dpi();
 }
 
 /** \brief Set the appropriate DPI for the input config. */

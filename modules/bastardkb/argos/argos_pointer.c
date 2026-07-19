@@ -2,7 +2,6 @@
 
 #include "argos_pointer.h"
 #include "argos.h"
-#include "pointer_config_hardcoded.h"
 #include <stdint.h>
 
 // TODO dilemma v2 / cirque
@@ -26,22 +25,26 @@ void build_pointing_device_info_command_data(uint8_t **command_data) {
         (*command_data)[1] = bkpd_get_pointer_default_dpi() & 0xFF;
         (*command_data)[2] = (bkpd_get_pointer_default_dpi() >> 8) & 0xFF;
         // minimum default DPI is 400, 2 bytes
-        (*command_data)[3] = ARGOS_MINIMUM_DEFAULT_DPI & 0xFF;
-        (*command_data)[4] = (ARGOS_MINIMUM_DEFAULT_DPI >> 8) & 0xFF;
+        uint16_t minimum_default_dpi = bkpd_get_minimum_default_dpi();
+        (*command_data)[3] = minimum_default_dpi & 0xFF;
+        (*command_data)[4] = (minimum_default_dpi >> 8) & 0xFF;
         // default DPI config step is 200, so one byte, but we use 2 just in
         // case
-        (*command_data)[5] = ARGOS_DEFAULT_DPI_CONFIG_STEP & 0xFF;
-        (*command_data)[6] = (ARGOS_DEFAULT_DPI_CONFIG_STEP >> 8) & 0xFF;
+        uint16_t default_dpi_config_step = bkpd_get_default_dpi_config_step();
+        (*command_data)[5] = default_dpi_config_step & 0xFF;
+        (*command_data)[6] = (default_dpi_config_step >> 8) & 0xFF;
         // sniping DPI is up to 200+4*100 = 600, 2 bytes
         (*command_data)[7] = bkpd_get_pointer_sniping_dpi() & 0xFF;
         (*command_data)[8] = (bkpd_get_pointer_sniping_dpi() >> 8) & 0xFF;
         // mininmum sniping dpi is 200, but ue use 2 bytes ju) in case
-        (*command_data)[9] = ARGOS_MINIMUM_SNIPING_DPI & 0xFF;
-        (*command_data)[10] = (ARGOS_MINIMUM_SNIPING_DPI >> 8) & 0xFF;
+        uint16_t minimum_sniping_dpi = bkpd_get_minimum_sniping_dpi();
+        (*command_data)[9] = minimum_sniping_dpi & 0xFF;
+        (*command_data)[10] = (minimum_sniping_dpi >> 8) & 0xFF;
         // sniping DPI config step is 100, so one byte, but we use 2 just in
         // case
-        (*command_data)[11] = ARGOS_SNIPING_DPI_CONFIG_STEP & 0xFF;
-        (*command_data)[12] = (ARGOS_SNIPING_DPI_CONFIG_STEP >> 8) & 0xFF;
+        uint16_t sniping_dpi_config_step = bkpd_get_sniping_dpi_config_step();
+        (*command_data)[11] = sniping_dpi_config_step & 0xFF;
+        (*command_data)[12] = (sniping_dpi_config_step >> 8) & 0xFF;
         // pointing DPI max steps is 16, so one byte is plenty
         // this is hardcoded here as we can't read it from dilemma.c (private
         // config structure dilemma_config_t)
@@ -68,7 +71,8 @@ void argos_set_dpi(uint8_t *command_data) {
         // calculate the difference:
         int16_t difference = new_dpi - old_dpi;
         // calculate how many steps we need, it could be negative
-        int8_t new_steps = difference / ARGOS_DEFAULT_DPI_CONFIG_STEP;
+        uint16_t default_dpi_config_step = bkpd_get_default_dpi_config_step();
+        int8_t new_steps = difference / default_dpi_config_step;
         // apply the steps one by one
         bool forward = new_steps > 0;
         for (int i = 0; i < abs(new_steps); i++) {
@@ -86,7 +90,8 @@ void argos_set_sniping_dpi(uint8_t *command_data) {
         // calculate the difference:
         int16_t difference = new_dpi - old_dpi;
         // calculate how many steps we need, it could be negative
-        int8_t new_steps = difference / ARGOS_SNIPING_DPI_CONFIG_STEP;
+        uint16_t sniping_dpi_config_step = bkpd_get_sniping_dpi_config_step();
+        int8_t new_steps = difference / sniping_dpi_config_step;
         // apply the steps one by one
         bool forward = new_steps > 0;
         for (int i = 0; i < abs(new_steps); i++) {

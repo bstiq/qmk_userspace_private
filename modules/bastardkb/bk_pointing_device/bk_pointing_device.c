@@ -42,8 +42,7 @@
 
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
-// ........................... imported from charybdis.c
-
+// TODO store those in config?
 #define BK_POINTING_DEVICE_MINIMUM_DEFAULT_DPI 400
 #define BK_POINTING_DEVICE_DEFAULT_DPI_CONFIG_STEP 200
 #define BK_POINTING_DEVICE_MINIMUM_SNIPING_DPI 200
@@ -198,6 +197,22 @@ bool bkpd_get_pointer_dragscroll_enabled(void) {
 void bkpd_set_pointer_dragscroll_enabled(bool enable) {
     g_bkpd_config.is_dragscroll_enabled = enable;
     bkpd_maybe_update_cpi();
+}
+
+uint16_t bkpd_get_minimum_default_dpi(void) {
+    return BK_POINTING_DEVICE_MINIMUM_DEFAULT_DPI;
+}
+
+uint16_t bkpd_get_default_dpi_config_step(void) {
+    return BK_POINTING_DEVICE_DEFAULT_DPI_CONFIG_STEP;
+}
+
+uint16_t bkpd_get_minimum_sniping_dpi(void) {
+    return BK_POINTING_DEVICE_MINIMUM_SNIPING_DPI;
+}
+
+uint16_t bkpd_get_sniping_dpi_config_step(void) {
+    return BK_POINTING_DEVICE_SNIPING_DPI_CONFIG_STEP;
 }
 
 /**
@@ -411,33 +426,10 @@ bool digitizer_task_kb(digitizer_t *const digitizer_state) {
         }
         if (abs(scroll_buffer_y) > BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE_DIGITIZER) {
             report.v = scroll_buffer_y > 0 ? 1 : -1;
-            printf("TRIGGER, v: %d\n", report.v);
-            printf("scroll_buffer_y: %d\n", scroll_buffer_y);
             scroll_buffer_y = 0;
         }
         // manually trigger scroll
-        // we just press the mouse wheel up / mouse wheel down keycodes...
-        /*
-            TODO send a mouse report instead?
-            Example: 
-            //  code to create a mouse report based on h/v we calculated
-            pointing_device_set_report(report);
-            pointing_device_send();
-
-            TODO other option: fake a dual-finger touch
-
-            */
-        if (report.v > 0) {
-            tap_code(MS_WHLU);
-        } else if (report.v < 0) {
-            tap_code(MS_WHLD);
-        }
-        // TODO right/left scroll
-        if (report.v > 0) {
-            tap_code(MS_WHLR);
-        } else if (report.v < 0) {
-            tap_code(MS_WHLL);
-        }
+        pointing_device_set_report(report);
 
         // if we are scrolling, cancel out cursor movement
         for (int i = 0; i < DIGITIZER_CONTACT_COUNT; i++) {

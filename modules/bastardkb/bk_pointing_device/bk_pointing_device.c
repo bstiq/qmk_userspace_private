@@ -83,7 +83,7 @@ static bkpd_config_t g_bkpd_config = {0};
 */
 static void read_bkpd_config_from_eeprom(void) {
 // TODO: replace with per-module memory management
-#ifdef COMMUNITY_MODULE_ARGOS_ENABLE
+#if defined(BK_HAS_POINTING_DEVICE) && defined(COMMUNITY_MODULE_ARGOS_ENABLE)
 argos_read_eeprom(ARGOS_OFFSET_POINTER_CONFIG, &g_bkpd_config, sizeof(bkpd_config_t));
 #else
     g_bkpd_config.raw                   = eeconfig_read_kb() & 0xff;
@@ -102,7 +102,7 @@ argos_read_eeprom(ARGOS_OFFSET_POINTER_CONFIG, &g_bkpd_config, sizeof(bkpd_confi
 */
 static void write_bkpd_config_to_eeprom(void) {
 // TODO: replace with per-module memory management
-#ifdef ARGOS_OFFSET_POINTER_CONFIG
+#if defined(BK_HAS_POINTING_DEVICE) && defined(COMMUNITY_MODULE_ARGOS_ENABLE)
     argos_write_eeprom(ARGOS_OFFSET_POINTER_CONFIG, &g_bkpd_config, sizeof(bkpd_config_t));
 #else
     eeconfig_update_kb(g_bkpd_config.raw);
@@ -243,7 +243,7 @@ static bool has_shift_mod(void) {
 */
 bool process_record_bk_pointing_device(uint16_t keycode, keyrecord_t* record) {
     if (!process_record_user(keycode, record)) {
-        printf("bkpd_config: %d\n", g_bkpd_config.raw);
+        // printf("bkpd_config: %d\n", g_bkpd_config.raw);
         return false;
     }
 

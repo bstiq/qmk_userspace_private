@@ -343,7 +343,7 @@ bool rgb_matrix_indicators_advanced_bk_pointing_device(uint8_t led_min, uint8_t 
     if(layer != AUTO_MOUSE_DEFAULT_LAYER) {
         changing_dpi_settings = false;
         changing_sniping_dpi_settings = false;
-        return false; // process further in parent function
+        return true; // process further in parent function
     }
 
     uint8_t steps_per_led = 1;
@@ -408,9 +408,9 @@ bool rgb_matrix_indicators_advanced_bk_pointing_device(uint8_t led_min, uint8_t 
                 rgb_matrix_set_color(i, 0, 0, 0);
             }
         }
-        return true;
+        return false;
     }
-    return false;
+    return true; // process further in parent function
 }
 
 /**

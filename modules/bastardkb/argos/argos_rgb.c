@@ -66,6 +66,10 @@ bool rgb_matrix_indicators_advanced_argos(uint8_t led_min, uint8_t led_max) {
     return true;
 }
 
+/*
+* Returns the RGB color of the first underglow LED of the layer
+* We assume that the whole underglow is the same color (default behaviour)
+*/
 void argos_rgb_get_layer_color(uint8_t layer, RGB *rgb) {
     // grab the first underglow LED of the layer
     const uint16_t index = layer * RGB_ENTRIES_PER_LAYER;

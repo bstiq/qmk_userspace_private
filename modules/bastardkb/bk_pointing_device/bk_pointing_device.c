@@ -325,9 +325,6 @@ bool process_record_bk_pointing_device(uint16_t keycode, keyrecord_t* record) {
             changing_sniping_dpi_settings = false;
             break;
     }
-    printf("changing_dpi_settings: %d\n", changing_dpi_settings);
-    printf("changing_sniping_dpi_settings: %d\n", changing_sniping_dpi_settings);
-    printf("--------------------------------\n");
     return true;
 }
 
@@ -352,9 +349,9 @@ bool rgb_matrix_indicators_advanced_bk_pointing_device(uint8_t led_min, uint8_t 
     uint8_t steps_per_led = 1;
     uint8_t max_steps = 0;
     uint8_t current_step = 0;
-    uint16_t min_index = 7; // TODO this is currently hardcoded for Dilemma V3_procyont
+    uint16_t min_index = LED_DPI_INDICATOR_INDEX;
     RGB color = {0, 0, 0};
-    argos_rgb_get_layer_color(layer, &color); // TODO if argos not enabled, use green or sth like tha
+    argos_rgb_get_layer_color(layer, &color); // TODO if argos not enabled, use green or sth like that
 
     if(changing_dpi_settings) {
         steps_per_led = 2;
@@ -369,12 +366,10 @@ bool rgb_matrix_indicators_advanced_bk_pointing_device(uint8_t led_min, uint8_t 
     if(changing_dpi_settings || changing_sniping_dpi_settings) {
         // max leds we will light, we divide by 2 otherwise it's a lot of LEDs
         for(int i = led_min; i < led_max; i++) {
-            // we want to light up both sides, symmetrically
             // TODO handle non-argos? (not really possible right now)
-            uint8_t index_symmetric = i;
-            if(i > 18*2) {
-                index_symmetric = i - 18*2; // TODO hardcoded
-            }
+            // light up only the primary side.
+            uint8_t index_symmetric = i % (RGBLIGHT_LED_COUNT / 2);
+       
             if( index_symmetric >= min_index && index_symmetric < min_index + max_steps) {
                 // TODO brightness (RGB_MATRIX_MAXIMUM_BRIGHTNESS)
                 // default color is red (complete gauge)

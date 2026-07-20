@@ -350,8 +350,12 @@ bool rgb_matrix_indicators_advanced_bk_pointing_device(uint8_t led_min, uint8_t 
     uint8_t max_steps = 0;
     uint8_t current_step = 0;
     uint16_t min_index = LED_DPI_INDICATOR_INDEX;
-    RGB color = {0, 0, 0};
-    argos_rgb_get_layer_color(layer, &color); // TODO if argos not enabled, use green or sth like that
+    RGB color = {0, 255, 0};
+
+    // handle brightness
+    color.r = (color.r * rgb_matrix_get_val()) / RGB_MATRIX_MAXIMUM_BRIGHTNESS;
+    color.g = (color.g * rgb_matrix_get_val()) / RGB_MATRIX_MAXIMUM_BRIGHTNESS;
+    color.b = (color.b * rgb_matrix_get_val()) / RGB_MATRIX_MAXIMUM_BRIGHTNESS;
 
     if(changing_dpi_settings) {
         steps_per_led = 2;
@@ -370,33 +374,43 @@ bool rgb_matrix_indicators_advanced_bk_pointing_device(uint8_t led_min, uint8_t 
             // light up only the primary side.
             uint8_t index_symmetric = i % (RGBLIGHT_LED_COUNT / 2);
        
+            // handle LEDs if we are in range of the display bar
             if( index_symmetric >= min_index && index_symmetric < min_index + max_steps) {
-                // TODO brightness (RGB_MATRIX_MAXIMUM_BRIGHTNESS)
-                // default color is red (complete gauge)
-                if(index_symmetric == min_index + current_step/steps_per_led) {
-                    if(steps_per_led == 1) {
-                        rgb_matrix_set_color(i, color.r, color.g, color.b);
-                    }
-                    else if(current_step % steps_per_led == 0) {
+                // handle last step (could be full or half brightness)
+                uint8_t last_step = min_index + current_step/steps_per_led;
+                if(index_symmetric == last_step) {
+                    // half brightness for odd DPI steps (2 steps/LED)
+                    if(steps_per_led == 2 && current_step % steps_per_led == 0) {
                         rgb_matrix_set_color(i, (color.r+255)/2, color.g/2, color.b/2);
                     }
-                    else{
+                    // full brightness for sniping DPI and even DPI steps
+                    else {
                         rgb_matrix_set_color(i, color.r, color.g, color.b);
                     }
                 }
-                else if(index_symmetric < min_index + current_step/steps_per_led) {
+                // handle LEDs before the current step that are still active
+                else if(index_symmetric < last_step) {
                     rgb_matrix_set_color(i, color.r, color.g, color.b);
                 }
+                // handle other LEDs (not active but in display bar)
                 else{
-                    rgb_matrix_set_color(i, 255, 0, 0);
+                    // default red
+                    RGB red = {255, 0, 0};                
+                    // handle brightness
+                    red.r = (red.r * rgb_matrix_get_val()) / RGB_MATRIX_MAXIMUM_BRIGHTNESS;
+                    red.g = (red.g * rgb_matrix_get_val()) / RGB_MATRIX_MAXIMUM_BRIGHTNESS;
+                    red.b = (red.b * rgb_matrix_get_val()) / RGB_MATRIX_MAXIMUM_BRIGHTNESS;
+                    rgb_matrix_set_color(i, red.r, red.g, red.b);
                 }
             }
+            // turn off all other leds
             else{
                 rgb_matrix_set_color(i, 0, 0, 0);
             }
         }
+        return true;
     }
-    return true;
+    return false;
 }
 
 /**

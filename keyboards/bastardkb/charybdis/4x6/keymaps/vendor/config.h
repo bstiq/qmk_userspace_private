@@ -34,7 +34,7 @@
 #ifdef LED_DPI_INDICATOR_INDEX
 #undef LED_DPI_INDICATOR_INDEX
 #endif
-#define LED_DPI_INDICATOR_INDEX 0
+#define LED_DPI_INDICATOR_INDEX 1 // accomodate invisible 2 first LEDs for easier DIY build debugging
 
 #ifdef RGBLIGHT_LED_COUNT
 #undef RGBLIGHT_LED_COUNT

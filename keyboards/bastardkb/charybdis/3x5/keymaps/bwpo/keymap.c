@@ -16,7 +16,7 @@
  */
 
 #include QMK_KEYBOARD_H
-#include "bk_pointing_device.h" // TODO remove this, should be included from the module
+// #include "bk_pointing_device.h" // TODO remove this, should be included from the module
 
 #ifdef CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
 #    include "timer.h"
@@ -221,7 +221,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [LAYER_POINTER] = LAYOUT_wrapper(LAYOUT_LAYER_POINTER),
   [LAYER_SYMBOLS] = LAYOUT_wrapper(LAYOUT_LAYER_SYMBOLS),
 };
-// clang-format on
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -238,3 +237,5 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return true;
 }
+
+// clang-format on

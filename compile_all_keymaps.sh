@@ -11,6 +11,9 @@ qmk compile -c -kb bastardkb/dilemma/4x6_4_procyon -km vendor
 qmk compile -c -kb bastardkb/charybdis/4x6/splinktegrated_rev1 -km vendor
 qmk compile -c -kb bastardkb/charybdis/3x5/splinktegrated_rev1 -km vendor
 qmk compile -c -kb bastardkb/charybdis/3x6/splinktegrated_rev1 -km vendor
+qmk compile -c -kb bastardkb/charybdis/4x6_left/splinktegrated_rev1 -km vendor
+qmk compile -c -kb bastardkb/charybdis/3x5_left/splinktegrated_rev1 -km vendor
+qmk compile -c -kb bastardkb/charybdis/3x6_left/splinktegrated_rev1 -km vendor
 qmk compile -c -kb bastardkb/scylla/splinktegrated_rev1 -km vendor
 qmk compile -c -kb bastardkb/skeletyl/splinktegrated_rev1 -km vendor
 qmk compile -c -kb bastardkb/tbkmini/splinktegrated_rev1 -km vendor

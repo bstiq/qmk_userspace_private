@@ -446,7 +446,13 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
 #ifndef ARGOS_DISABLE_VIA_COMMAND_KB
 bool via_command_kb(uint8_t *data, uint8_t length) {
     // try to handle it with argos
-    return argos_handle_command(data, length);
+    bool result = argos_handle_command(data, length);
+    if (result) {
+        return true;
+    } else {
+        return false;
+    }
+    return false;
 }
 #endif // ARGOS_DISABLE_VIA_COMMAND_KB
 

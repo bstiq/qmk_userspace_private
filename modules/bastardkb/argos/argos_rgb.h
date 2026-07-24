@@ -1,7 +1,7 @@
 #include "quantum.h"
 #include "argos.h"
 
-#ifdef RGBLIGHT_SUPPORTED
+#if defined(RGBLIGHT_ENABLE) || defined(RGB_MATRIX_ENABLE)
 
 // bool rgb_matrix_indicators_advanced_module(uint8_t led_min, uint8_t led_max);
 void argos_rgb_init(void);

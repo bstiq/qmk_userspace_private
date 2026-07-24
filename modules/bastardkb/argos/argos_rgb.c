@@ -7,7 +7,7 @@
 #endif
 
 
-#ifdef RGBLIGHT_SUPPORTED
+#if defined(RGBLIGHT_ENABLE) || defined(RGB_MATRIX_ENABLE)
 
 static argos_rgb_t argos_rgb_entries[ARGOS_RGB_MATRIX_ENTRIES];
 

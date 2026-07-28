@@ -1,0 +1,6 @@
+[submodule "qmk_modules"]
+	path = qmk_modules
+	url = https://github.com/drashna/qmk_modules/
+[submodule "modules/drashna"]
+	path = modules/drashna
+	url = https://github.com/drashna/qmk_modules/

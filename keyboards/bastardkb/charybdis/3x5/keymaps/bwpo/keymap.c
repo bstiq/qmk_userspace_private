@@ -70,8 +70,8 @@ static uint16_t auto_pointer_layer_timer = 0;
 // clang-format off
 /** \brief QWERTY layout (3 rows, 10 columns). */
 #define LAYOUT_LAYER_BASE                                                                     \
-       KC_B,    KC_W,    KC_P,    KC_O,    KC_QUOT,    KC_DOT,    KC_V,    KC_D,    KC_L,    KC_J, \
-       KC_A,    KC_U,    KC_I,    KC_E,    KC_COMM,    KC_C,    KC_T,    KC_S,    KC_R, KC_N, \
+       KC_B,    KC_W,    KC_P,    KC_O,    KC_QUOT,    MA_TOGG,    KC_V,    KC_D,    KC_L,    KC_J, \
+       KC_A,    KC_U,    KC_I,    KC_E,    KC_COMM,    MA_TKOF,    MA_GROW,    MA_OFST,    MA_LMT, KC_N, \
        KC_Z,    KC_Y,    KC_X,    KC_SLSH,    KC_K,    KC_M,    KC_Q, KC_G,  KC_H, KC_F, \
                       ESC_MED, SPC_NAV, TAB_FUN, ENT_SYM, SPC_NUM
 
@@ -222,20 +222,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [LAYER_SYMBOLS] = LAYOUT_wrapper(LAYOUT_LAYER_SYMBOLS),
 };
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-    case QK_REG:
-        if (record->event.pressed) {
-            SEND_STRING_DELAY("Regards,\nQuentin Lebastard\nBastard Keyboards",5);
-        } 
-        break;
-    case QK_HELP:
-        if (record->event.pressed) {
-            SEND_STRING_DELAY("I hope this helps, let me know if there's anything else!",5);
-        } 
-        break;
-    }
-    return true;
-}
+// bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+//     switch (keycode) {
+//     case QK_REG:
+//         if (record->event.pressed) {
+//             SEND_STRING_DELAY("Regards,\nQuentin Lebastard\nBastard Keyboards",5);
+//         } 
+//         break;
+//     case QK_HELP:
+//         if (record->event.pressed) {
+//             SEND_STRING_DELAY("I hope this helps, let me know if there's anything else!",5);
+//         } 
+//         break;
+//     }
+//     return true;
+// }
 
 // clang-format on

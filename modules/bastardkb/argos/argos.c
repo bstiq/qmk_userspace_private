@@ -432,7 +432,8 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
     case argos_id_set_dragscroll_dpi: {
 #ifdef BK_HAS_POINTING_DEVICE
             send_data = true; // ack
-            bkpd_set_dragscroll_dpi(command_data[0]);
+            // TODO
+            // bkpd_set_dragscroll_dpi(command_data[0]);
 #endif
         break;
     }

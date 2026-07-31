@@ -46,13 +46,17 @@ ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 // TODO store those in config?
 #define BK_POINTING_DEVICE_MINIMUM_DEFAULT_DPI 400
 #define BK_POINTING_DEVICE_DEFAULT_DPI_CONFIG_STEP 200
+#define BK_POINTING_DEVICE_MAX_DPI_BYTES 4
+
 #define BK_POINTING_DEVICE_MINIMUM_SNIPING_DPI 200
 #define BK_POINTING_DEVICE_SNIPING_DPI_CONFIG_STEP 100
-#define BK_POINTING_DEVICE_DRAGSCROLL_DPI 100
+#define BK_POINTING_DEVICE_MAX_SNIPING_DPI_BYTES 2
+
+#define BK_POINTING_DEVICE_MINIMUM_DRAGSCROLL_DPI 100
+#define BK_POINTING_DEVICE_DRAGSCROLL_DPI_CONFIG_STEP 100
+#define BK_POINTING_DEVICE_MAX_DRAGSCROLL_DPI_BYTES 2
 #define BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE 6
 
-#define BK_POINTING_DEVICE_MAX_DPI_BYTES 4
-#define BK_POINTING_DEVICE_MAX_SNIPING_DPI_BYTES 2
 
 #ifdef POINTING_DEVICE_DRIVER_digitizer
 #define BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE_DIGITIZER 600
@@ -63,6 +67,7 @@ typedef union {
     struct {
         uint8_t pointer_default_dpi : BK_POINTING_DEVICE_MAX_DPI_BYTES; // 16 steps available.
         uint8_t pointer_sniping_dpi : BK_POINTING_DEVICE_MAX_SNIPING_DPI_BYTES; // 4 steps available.
+        uint8_t pointer_dragscroll_dpi : BK_POINTING_DEVICE_MAX_DRAGSCROLL_DPI_BYTES; // 4 steps available.
         bool    is_dragscroll_enabled : 1;
         bool    is_sniping_enabled : 1;
         bool auto_mouse_layer_enabled : 1;
@@ -124,6 +129,12 @@ uint16_t bkpd_get_pointer_sniping_dpi(void) {
     return (uint16_t)g_bkpd_config.pointer_sniping_dpi * bkpd_get_sniping_dpi_config_step() + bkpd_get_minimum_sniping_dpi();
 }
 
+/** \brief Return the current value of the pointer's dragscroll DPI. */
+uint16_t bkpd_get_pointer_dragscroll_dpi(void) {
+    return (uint16_t)g_bkpd_config.pointer_dragscroll_dpi * bkpd_get_dragscroll_dpi_config_step() + bkpd_get_minimum_dragscroll_dpi();
+    return 0;
+}
+
 /**
 * \brief Update the pointer's default DPI to the next or previous step.
 *
@@ -139,6 +150,8 @@ void bkpd_cycle_pointer_default_dpi(bool forward) {
     bkpd_cycle_pointer_default_dpi_noeeprom(forward);
     write_bkpd_config_to_eeprom();
 }
+
+// TODO: cycle dragscroll
 
 /**
 * \brief Update the pointer's sniper-mode DPI to the next or previous step.
@@ -206,16 +219,53 @@ uint16_t bkpd_get_sniping_dpi_config_step(void) {
     return BK_POINTING_DEVICE_SNIPING_DPI_CONFIG_STEP;
 }
 
+uint16_t bkpd_get_minimum_dragscroll_dpi(void) {
+    return BK_POINTING_DEVICE_MINIMUM_DRAGSCROLL_DPI;
+}
+
+uint16_t bkpd_get_dragscroll_dpi_config_step(void) {
+    return BK_POINTING_DEVICE_DRAGSCROLL_DPI_CONFIG_STEP;
+}
+
+void bkpd_set_dragscroll_axis_invert_x(bool invert) {
+    g_bkpd_config.dragscroll_axis_invert_x = invert;
+    write_bkpd_config_to_eeprom();
+}
+
+void bkpd_set_dragscroll_axis_invert_y(bool invert) {
+    g_bkpd_config.dragscroll_axis_invert_y = invert;
+    write_bkpd_config_to_eeprom();
+}
+
+bool bkpd_get_dragscroll_axis_invert_x(void) {
+    return g_bkpd_config.dragscroll_axis_invert_x;
+}
+
+bool bkpd_get_dragscroll_axis_invert_y(void) {
+    return g_bkpd_config.dragscroll_axis_invert_y;
+}   
+
+
 /**
 * \brief Implement drag-scroll.
 */
 report_mouse_t pointing_device_task_bk_pointing_device(report_mouse_t mouse_report) {
     if (is_keyboard_master()) {    
-        static int16_t scroll_buffer_x = 0;
-        static int16_t scroll_buffer_y = 0;
         if (g_bkpd_config.is_dragscroll_enabled) {
-            scroll_buffer_x += (g_bkpd_config.dragscroll_axis_invert_x ? -1 : 1) * mouse_report.x * BK_POINTING_DEVICE_DRAGSCROLL_DPI / BK_POINTING_DEVICE_MINIMUM_DEFAULT_DPI;
-            scroll_buffer_y += (g_bkpd_config.dragscroll_axis_invert_y ? -1 : 1) * mouse_report.y * BK_POINTING_DEVICE_DRAGSCROLL_DPI / BK_POINTING_DEVICE_MINIMUM_DEFAULT_DPI;
+            // dragscroll mode dpi is independent from default dpi
+            float ratio = (float)((float)bkpd_get_pointer_dragscroll_dpi() / (float)bkpd_get_pointer_default_dpi());
+            static float leftover_x = 0;
+            static float leftover_y = 0;
+            float new_x = ((float)mouse_report.x) * ratio + leftover_x;
+            float new_y = ((float)mouse_report.y) * ratio + leftover_y;
+            leftover_x = new_x - (int16_t)new_x;
+            leftover_y = new_y - (int16_t)new_y;
+
+            // accumulate into a buffer before triggering
+            static int16_t scroll_buffer_x = 0;
+            static int16_t scroll_buffer_y = 0;
+            scroll_buffer_x += (g_bkpd_config.dragscroll_axis_invert_x ? -1 : 1) * new_x;
+            scroll_buffer_y += (g_bkpd_config.dragscroll_axis_invert_y ? -1 : 1) * new_y;
             mouse_report.x = 0;
             mouse_report.y = 0;
             if (abs(scroll_buffer_x) > BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE) {
@@ -228,6 +278,7 @@ report_mouse_t pointing_device_task_bk_pointing_device(report_mouse_t mouse_repo
             }
         }
         else if(g_bkpd_config.is_sniping_enabled) {
+            // precision mode dpi is independent from default dpi
             float ratio = (float)((float)bkpd_get_pointer_sniping_dpi() / (float)bkpd_get_pointer_default_dpi());
             static float leftover_x = 0;
             static float leftover_y = 0;
@@ -447,35 +498,6 @@ layer_state_t layer_state_set_bk_pointing_device(layer_state_t state) {
         bkpd_set_pointer_sniping_enabled(layer_state_cmp(state, AUTO_MOUSE_DEFAULT_LAYER));
     }
     return state;
-}
-
-void bkpd_set_dragscroll_axis_invert_x(bool invert) {
-    g_bkpd_config.dragscroll_axis_invert_x = invert;
-    write_bkpd_config_to_eeprom();
-}
-
-void bkpd_set_dragscroll_axis_invert_y(bool invert) {
-    g_bkpd_config.dragscroll_axis_invert_y = invert;
-    write_bkpd_config_to_eeprom();
-}
-
-void bkpd_set_dragscroll_dpi(uint16_t dpi) {
-    // TODO
-    // g_bkpd_config.dragscroll_dpi = dpi;
-    // write_bkpd_config_to_eeprom(&g_bkpd_config);
-}
-
-bool bkpd_get_dragscroll_axis_invert_x(void) {
-    return g_bkpd_config.dragscroll_axis_invert_x;
-}
-
-bool bkpd_get_dragscroll_axis_invert_y(void) {
-    return g_bkpd_config.dragscroll_axis_invert_y;
-}   
-
-uint16_t bkpd_get_dragscroll_dpi(void) {
-    // TODO
-    return 0;
 }
 
 /**

@@ -1,8 +1,7 @@
 {
     "modules": [
         "bastardkb/bk_pointing_device",
-        "bastardkb/argos",
-        "drashna/pointing_device_accel"
+        "bastardkb/argos"
     ],
     "macros": [
         [

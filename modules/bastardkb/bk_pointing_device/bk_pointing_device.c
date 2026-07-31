@@ -132,6 +132,7 @@ uint16_t bkpd_get_pointer_sniping_dpi(void) {
 */
 void bkpd_cycle_pointer_default_dpi_noeeprom(bool forward) {
     g_bkpd_config.pointer_default_dpi += forward ? 1 : -1;
+    pointing_device_set_cpi(bkpd_get_pointer_default_dpi());
 }
 
 void bkpd_cycle_pointer_default_dpi(bool forward) {
@@ -147,6 +148,7 @@ void bkpd_cycle_pointer_default_dpi(bool forward) {
 */
 void bkpd_cycle_pointer_sniping_dpi_noeeprom(bool forward) {
     g_bkpd_config.pointer_sniping_dpi += forward ? 1 : -1;
+    pointing_device_set_cpi(bkpd_get_pointer_default_dpi());
 }
 
 void bkpd_cycle_pointer_sniping_dpi(bool forward) {
@@ -226,8 +228,15 @@ report_mouse_t pointing_device_task_bk_pointing_device(report_mouse_t mouse_repo
             }
         }
         else if(g_bkpd_config.is_sniping_enabled) {
-            mouse_report.x = mouse_report.x * g_bkpd_config.pointer_default_dpi / g_bkpd_config.pointer_sniping_dpi;
-            mouse_report.y = mouse_report.y * g_bkpd_config.pointer_default_dpi / g_bkpd_config.pointer_sniping_dpi;
+            float ratio = (float)((float)bkpd_get_pointer_sniping_dpi() / (float)bkpd_get_pointer_default_dpi());
+            static float leftover_x = 0;
+            static float leftover_y = 0;
+            float new_x = ((float)mouse_report.x) * ratio + leftover_x;
+            float new_y = ((float)mouse_report.y) * ratio + leftover_y;
+            leftover_x = new_x - (int16_t)new_x;
+            leftover_y = new_y - (int16_t)new_y;
+            mouse_report.x = (int16_t)new_x;
+            mouse_report.y = (int16_t)new_y;
         }
         mouse_report = pointing_device_task_user(mouse_report);
     }
@@ -404,6 +413,7 @@ bool rgb_matrix_indicators_advanced_bk_pointing_device(uint8_t led_min, uint8_t 
 */
 void keyboard_post_init_bk_pointing_device(void) {
     read_bkpd_config_from_eeprom();
+    pointing_device_set_cpi(bkpd_get_pointer_default_dpi());
     // TODO: replace with per-module memory management
 #ifdef COMMUNITY_MODULE_ARGOS_ENABLE
 #else

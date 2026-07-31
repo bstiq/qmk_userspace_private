@@ -41,6 +41,9 @@
 #include "digitizer.h"
 #endif
 
+#undef PRINTF_SUPPORT_DECIMAL_SPECIFIERS
+#define PRINTF_SUPPORT_DECIMAL_SPECIFIERS 1
+
 ASSERT_COMMUNITY_MODULES_MIN_API_VERSION(1, 0, 0);
 
 // TODO store those in config?
@@ -523,13 +526,13 @@ bool digitizer_task_kb(digitizer_t *const digitizer_state) {
     // "fake copy" it into the mouse report so that the auto mouse layer may trigger if needed
     report.x = delta_x;
     report.y = delta_y;
+    // handle mouse layer activation on cursor move
     pointing_device_task_auto_mouse(report);
-
-    last_report = *digitizer_state; // copy the state to the last report
 
     // Dragscroll implementation for trackpads
     static int16_t scroll_buffer_x = 0;
     static int16_t scroll_buffer_y = 0;
+
     if (g_bkpd_config.is_dragscroll_enabled) {
         scroll_buffer_x += (g_bkpd_config.dragscroll_axis_invert_x ? -1 : 1) * report.x;
         scroll_buffer_y += (g_bkpd_config.dragscroll_axis_invert_y ? -1 : 1) * report.y;
@@ -562,7 +565,59 @@ bool digitizer_task_kb(digitizer_t *const digitizer_state) {
             }
 #endif
         }
-    } 
+    }
+    else if(g_bkpd_config.is_sniping_enabled) {
+#if DIGITIZER_FINGER_COUNT > 0
+        printf(">>> precision mode\n\n");
+        // first, figure out which finger is being used
+        uint8_t finger_index = 0;
+        for(int i = 0; i < DIGITIZER_FINGER_COUNT; i++) {
+            delta_x = digitizer_state->contacts[i].x - last_report.contacts[i].x;
+            delta_y = digitizer_state->contacts[i].y - last_report.contacts[i].y;
+            printf("finger %d: delta_x: %d, delta_y: %d\n", i, delta_x, delta_y);
+            if(delta_x != 0 || delta_y != 0) {
+                finger_index = i;
+                printf("finger_index: %d\n", finger_index);
+                break;
+            }
+        }
+        // works only with the first finger
+        // delta_x = digitizer_state->contacts[finger_index].x - last_report.contacts[finger_index].x;
+        // delta_y = digitizer_state->contacts[finger_index].y - last_report.contacts[finger_index].y;
+        // precision mode dpi is independent from default dpi
+        float ratio = (float)((float)bkpd_get_pointer_sniping_dpi() / (float)bkpd_get_pointer_default_dpi());
+        printf("ratio: %.3f\n", ratio);
+        static float leftover_x = 0;
+        static float leftover_y = 0;
+        float new_x = ((float)delta_x) * ratio + leftover_x;
+        float new_y = ((float)delta_y) * ratio + leftover_y;
+        leftover_x = new_x - (int16_t)new_x;
+        leftover_y = new_y - (int16_t)new_y;
+        printf("new_x: %d, new_y: %d\n", (int16_t)new_x, (int16_t)new_y);
+        
+        printf("delta_x: %d, delta_y: %d\n", delta_x, delta_y);
+        printf("modified: %d, %d\n", (int16_t)new_x, (int16_t)new_y);
+        printf("PRE-PRECISION: x: %d, x: %d\n", digitizer_state->contacts[finger_index].x, digitizer_state->contacts[finger_index].y);
+        // we want to remove the old delta, and add the new modified delta in 
+        digitizer_state->contacts[finger_index].x = digitizer_state->contacts[finger_index].x - delta_x + (int16_t)new_x;
+        digitizer_state->contacts[finger_index].y = digitizer_state->contacts[finger_index].y - delta_y + (int16_t)new_y;
+        printf("POST-PRECISION: delta_x: %d, delta_y: %d\n", digitizer_state->contacts[finger_index].x, digitizer_state->contacts[finger_index].y);
+
+
+        // TEST manual mouse report
+        report.x = (int16_t)new_x;
+        report.y = (int16_t)new_y;
+        // manually trigger slower mouse report
+        pointing_device_set_report(report);
+        
+        // cancel out regular digitizer movement
+        return false;
+
+    }
+#endif
+
+    last_report = *digitizer_state; // copy the state to the last report
+    
     // trigger a button state changed in master
     return true;
 }

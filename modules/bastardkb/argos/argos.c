@@ -239,7 +239,7 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
         uint8_t index = command_data[0];
         for (int i = 0; i < 4; i++) { // 4 keys per tap dance
             uint16_t keycode =
-                command_data[i * 2 + 1] | (command_data[i * 2 + 2] << 8);
+                (command_data[i * 2 + 1] << 8) | (command_data[i * 2 + 2]);
             argos_tap_dance_set_keycode(index, keycode, i);
         }
         send_data = true; // ack

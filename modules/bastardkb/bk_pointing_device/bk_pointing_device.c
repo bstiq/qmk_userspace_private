@@ -482,10 +482,10 @@ void keyboard_post_init_bk_pointing_device(void) {
 
     if(!g_bkpd_config.has_copied_qmk_config) {
         g_bkpd_config.has_copied_qmk_config = true;
-#ifdef BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_REVERSE_X
+#ifdef BK_POINTING_DEVICE_DRAGSCROLL_REVERSE_X
         g_bkpd_config.dragscroll_axis_invert_x = true;
 #endif
-#ifdef BK_POINTING_DEVICE_BK_POINTING_DEVICE_DRAGSCROLL_REVERSE_Y
+#ifdef BK_POINTING_DEVICE_DRAGSCROLL_REVERSE_Y
         g_bkpd_config.dragscroll_axis_invert_y = true;
 #endif
         write_bkpd_config_to_eeprom();

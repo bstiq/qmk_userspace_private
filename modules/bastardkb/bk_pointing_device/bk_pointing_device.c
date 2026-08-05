@@ -250,52 +250,52 @@ bool bkpd_get_dragscroll_axis_invert_y(void) {
 
 
 /**
-* \brief Implement drag-scroll.
+* \brief Implement drag-scroll. At the moment this does not work, and conflicts with DPI changes (makes cursor jump)
 */
-report_mouse_t pointing_device_task_bk_pointing_device(report_mouse_t mouse_report) {
-    if (is_keyboard_master()) {    
-        if (g_bkpd_config.is_dragscroll_enabled) {
-            // dragscroll mode dpi is independent from default dpi
-            float ratio = (float)((float)bkpd_get_pointer_dragscroll_dpi() / (float)bkpd_get_pointer_default_dpi());
-            static float leftover_x = 0;
-            static float leftover_y = 0;
-            float new_x = ((float)mouse_report.x) * ratio + leftover_x;
-            float new_y = ((float)mouse_report.y) * ratio + leftover_y;
-            leftover_x = new_x - (int16_t)new_x;
-            leftover_y = new_y - (int16_t)new_y;
+// report_mouse_t pointing_device_task_bk_pointing_device(report_mouse_t mouse_report) {
+//     if (is_keyboard_master()) {    
+//         if (g_bkpd_config.is_dragscroll_enabled) {
+//             // dragscroll mode dpi is independent from default dpi
+//             float ratio = (float)((float)bkpd_get_pointer_dragscroll_dpi() / (float)bkpd_get_pointer_default_dpi());
+//             static float leftover_x = 0;
+//             static float leftover_y = 0;
+//             float new_x = ((float)mouse_report.x) * ratio + leftover_x;
+//             float new_y = ((float)mouse_report.y) * ratio + leftover_y;
+//             leftover_x = new_x - (int16_t)new_x;
+//             leftover_y = new_y - (int16_t)new_y;
 
-            // accumulate into a buffer before triggering
-            static int16_t scroll_buffer_x = 0;
-            static int16_t scroll_buffer_y = 0;
-            scroll_buffer_x += (g_bkpd_config.dragscroll_axis_invert_x ? -1 : 1) * new_x;
-            scroll_buffer_y += (g_bkpd_config.dragscroll_axis_invert_y ? -1 : 1) * new_y;
-            mouse_report.x = 0;
-            mouse_report.y = 0;
-            if (abs(scroll_buffer_x) > BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE) {
-                mouse_report.h = scroll_buffer_x > 0 ? 1 : -1;
-                scroll_buffer_x = 0;
-            }
-            if (abs(scroll_buffer_y) > BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE) {
-                mouse_report.v = scroll_buffer_y > 0 ? 1 : -1;
-                scroll_buffer_y = 0;
-            }
-        }
-        else if(g_bkpd_config.is_sniping_enabled) {
-            // precision mode dpi is independent from default dpi
-            float ratio = (float)((float)bkpd_get_pointer_sniping_dpi() / (float)bkpd_get_pointer_default_dpi());
-            static float leftover_x = 0;
-            static float leftover_y = 0;
-            float new_x = ((float)mouse_report.x) * ratio + leftover_x;
-            float new_y = ((float)mouse_report.y) * ratio + leftover_y;
-            leftover_x = new_x - (int16_t)new_x;
-            leftover_y = new_y - (int16_t)new_y;
-            mouse_report.x = (int16_t)new_x;
-            mouse_report.y = (int16_t)new_y;
-        }
-        mouse_report = pointing_device_task_user(mouse_report);
-    }
-    return mouse_report;
-}
+//             // accumulate into a buffer before triggering
+//             static int16_t scroll_buffer_x = 0;
+//             static int16_t scroll_buffer_y = 0;
+//             scroll_buffer_x += (g_bkpd_config.dragscroll_axis_invert_x ? -1 : 1) * new_x;
+//             scroll_buffer_y += (g_bkpd_config.dragscroll_axis_invert_y ? -1 : 1) * new_y;
+//             mouse_report.x = 0;
+//             mouse_report.y = 0;
+//             if (abs(scroll_buffer_x) > BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE) {
+//                 mouse_report.h = scroll_buffer_x > 0 ? 1 : -1;
+//                 scroll_buffer_x = 0;
+//             }
+//             if (abs(scroll_buffer_y) > BK_POINTING_DEVICE_DRAGSCROLL_BUFFER_SIZE) {
+//                 mouse_report.v = scroll_buffer_y > 0 ? 1 : -1;
+//                 scroll_buffer_y = 0;
+//             }
+//         }
+//         else if(g_bkpd_config.is_sniping_enabled) {
+//             // precision mode dpi is independent from default dpi
+//             float ratio = (float)((float)bkpd_get_pointer_sniping_dpi() / (float)bkpd_get_pointer_default_dpi());
+//             static float leftover_x = 0;
+//             static float leftover_y = 0;
+//             float new_x = ((float)mouse_report.x) * ratio + leftover_x;
+//             float new_y = ((float)mouse_report.y) * ratio + leftover_y;
+//             leftover_x = new_x - (int16_t)new_x;
+//             leftover_y = new_y - (int16_t)new_y;
+//             mouse_report.x = (int16_t)new_x;
+//             mouse_report.y = (int16_t)new_y;
+//         }
+//         mouse_report = pointing_device_task_user(mouse_report);
+//     }
+//     return mouse_report;
+// }
 
 // TODO missing && !NO_DILEMMA_KEYCODES?
 //  #    if defined(BK_POINTING_DEVICE_ENABLE) && !defined(NO_BK_POINTING_DEVICE_KEYCODES)

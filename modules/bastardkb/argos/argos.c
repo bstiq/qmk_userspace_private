@@ -450,6 +450,7 @@ bool argos_handle_command(uint8_t *data, uint8_t length) {
 }
 
 // Override via_command_kb to intercept Via protocol commands
+#ifndef ARGOS_DISABLE_VIA_COMMAND_KB
 bool via_command_kb(uint8_t *data, uint8_t length) {
     // try to handle it with argos
     bool result = argos_handle_command(data, length);
@@ -460,6 +461,7 @@ bool via_command_kb(uint8_t *data, uint8_t length) {
     }
     return false;
 }
+#endif // ARGOS_DISABLE_VIA_COMMAND_KB
 
 bool process_record_argos(uint16_t keycode, keyrecord_t *record) {
     // are we capturing all keycodes? (testing keymap)
